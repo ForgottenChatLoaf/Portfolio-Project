@@ -2206,6 +2206,14 @@ footer {
   overflow-x: hidden;
 }
 
+/* Explicitly reset global portfolio section padding for all admin sections */
+.admin-layout section {
+  position: static;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0;
+}
+
 .admin-sidebar {
   width: 260px;
   min-width: 260px;
@@ -2584,12 +2592,14 @@ footer {
   color: #ffffff;
 }
 
+.admin-layout .inbox-section,
 .inbox-section {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 26px;
+  padding: 24px !important;
   box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
 }
 
 .inbox-header {
