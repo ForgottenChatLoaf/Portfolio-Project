@@ -44,31 +44,22 @@ if (!empty($honeypot)) {
     ]);
 }
 
-// 3. Minimum Completion Time Check (flag suspiciously fast submissions < 3 seconds)
-$formLoadTime = isset($input['form_loaded_at']) ? (int)$input['form_loaded_at'] : 0;
-if ($formLoadTime > 0) {
-    // If sent as timestamp in milliseconds
-    if ($formLoadTime > 100000000000) {
-        $formLoadTime = (int)($formLoadTime / 1000);
-    }
-    $elapsed = time() - $formLoadTime;
-    if ($elapsed >= 0 && $elapsed < 3) {
-        send_json_response(422, [
-            'status'  => 'error',
-            'message' => 'Submission received too quickly. Please take a moment before submitting.'
-        ]);
-    }
+// 3. Minimum Completion Time Check (server-side, tamper-proof)
+$issuedAt = (int)($_SESSION['contact_form_issued_at'] ?? 0);
+if ($issuedAt > 0 && (time() - $issuedAt) < 3) {
+    send_json_response(422, [
+        'status'  => 'error',
+        'message' => 'Submission received too quickly. Please take a moment before submitting.'
+    ]);
 }
 
-// 4. CSRF Token Verification (if provided by client session)
+// 4. CSRF Token Verification (strictly required)
 $clientCsrf = $input['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
-if (!empty($_SESSION['csrf_token']) && !empty($clientCsrf)) {
-    if (!verify_csrf_token((string)$clientCsrf)) {
-        send_json_response(403, [
-            'status'  => 'error',
-            'message' => 'Session expired or invalid security token. Please refresh the page and try again.'
-        ]);
-    }
+if (empty($clientCsrf) || !verify_csrf_token((string)$clientCsrf)) {
+    send_json_response(403, [
+        'status'  => 'error',
+        'message' => 'Invalid or missing security token (CSRF). Please reload the page and try again.'
+    ]);
 }
 
 // 5. Server-side Rate Limiting (max 5 submissions per 10 minutes)

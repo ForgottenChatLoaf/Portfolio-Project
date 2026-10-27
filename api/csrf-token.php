@@ -22,6 +22,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
 }
 
 $token = get_csrf_token();
+$_SESSION['contact_form_issued_at'] = time();
 
 send_json_response(200, [
     'status'     => 'success',

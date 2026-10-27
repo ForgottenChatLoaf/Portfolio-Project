@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initProjectScrollers();
   initCarousel();
   initSkillsDrawer();
+  initAdminShortcut();
 });
 
 /* ============================================================
@@ -347,6 +348,25 @@ function initCoffeeNavModal() {
       const modal = document.getElementById('coffeeModal');
       if (modal && modal.classList.contains('active')) {
         closeCoffeeModal();
+      }
+    }
+  });
+}
+
+/* ============================================================
+   ADMIN PORTAL KEYBOARD SHORTCUT
+   (Ctrl + Shift + A or Alt + A -> Redirects to admin/login.html)
+   ============================================================ */
+function initAdminShortcut() {
+  document.addEventListener('keydown', (e) => {
+    const isCtrlShiftA = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a');
+    const isAltA = e.altKey && (e.key === 'A' || e.key === 'a');
+
+    if (isCtrlShiftA || isAltA) {
+      e.preventDefault();
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('/admin/')) {
+        window.location.href = 'admin/login.html';
       }
     }
   });
