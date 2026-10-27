@@ -2206,12 +2206,16 @@ footer {
   overflow-x: hidden;
 }
 
-/* Explicitly reset global portfolio section padding for all admin sections */
+/* Explicitly reset global portfolio section padding and set balanced spacing */
 .admin-layout section {
   position: static;
   width: 100%;
   padding: 0 !important;
-  margin: 0;
+  margin: 0 0 2.25rem 0; /* balanced 2-2.5rem breathing space between sections */
+}
+
+.admin-layout section:last-child {
+  margin-bottom: 0;
 }
 
 .admin-sidebar {
