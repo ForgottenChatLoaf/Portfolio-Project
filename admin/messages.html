@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body id="adminMessagesPage" class="admin-layout">
@@ -67,10 +67,11 @@
         <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
 
-      <div class="topbar-identity">
-        <span class="topbar-user-avatar" id="topbarUserAvatar" aria-hidden="true">A</span>
-        <span class="topbar-user-name" id="topbarUserName">Admin</span>
-      </div>
+      <button type="button" class="topbar-identity-btn" id="openProfileModalBtn" aria-label="Edit Profile & Appearance" title="Edit Profile & Appearance">
+        <span class="topbar-user-avatar" id="topbarUserAvatar" aria-hidden="true">E</span>
+        <span class="topbar-user-name" id="topbarUserName">Ethan</span>
+        <i class="fa-solid fa-sliders" style="font-size: 11px; opacity: 0.7; margin-left: 2px;" aria-hidden="true"></i>
+      </button>
 
       <div class="topbar-actions">
         <button type="button" class="btn-mark-all-read" id="markAllReadBtn" title="Mark all new inquiries as read">
@@ -283,6 +284,86 @@
         </a>
         <button type="button" class="btn-ghost btn-sm" id="detailDoneBtn">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN PROFILE & APPEARANCE EDITOR MODAL (Experimental)
+       ============================================================ -->
+  <div class="admin-modal" id="adminProfileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle" hidden>
+    <div class="modal-backdrop" id="profileModalBackdrop"></div>
+    <div class="modal-box profile-modal-box">
+      <div class="modal-header">
+        <h2 id="profileModalTitle" style="font-family: 'DM Sans', sans-serif; font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-user-gear" style="color: var(--accent);" aria-hidden="true"></i> Admin Profile & Appearance
+        </h2>
+        <button type="button" class="modal-close" id="closeProfileModalBtn" aria-label="Close profile modal">&times;</button>
+      </div>
+
+      <form id="adminProfileForm" novalidate>
+        <div class="modal-body profile-modal-body" style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+          <!-- Display Name -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="profileDisplayNameInput">Display Name</label>
+            <input type="text" id="profileDisplayNameInput" name="display_name" maxlength="50" placeholder="e.g. Ethan" required>
+            <span class="field-hint" style="margin-top: 6px; display: block;">Used in dynamic greetings ("Good evening, Ethan") and top bar.</span>
+          </div>
+
+          <!-- Avatar Management -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Profile Avatar</label>
+            <div class="profile-avatar-management">
+              <div class="avatar-preview-box" id="avatarPreviewBox">
+                <span id="avatarPreviewInitials">E</span>
+                <img id="avatarPreviewImg" src="" alt="Avatar preview" style="display: none;">
+              </div>
+              <div class="avatar-controls">
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <label for="profileAvatarFileInput" class="avatar-upload-btn">
+                    <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Upload Photo
+                  </label>
+                  <input type="file" id="profileAvatarFileInput" name="avatar" accept="image/jpeg,image/png,image/webp" style="display:none;">
+                  <button type="button" class="btn-ghost btn-sm" id="removeAvatarBtn" title="Revert to initials fallback" style="font-size: 12px; color: var(--text-secondary);">
+                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
+                  </button>
+                </div>
+                <div class="field-hint">JPEG, PNG, or WebP. Max 2MB. Safe server validation.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Accent Color -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Dashboard Accent Color</label>
+            <div class="accent-color-grid" id="accentColorGrid" role="radiogroup" aria-label="Select accent color">
+              <!-- Rendered via JS -->
+            </div>
+            <span class="field-hint" style="margin-top: 8px; display: block;">Select a tested dark-mode accent palette. Preserves after logout.</span>
+          </div>
+
+          <!-- Feedback Notices -->
+          <div class="form-feedback" id="profileSuccessNotice" style="display:none;">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="profileSuccessMsg">Profile saved successfully!</span>
+          </div>
+          <div class="form-feedback form-error-box" id="profileErrorNotice" style="display:none;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="profileErrorMsg"></span>
+          </div>
+        </div>
+
+        <div class="modal-footer profile-modal-footer">
+          <button type="button" class="btn-ghost btn-sm" id="resetProfileDefaultsBtn" title="Reset all profile settings to default">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset to Default
+          </button>
+          <div class="modal-footer-actions">
+            <button type="button" class="btn-outline btn-sm" id="cancelProfileModalBtn">Cancel</button>
+            <button type="submit" class="btn-primary btn-sm" id="saveProfileBtn">
+              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Changes
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 

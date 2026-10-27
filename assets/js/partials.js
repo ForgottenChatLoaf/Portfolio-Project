@@ -121,6 +121,15 @@ function initFooter(basePath, isInsideAdmin) {
     yearSpan.textContent = new Date().getFullYear();
   }
 
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  if (backToTopBtn && !backToTopBtn._hasListener) {
+    backToTopBtn._hasListener = true;
+    backToTopBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   if (isInsideAdmin) {
     const footerLogo = document.querySelector('.footer-logo');
     if (footerLogo) footerLogo.setAttribute('href', `${basePath}index.html`);

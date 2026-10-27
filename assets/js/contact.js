@@ -136,11 +136,39 @@ function initContactWorkflow() {
     });
   }
 
+  // Live Character Counter
+  const charCountDisplay = document.getElementById('charCount');
+  const charCounterWrap = document.querySelector('.char-counter-wrap');
+
+  if (messageInput && charCountDisplay) {
+    const updateCharCount = () => {
+      const len = messageInput.value.length;
+      charCountDisplay.textContent = len.toLocaleString();
+      if (charCounterWrap) {
+        if (len > 1900) {
+          charCounterWrap.classList.add('limit-near');
+        } else {
+          charCounterWrap.classList.remove('limit-near');
+        }
+        if (len >= 2000) {
+          charCounterWrap.classList.add('limit-exceeded');
+        } else {
+          charCounterWrap.classList.remove('limit-exceeded');
+        }
+      }
+    };
+
+    messageInput.addEventListener('input', updateCharCount);
+    updateCharCount();
+  }
+
   // Reset button
   if (resetBtn && contactForm) {
     resetBtn.addEventListener('click', () => {
       contactForm.reset();
       clearErrors();
+      if (charCountDisplay) charCountDisplay.textContent = '0';
+      if (charCounterWrap) charCounterWrap.classList.remove('limit-near', 'limit-exceeded');
       if (formSuccess) formSuccess.style.display = 'none';
     });
   }
@@ -214,6 +242,8 @@ function initContactWorkflow() {
         if (res.ok && data.status === 'success') {
           // Success
           contactForm.reset();
+          if (charCountDisplay) charCountDisplay.textContent = '0';
+          if (charCounterWrap) charCounterWrap.classList.remove('limit-near', 'limit-exceeded');
           if (formSuccess) {
             formSuccess.style.display = 'flex';
             formSuccess.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

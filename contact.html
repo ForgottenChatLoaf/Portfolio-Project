@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body data-page="contact">
@@ -47,19 +47,20 @@
     <section id="contact">
       <div class="section-inner">
         <span class="section-eyebrow reveal">Get in Touch</span>
-        <h1 class="section-heading reveal">Contact Me.</h1>
+        <h1 class="section-heading reveal">Have a question, an idea, or just want to say hello?</h1>
+        <p class="section-lead reveal">I'd love to hear from you. Reach out via the direct contact cards or leave a message below.</p>
 
         <div class="contact-layout reveal">
 
           <!-- Left Aside: Contact Coordinates -->
           <div class="contact-aside">
-            <p class="contact-invite">Have a project inquiry, feedback, or just want to say hi? <em>I'd love to hear from you.</em> Send a message and it will be safely logged into my database.</p>
+            <p class="contact-invite">Have a project inquiry, collaboration idea, or feedback? <em>I'm always excited to connect.</em> Your submission will be safely logged into my dashboard inbox.</p>
             
             <div class="contact-info-list">
               <a href="mailto:ethangacud@gmail.com" class="contact-info-item">
                 <span class="ci-icon"><i class="fa-solid fa-envelope"></i></span>
                 <div>
-                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Email</div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Email</div>
                   <span>ethangacud@gmail.com</span>
                 </div>
               </a>
@@ -67,7 +68,7 @@
               <a href="tel:+639398764353" class="contact-info-item">
                 <span class="ci-icon"><i class="fa-solid fa-phone"></i></span>
                 <div>
-                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Phone</div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Phone</div>
                   <span>+63 939 876 4353</span>
                 </div>
               </a>
@@ -75,7 +76,7 @@
               <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" class="contact-info-item">
                 <span class="ci-icon"><i class="fa-brands fa-facebook-f"></i></span>
                 <div>
-                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Facebook</div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Facebook</div>
                   <span>takodachi.inya</span>
                 </div>
               </a>
@@ -83,7 +84,7 @@
               <a href="https://www.linkedin.com/in/ethan-mcclarence-panong-gacud-0568733b7/" target="_blank" rel="noopener noreferrer" class="contact-info-item">
                 <span class="ci-icon"><i class="fa-brands fa-linkedin-in"></i></span>
                 <div>
-                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">LinkedIn</div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">LinkedIn</div>
                   <span>Ethan McClarence Gacud</span>
                 </div>
               </a>
@@ -142,8 +143,11 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="contactMessage">Your Message <span style="font-size:0.8rem; font-weight:normal; color:var(--text-muted);">(Max 2,000 characters)</span></label>
+                  <label for="contactMessage">Your Message</label>
                   <textarea id="contactMessage" name="message" placeholder="Tell me about your project, ask a question, or leave a note..." required maxlength="2000"></textarea>
+                  <div class="char-counter-wrap">
+                    <span id="charCount">0</span> / 2,000 characters
+                  </div>
                   <span class="field-error" id="messageError"></span>
                 </div>
 
@@ -153,6 +157,12 @@
                   </button>
                   <button type="button" class="btn-ghost" id="contactResetBtn">Clear</button>
                 </div>
+
+                <!-- Privacy Note -->
+                <p class="form-privacy-note">
+                  <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                  <span>Your message is sent privately to the portfolio owner and is used only to respond to your inquiry.</span>
+                </p>
 
                 <!-- Feedback Notices -->
                 <div class="form-feedback" id="formSuccess">
@@ -177,24 +187,60 @@
   <!-- Shared Footer -->
   <footer>
     <div class="footer-inner">
-      <a href="index.html" class="footer-logo" aria-label="Ethan McClarence Gacud">ETHAN.</a>
-      
-      <div class="footer-links">
-        <a href="mailto:ethangacud@gmail.com" class="footer-link" aria-label="Send email to Ethan">
-          <i class="fa-solid fa-envelope"></i><span>ethangacud@gmail.com</span>
-        </a>
-        <a href="tel:+639398764353" class="footer-link" aria-label="Call Ethan">
-          <i class="fa-solid fa-phone"></i><span>+63 939 876 4353</span>
-        </a>
-        <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="Ethan on Facebook">
-          <i class="fa-brands fa-facebook-f"></i><span>takodachi.inya</span>
-        </a>
-        <a href="https://www.linkedin.com/in/ethan-mcclarence-panong-gacud-0568733b7/" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="Ethan on LinkedIn">
-          <i class="fa-brands fa-linkedin-in"></i><span>Ethan McClarence Gacud</span>
-        </a>
+      <div class="footer-grid">
+        <!-- Group 1: Brand & Bio -->
+        <div class="footer-col footer-col-brand">
+          <a href="index.html" class="footer-logo" aria-label="Ethan McClarence Gacud Home">ETHAN.</a>
+          <p class="footer-bio">IT student learning, building, and exploring through code. Crafting clean web experiences with modern architecture.</p>
+        </div>
+
+        <!-- Group 2: Public Navigation / Explore -->
+        <div class="footer-col">
+          <h4 class="footer-heading">Explore</h4>
+          <ul class="footer-nav-list">
+            <li><a href="index.html"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a></li>
+            <li><a href="about.html"><i class="fa-solid fa-user" aria-hidden="true"></i> About</a></li>
+            <li><a href="skills.html"><i class="fa-solid fa-code" aria-hidden="true"></i> Skills</a></li>
+            <li><a href="projects.html"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i> Projects</a></li>
+            <li><a href="contact.html"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Contact Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Group 3: Connect -->
+        <div class="footer-col">
+          <h4 class="footer-heading">Connect</h4>
+          <ul class="footer-nav-list">
+            <li>
+              <a href="mailto:ethangacud@gmail.com" aria-label="Send email to Ethan">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i> ethangacud@gmail.com
+              </a>
+            </li>
+            <li>
+              <a href="tel:+639398764353" aria-label="Call Ethan">
+                <i class="fa-solid fa-phone" aria-hidden="true"></i> +63 939 876 4353
+              </a>
+            </li>
+            <li>
+              <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" aria-label="Ethan on Facebook">
+                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i> takodachi.inya
+              </a>
+            </li>
+            <li>
+              <a href="https://www.linkedin.com/in/ethan-mcclarence-panong-gacud-0568733b7/" target="_blank" rel="noopener noreferrer" aria-label="Ethan on LinkedIn">
+                <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i> Ethan McClarence Gacud
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
 
-      <p class="footer-copy">&copy; <span id="currentYear">2026</span> Ethan McClarence Gacud. All rights reserved.</p>
+      <!-- Bottom Row: Copyright + Back to Top -->
+      <div class="footer-bottom">
+        <p class="footer-copy">&copy; <span id="currentYear">2026</span> Ethan McClarence Gacud. All rights reserved.</p>
+        <a href="#navbar" class="back-to-top" id="backToTopBtn" aria-label="Scroll back to top">
+          <i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Back to Top
+        </a>
+      </div>
     </div>
   </footer>
 

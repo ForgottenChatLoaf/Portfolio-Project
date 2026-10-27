@@ -175,29 +175,78 @@ function initAdminDashboard() {
   let activeInspectorTarget = null;
   let csrfToken = '';
 
+  // Profile & Appearance State
+  let currentAdminProfile = {
+    username: 'admin',
+    display_name: 'Ethan',
+    avatar_url: null,
+    accent_color: '#6c63ff'
+  };
+
   // 1. Verify authentication immediately
   verifySession();
 
-  // 2. Initialise greeting, clock, and sidebar
+  // 2. Initialise greeting, clock, sidebar, and profile editor
   initGreetingAndClock();
   initSidebarToggle();
+  initAdminProfileModal();
+
+  function getGreetingForHour(hour, name) {
+    const safeName = (name && name.trim()) ? name.trim() : 'Ethan';
+    // 5:00 AM to 11:59 AM
+    if (hour >= 5 && hour < 12) {
+      return `Good morning, ${safeName}. ☀️`;
+    }
+    // 12:00 PM to 4:59 PM
+    if (hour >= 12 && hour < 17) {
+      return `Good afternoon, ${safeName}. 🌤️`;
+    }
+    // 5:00 PM to 4:59 AM
+    return `Good evening, ${safeName}. 🌙`;
+  }
+
+  function updateGreeting() {
+    const now = new Date();
+    const greeting = getGreetingForHour(now.getHours(), currentAdminProfile.display_name);
+    if (greetingLabel) greetingLabel.textContent = greeting;
+    if (dashCurrentTime) {
+      dashCurrentTime.textContent = now.toLocaleTimeString(undefined, {
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+  }
 
   function initGreetingAndClock() {
-    function updateGreeting() {
-      const now = new Date();
-      const h = now.getHours();
-      const greeting = h < 12 ? 'Good morning, Ethan.' :
-                       h < 17 ? 'Good afternoon, Ethan.' :
-                                'Good evening, Ethan.';
-      if (greetingLabel) greetingLabel.textContent = greeting;
-      if (dashCurrentTime) {
-        dashCurrentTime.textContent = now.toLocaleTimeString(undefined, {
-          hour: '2-digit', minute: '2-digit'
-        });
+    updateGreeting();
+    setInterval(updateGreeting, 60000);
+  }
+
+  function applyAccentColor(hex) {
+    if (!hex) return;
+    const cleanHex = hex.toLowerCase();
+    document.documentElement.style.setProperty('--accent', cleanHex);
+    const r = parseInt(cleanHex.slice(1, 3), 16) || 108;
+    const g = parseInt(cleanHex.slice(3, 5), 16) || 99;
+    const b = parseInt(cleanHex.slice(5, 7), 16) || 255;
+    document.documentElement.style.setProperty('--accent-glow', `rgba(${r}, ${g}, ${b}, 0.28)`);
+    document.documentElement.style.setProperty('--accent-dim', `rgba(${r}, ${g}, ${b}, 0.12)`);
+    document.documentElement.style.setProperty('--border-hover', `rgba(${r}, ${g}, ${b}, 0.45)`);
+  }
+
+  function syncTopbarUser() {
+    const displayName = currentAdminProfile.display_name || currentAdminProfile.username || 'Ethan';
+    if (topbarUserName) {
+      topbarUserName.textContent = displayName;
+    }
+    if (topbarUserAvatar) {
+      if (currentAdminProfile.avatar_url) {
+        topbarUserAvatar.innerHTML = `<img src="../${currentAdminProfile.avatar_url}" alt="${displayName}">`;
+      } else {
+        const initial = displayName.charAt(0).toUpperCase() || 'E';
+        topbarUserAvatar.textContent = initial;
       }
     }
     updateGreeting();
-    setInterval(updateGreeting, 60000);
   }
 
   function initSidebarToggle() {
@@ -231,15 +280,22 @@ function initAdminDashboard() {
         return;
       }
 
-      if (adminUserBadge && data.user?.username) {
-        adminUserBadge.textContent = data.user.username;
+      if (data.csrf_token) {
+        csrfToken = data.csrf_token;
       }
 
-      // Sync topbar user name & avatar initial
-      if (data.user?.username) {
-        const uname = data.user.username;
-        if (topbarUserName) topbarUserName.textContent = uname;
-        if (topbarUserAvatar) topbarUserAvatar.textContent = uname.charAt(0).toUpperCase();
+      if (data.user) {
+        if (data.user.username) currentAdminProfile.username = data.user.username;
+        if (data.user.display_name) currentAdminProfile.display_name = data.user.display_name;
+        if (data.user.avatar_url) currentAdminProfile.avatar_url = data.user.avatar_url;
+        if (data.user.accent_color) {
+          currentAdminProfile.accent_color = data.user.accent_color;
+          applyAccentColor(data.user.accent_color);
+        }
+        if (adminUserBadge && data.user.username) {
+          adminUserBadge.textContent = data.user.username;
+        }
+        syncTopbarUser();
       }
 
       // Session verified; load messages
@@ -945,5 +1001,280 @@ function initAdminDashboard() {
     } catch (e) {
       return raw;
     }
+  }
+
+  /* ============================================================
+     ADMIN PROFILE & APPEARANCE EDITOR (Experimental)
+     ============================================================ */
+  function initAdminProfileModal() {
+    const openBtn = document.getElementById('openProfileModalBtn');
+    const modal = document.getElementById('adminProfileModal');
+    const backdrop = document.getElementById('profileModalBackdrop');
+    const closeBtn = document.getElementById('closeProfileModalBtn');
+    const cancelBtn = document.getElementById('cancelProfileModalBtn');
+    const form = document.getElementById('adminProfileForm');
+    const nameInput = document.getElementById('profileDisplayNameInput');
+    const fileInput = document.getElementById('profileAvatarFileInput');
+    const previewImg = document.getElementById('avatarPreviewImg');
+    const previewInitials = document.getElementById('avatarPreviewInitials');
+    const removeBtn = document.getElementById('removeAvatarBtn');
+    const grid = document.getElementById('accentColorGrid');
+    const resetBtn = document.getElementById('resetProfileDefaultsBtn');
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const successNotice = document.getElementById('profileSuccessNotice');
+    const errorNotice = document.getElementById('profileErrorNotice');
+    const errorMsg = document.getElementById('profileErrorMsg');
+
+    if (!modal) return;
+
+    let selectedAccent = currentAdminProfile.accent_color || '#6c63ff';
+    let clearAvatar = false;
+    let selectedFile = null;
+
+    const ACCENT_PRESETS = [
+      { name: 'Violet', value: '#6c63ff' },
+      { name: 'Ocean Blue', value: '#3b82f6' },
+      { name: 'Teal', value: '#14b8a6' },
+      { name: 'Emerald', value: '#10b981' },
+      { name: 'Amber', value: '#f59e0b' },
+      { name: 'Rose', value: '#ec4899' },
+      { name: 'Indigo Purple', value: '#8b5cf6' },
+      { name: 'Cyan', value: '#06b6d4' }
+    ];
+
+    function renderAccentGrid() {
+      if (!grid) return;
+      grid.innerHTML = '';
+      ACCENT_PRESETS.forEach(preset => {
+        const swatch = document.createElement('button');
+        swatch.type = 'button';
+        swatch.className = 'accent-swatch' + (preset.value.toLowerCase() === selectedAccent.toLowerCase() ? ' active' : '');
+        swatch.style.backgroundColor = preset.value;
+        swatch.style.color = preset.value;
+        swatch.setAttribute('aria-label', preset.name + ' accent');
+        swatch.title = preset.name;
+        swatch.addEventListener('click', () => {
+          selectedAccent = preset.value;
+          renderAccentGrid();
+          applyAccentColor(selectedAccent);
+        });
+        grid.appendChild(swatch);
+      });
+    }
+
+    function syncAvatarPreview() {
+      if (clearAvatar) {
+        if (previewImg) previewImg.style.display = 'none';
+        if (previewInitials) {
+          previewInitials.style.display = 'inline';
+          previewInitials.textContent = (nameInput?.value || currentAdminProfile.display_name || 'E').charAt(0).toUpperCase();
+        }
+      } else if (selectedFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (previewImg) {
+            previewImg.src = e.target.result;
+            previewImg.style.display = 'block';
+          }
+          if (previewInitials) previewInitials.style.display = 'none';
+        };
+        reader.readAsDataURL(selectedFile);
+      } else if (currentAdminProfile.avatar_url) {
+        if (previewImg) {
+          previewImg.src = '../' + currentAdminProfile.avatar_url;
+          previewImg.style.display = 'block';
+        }
+        if (previewInitials) previewInitials.style.display = 'none';
+      } else {
+        if (previewImg) previewImg.style.display = 'none';
+        if (previewInitials) {
+          previewInitials.style.display = 'inline';
+          previewInitials.textContent = (nameInput?.value || currentAdminProfile.display_name || 'E').charAt(0).toUpperCase();
+        }
+      }
+    }
+
+    function openModal() {
+      if (nameInput) nameInput.value = currentAdminProfile.display_name || 'Ethan';
+      selectedAccent = currentAdminProfile.accent_color || '#6c63ff';
+      clearAvatar = false;
+      selectedFile = null;
+      if (fileInput) fileInput.value = '';
+      if (successNotice) successNotice.style.display = 'none';
+      if (errorNotice) errorNotice.style.display = 'none';
+
+      renderAccentGrid();
+      syncAvatarPreview();
+
+      modal.hidden = false;
+      modal.classList.add('show');
+      nameInput?.focus();
+    }
+
+    function closeModal() {
+      modal.hidden = true;
+      modal.classList.remove('show');
+      // Revert accent preview to saved profile if cancelled
+      applyAccentColor(currentAdminProfile.accent_color || '#6c63ff');
+    }
+
+    openBtn?.addEventListener('click', openModal);
+    backdrop?.addEventListener('click', closeModal);
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) {
+        closeModal();
+      }
+    });
+
+    nameInput?.addEventListener('input', () => {
+      if (!selectedFile && !currentAdminProfile.avatar_url) {
+        if (previewInitials) {
+          previewInitials.textContent = (nameInput.value || 'E').charAt(0).toUpperCase();
+        }
+      }
+    });
+
+    fileInput?.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        if (file.size > 2 * 1024 * 1024) {
+          if (errorMsg) errorMsg.textContent = 'Avatar file size must be less than 2MB.';
+          if (errorNotice) errorNotice.style.display = 'flex';
+          fileInput.value = '';
+          return;
+        }
+        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          if (errorMsg) errorMsg.textContent = 'Only JPEG, PNG, or WebP images are allowed.';
+          if (errorNotice) errorNotice.style.display = 'flex';
+          fileInput.value = '';
+          return;
+        }
+        selectedFile = file;
+        clearAvatar = false;
+        if (errorNotice) errorNotice.style.display = 'none';
+        syncAvatarPreview();
+      }
+    });
+
+    removeBtn?.addEventListener('click', () => {
+      clearAvatar = true;
+      selectedFile = null;
+      if (fileInput) fileInput.value = '';
+      syncAvatarPreview();
+    });
+
+    resetBtn?.addEventListener('click', async () => {
+      if (!confirm('Reset profile display name, avatar, and accent color to defaults?')) return;
+      if (resetBtn) resetBtn.disabled = true;
+
+      try {
+        const token = await ensureCsrfToken();
+        const res = await fetch('../api/admin-profile.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-Token': token
+          },
+          body: JSON.stringify({ action: 'reset', csrf_token: token })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          currentAdminProfile = {
+            username: currentAdminProfile.username || 'admin',
+            display_name: 'Ethan',
+            avatar_url: null,
+            accent_color: '#6c63ff'
+          };
+          if (data.csrf_token) csrfToken = data.csrf_token;
+          applyAccentColor('#6c63ff');
+          syncTopbarUser();
+          closeModal();
+          showToast('Profile reset to default settings.', 'success');
+        } else {
+          if (errorMsg) errorMsg.textContent = data.message || 'Could not reset profile.';
+          if (errorNotice) errorNotice.style.display = 'flex';
+        }
+      } catch (err) {
+        console.error('Reset profile error:', err);
+        if (errorMsg) errorMsg.textContent = 'Server error during reset.';
+        if (errorNotice) errorNotice.style.display = 'flex';
+      } finally {
+        if (resetBtn) resetBtn.disabled = false;
+      }
+    });
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (successNotice) successNotice.style.display = 'none';
+      if (errorNotice) errorNotice.style.display = 'none';
+
+      const dName = nameInput?.value.trim() || 'Ethan';
+      if (!dName) {
+        if (errorMsg) errorMsg.textContent = 'Please enter a valid display name.';
+        if (errorNotice) errorNotice.style.display = 'flex';
+        return;
+      }
+
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+      }
+
+      try {
+        const token = await ensureCsrfToken();
+        const formData = new FormData();
+        formData.append('display_name', dName);
+        formData.append('accent_color', selectedAccent);
+        formData.append('csrf_token', token);
+
+        if (selectedFile) {
+          formData.append('avatar', selectedFile);
+        } else if (clearAvatar) {
+          formData.append('clear_avatar', '1');
+        }
+
+        const res = await fetch('../api/admin-profile.php', {
+          method: 'POST',
+          headers: {
+            'X-CSRF-Token': token
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          currentAdminProfile = {
+            username: data.profile.username || currentAdminProfile.username,
+            display_name: data.profile.display_name || dName,
+            avatar_url: data.profile.avatar_url || null,
+            accent_color: data.profile.accent_color || selectedAccent
+          };
+          if (data.csrf_token) csrfToken = data.csrf_token;
+
+          applyAccentColor(currentAdminProfile.accent_color);
+          syncTopbarUser();
+          closeModal();
+          showToast('Admin profile & appearance saved!', 'success');
+        } else {
+          if (errorMsg) errorMsg.textContent = data.message || 'Failed to save profile changes.';
+          if (errorNotice) errorNotice.style.display = 'flex';
+        }
+      } catch (err) {
+        console.error('Save profile error:', err);
+        if (errorMsg) errorMsg.textContent = 'Connection error. Please try again.';
+        if (errorNotice) errorNotice.style.display = 'flex';
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+        }
+      }
+    });
   }
 }

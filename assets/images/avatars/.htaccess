@@ -1,0 +1,13 @@
+# Deny execution of scripts in the avatars upload directory
+<FilesMatch "(?i)\.(php|phtml|php3|php4|php5|php7|php8|phar|cgi|pl|py|sh|bash)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Only allow images
+<FilesMatch "(?i)\.(jpg|jpeg|png|webp|gif)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+Options -ExecCGI -Indexes

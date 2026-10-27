@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap');
 
 /* ============================================================
    ETHAN MCCLARENCE GACUD — PORTFOLIO STYLESHEET
@@ -10,6 +10,8 @@
    1. Design Tokens and Global Styles
    ============================================================ */
 :root {
+  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   /* Dark Mode (Default) */
   --bg: #0a0a0a;
   --bg-surface: #111111;
@@ -105,7 +107,7 @@ img {
 
 button {
   cursor: pointer;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   border: none;
   background: none;
 }
@@ -135,7 +137,7 @@ button {
 }
 
 .loader-logo {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 2.2rem;
   letter-spacing: 4px;
@@ -143,7 +145,7 @@ button {
 }
 
 .loader-counter {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 4rem;
   font-weight: 800;
   color: var(--text-primary);
@@ -213,7 +215,7 @@ section {
    2. Typography
    ============================================================ */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   line-height: 1.15;
   color: var(--text-primary);
@@ -241,11 +243,11 @@ p, li, a, input, textarea, label {
 }
 
 .section-heading {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(2.4rem, 6vw, 3.8rem);
-  letter-spacing: -1.5px;
-  margin-bottom: 36px;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  letter-spacing: -0.015em;
+  margin-bottom: 32px;
   color: var(--text-primary);
 }
 
@@ -282,7 +284,7 @@ p, li, a, input, textarea, label {
 }
 
 .nav-logo {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.35rem;
   letter-spacing: 3px;
@@ -434,7 +436,7 @@ p, li, a, input, textarea, label {
   padding: 13px 26px;
   background: var(--accent);
   color: #ffffff;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 14px;
   border-radius: 100px;
@@ -456,7 +458,7 @@ p, li, a, input, textarea, label {
   padding: 13px 26px;
   background: transparent;
   color: var(--text-primary);
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 14px;
   border-radius: 100px;
@@ -479,7 +481,7 @@ p, li, a, input, textarea, label {
   padding: 13px 24px;
   background: rgba(245, 158, 11, 0.12);
   color: var(--coffee-accent);
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 13.5px;
   border-radius: 100px;
@@ -596,17 +598,17 @@ p, li, a, input, textarea, label {
 }
 
 .hero-content h1 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(3.6rem, 10vw, 7.5rem);
-  line-height: 1.03;
-  letter-spacing: -3px;
+  font-size: clamp(3.2rem, 8vw, 6rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
   color: var(--text-primary);
   margin-bottom: 20px;
 }
 
 .hero-sub {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: clamp(1.2rem, 2.5vw, 1.6rem);
   font-weight: 400;
   color: var(--text-secondary);
@@ -751,7 +753,7 @@ p, li, a, input, textarea, label {
 }
 
 .cert-group-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.45rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -841,7 +843,7 @@ p, li, a, input, textarea, label {
   padding: 10px 18px;
   background: var(--accent);
   color: #ffffff;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 13px;
   border-radius: 100px;
@@ -903,7 +905,7 @@ p, li, a, input, textarea, label {
 }
 
 .cert-card-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -947,7 +949,7 @@ p, li, a, input, textarea, label {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   font-size: 12.5px;
   transition: all 0.2s ease;
@@ -969,7 +971,7 @@ p, li, a, input, textarea, label {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   font-size: 12.5px;
   transition: all 0.2s ease;
@@ -1190,7 +1192,7 @@ p, li, a, input, textarea, label {
 }
 
 .project-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.6rem;
   letter-spacing: -0.5px;
@@ -1208,7 +1210,7 @@ p, li, a, input, textarea, label {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 700;
   font-size: 13.5px;
   color: var(--accent);
@@ -1298,7 +1300,7 @@ p, li, a, input, textarea, label {
 }
 
 .step-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.45rem;
   margin-bottom: 12px;
@@ -1439,7 +1441,7 @@ footer {
 }
 
 .footer-logo {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.3rem;
   letter-spacing: 3px;
@@ -1505,6 +1507,8 @@ footer {
 
 @media (max-width: 768px) {
   :root {
+  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --nav-h: 62px;
   }
 
@@ -1751,7 +1755,7 @@ footer {
 }
 
 .stat-value {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 2.2rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -2271,7 +2275,7 @@ footer {
 }
 
 .sidebar-brand .nav-logo {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.5px;
@@ -2477,7 +2481,7 @@ footer {
 }
 
 .dash-greeting-label {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.85rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -2523,7 +2527,7 @@ footer {
 }
 
 .quick-actions-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -2642,7 +2646,7 @@ footer {
 }
 
 .inbox-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -2838,7 +2842,7 @@ footer {
 }
 
 .project-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-weight: 800;
   font-size: 1.65rem;
   letter-spacing: -0.5px;
@@ -2961,7 +2965,7 @@ footer {
 }
 
 .trigger-info h3 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -3042,7 +3046,7 @@ footer {
 }
 
 .drawer-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.55rem;
   font-weight: 800;
   color: var(--text-primary);
@@ -3386,7 +3390,7 @@ kbd {
 }
 
 .coffee-modal-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-heading);
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -3477,3 +3481,382 @@ kbd {
   border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
+
+
+/* ============================================================
+   12. 3-Column Editorial Footer & Back to Top
+   ============================================================ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 60px 6% 36px;
+  background: #09090b;
+  margin-top: auto;
+}
+
+.footer-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-col-brand .footer-logo {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  display: inline-block;
+}
+
+.footer-bio {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 320px;
+}
+
+.footer-heading {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.footer-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-nav-list a {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-nav-list a:hover {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-copy {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.back-to-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.back-to-top:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: var(--bg-elevated);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================================
+   13. Contact Page Enhancements (Cards, Counter, Privacy)
+   ============================================================ */
+.contact-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  transition: var(--transition);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+.contact-info-item:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--accent-dim);
+}
+
+.ci-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.contact-info-item:hover .ci-icon {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+.char-counter-wrap {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.char-counter-wrap.limit-near {
+  color: #f59e0b;
+}
+
+.char-counter-wrap.limit-exceeded {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.form-privacy-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 18px;
+  line-height: 1.5;
+}
+
+.form-privacy-note i {
+  color: var(--accent);
+}
+
+/* ============================================================
+   14. Admin Profile Editor Modal & Dynamic Accents
+   ============================================================ */
+.topbar-identity-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.topbar-identity-btn:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card);
+  transform: translateY(-1px);
+}
+
+.topbar-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+.topbar-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-modal-box {
+  max-width: 520px;
+  width: 90%;
+  background: #121214;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+
+.profile-avatar-management {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.avatar-preview-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.avatar-preview-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.avatar-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  background: var(--bg-elevated);
+  transition: var(--transition);
+}
+
+.avatar-upload-btn:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.accent-color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.accent-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  position: relative;
+}
+
+.accent-swatch:hover {
+  transform: scale(1.15);
+}
+
+.accent-swatch.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3), 0 0 16px currentColor;
+  transform: scale(1.1);
+}
+
+.accent-swatch.active::after {
+  content: '✓';
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+.profile-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: #0d0d0f;
+  border-top: 1px solid var(--border);
+}
+
+.profile-modal-footer .modal-footer-actions {
+  display: flex;
+  gap: 10px;
+}

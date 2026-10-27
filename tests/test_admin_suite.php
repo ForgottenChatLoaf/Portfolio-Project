@@ -377,6 +377,143 @@ assert_test(
 $pdo->exec("DELETE FROM contact_messages WHERE id IN ({$markId1}, {$markId2})");
 
 // -------------------------------------------------------------
+// TEST 11: Admin Profile & Appearance Customization Suite
+// -------------------------------------------------------------
+echo "\n--- 11. Admin Profile & Customization Endpoint Tests ---\n";
+
+if (!function_exists('extract_http_code')) {
+    function extract_http_code(?array $headers): int {
+        if (!empty($headers[0]) && preg_match('{HTTP\/\S*\s(\d{3})}', $headers[0], $m)) {
+            return (int)$m[1];
+        }
+        return 0;
+    }
+}
+
+// 11.1 Check DB columns in admin_users
+$adminCols = [];
+$cStmt = $pdo->query("SHOW COLUMNS FROM admin_users");
+while ($r = $cStmt->fetch(PDO::FETCH_ASSOC)) {
+    $adminCols[$r['Field']] = $r['Type'];
+}
+assert_test(
+    "admin_users table has 'display_name' column",
+    isset($adminCols['display_name']),
+    "Type: " . ($adminCols['display_name'] ?? 'missing')
+);
+assert_test(
+    "admin_users table has 'avatar_url' column",
+    isset($adminCols['avatar_url']),
+    "Type: " . ($adminCols['avatar_url'] ?? 'missing')
+);
+assert_test(
+    "admin_users table has 'accent_color' column",
+    isset($adminCols['accent_color']),
+    "Type: " . ($adminCols['accent_color'] ?? 'missing')
+);
+
+// 11.2 Unauthenticated GET to /api/admin-profile.php rejected with 401
+$unauthProfileOpts = [
+    'http' => [
+        'method'        => 'GET',
+        'ignore_errors' => true
+    ]
+];
+$unauthProfileRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($unauthProfileOpts));
+$unauthProfileStatus = extract_http_code($http_response_header ?? []);
+assert_test(
+    "GET /api/admin-profile.php without session rejected with 401",
+    $unauthProfileStatus === 401,
+    "HTTP Status: {$unauthProfileStatus}"
+);
+
+// 11.3 Authenticated GET to /api/admin-profile.php returns 200 & profile details
+$authProfileOpts = [
+    'http' => [
+        'method'        => 'GET',
+        'header'        => "Cookie: {$sessionCookie}\r\n",
+        'ignore_errors' => true
+    ]
+];
+$authProfileRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($authProfileOpts));
+$authProfileJson = json_decode($authProfileRes, true);
+assert_test(
+    "GET /api/admin-profile.php with session returns 200 & profile data",
+    ($authProfileJson['status'] ?? '') === 'success' && isset($authProfileJson['profile']['display_name']),
+    "Display name: " . ($authProfileJson['profile']['display_name'] ?? 'none') . ", Accent: " . ($authProfileJson['profile']['accent_color'] ?? 'none')
+);
+
+// 11.4 Updating profile without CSRF token rejected with 403
+$noCsrfProfileOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "Cookie: {$sessionCookie}\r\nContent-Type: application/json\r\n",
+        'content'       => json_encode(['display_name' => 'Ethan Updated']),
+        'ignore_errors' => true
+    ]
+];
+$noCsrfProfileRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($noCsrfProfileOpts));
+$noCsrfProfileStatus = extract_http_code($http_response_header ?? []);
+assert_test(
+    "Profile update without CSRF token rejected with 403 Forbidden",
+    $noCsrfProfileStatus === 403,
+    "HTTP Status: {$noCsrfProfileStatus}"
+);
+
+// 11.5 Updating profile with invalid accent color rejected with 422
+$invalidAccentOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "Cookie: {$sessionCookie}\r\nContent-Type: application/json\r\nX-CSRF-Token: {$csrfToken}\r\n",
+        'content'       => json_encode(['display_name' => 'Ethan Custom', 'accent_color' => '#123456_invalid', 'csrf_token' => $csrfToken]),
+        'ignore_errors' => true
+    ]
+];
+$invalidAccentRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($invalidAccentOpts));
+$invalidAccentStatus = extract_http_code($http_response_header ?? []);
+assert_test(
+    "Profile update with invalid accent color rejected with 422 Unprocessable",
+    $invalidAccentStatus === 422,
+    "HTTP Status: {$invalidAccentStatus}"
+);
+
+// 11.6 Valid profile update persists to database
+$validProfileOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "Cookie: {$sessionCookie}\r\nContent-Type: application/json\r\nX-CSRF-Token: {$csrfToken}\r\n",
+        'content'       => json_encode(['display_name' => 'Ethan Gacud', 'accent_color' => '#14b8a6', 'csrf_token' => $csrfToken]),
+        'ignore_errors' => true
+    ]
+];
+$validProfileRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($validProfileOpts));
+$validProfileJson = json_decode($validProfileRes, true);
+$dbProfile = $pdo->query("SELECT display_name, accent_color FROM admin_users WHERE username = 'admin'")->fetch(PDO::FETCH_ASSOC);
+assert_test(
+    "Profile update with valid parameters succeeds & persists in DB",
+    ($validProfileJson['status'] ?? '') === 'success' && ($dbProfile['display_name'] ?? '') === 'Ethan Gacud' && ($dbProfile['accent_color'] ?? '') === '#14b8a6',
+    "DB Name: " . ($dbProfile['display_name'] ?? '') . ", DB Accent: " . ($dbProfile['accent_color'] ?? '')
+);
+
+// 11.7 Reset to Default action restores defaults
+$resetOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "Cookie: {$sessionCookie}\r\nContent-Type: application/json\r\nX-CSRF-Token: {$csrfToken}\r\n",
+        'content'       => json_encode(['action' => 'reset', 'csrf_token' => $csrfToken]),
+        'ignore_errors' => true
+    ]
+];
+$resetRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($resetOpts));
+$resetJson = json_decode($resetRes, true);
+$dbResetProfile = $pdo->query("SELECT display_name, accent_color, avatar_url FROM admin_users WHERE username = 'admin'")->fetch(PDO::FETCH_ASSOC);
+assert_test(
+    "Reset to Default action restores display_name='Ethan', accent_color='#6c63ff', avatar_url=NULL",
+    ($resetJson['status'] ?? '') === 'success' && ($dbResetProfile['display_name'] ?? '') === 'Ethan' && ($dbResetProfile['accent_color'] ?? '') === '#6c63ff' && empty($dbResetProfile['avatar_url']),
+    "DB Name: {$dbResetProfile['display_name']}, DB Accent: {$dbResetProfile['accent_color']}"
+);
+
+// -------------------------------------------------------------
 // SUMMARY
 // -------------------------------------------------------------
 echo "\n======================================================\n";
