@@ -10,7 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initShootingStars();
   initScrollReveal();
   initCoffeeButton();
+  initDownloadCv();
   initProjectScrollers();
+  initCarousel();
+  initSkillsDrawer();
 });
 
 /* ============================================================
@@ -228,7 +231,7 @@ function initScrollReveal() {
 }
 
 /* ============================================================
-   6. BUY ME A COFFEE BUTTON (Phase 4 Placeholder)
+   6. BUY ME A COFFEE BUTTON
    ============================================================ */
 function initCoffeeButton() {
   const coffeeBtn = document.getElementById('buyMeCoffeeBtn');
@@ -237,13 +240,25 @@ function initCoffeeButton() {
   coffeeBtn.addEventListener('click', (e) => {
     e.preventDefault();
     // TODO: Replace with real Buy Me a Coffee or Ko-fi URL once Ethan sets up donations
-    // Example: window.open('https://buymeacoffee.com/ethangacud', '_blank', 'noopener,noreferrer');
     showToast('Buy Me a Coffee link is coming soon! Thank you for your support.');
   });
 }
 
 /* ============================================================
-   7. PROJECT IMAGE SCROLLERS
+   7. DOWNLOAD CV BUTTON (placeholder — file not yet ready)
+   ============================================================ */
+function initDownloadCv() {
+  const cvBtn = document.getElementById('downloadCvBtn');
+  if (!cvBtn) return;
+
+  cvBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showToast('CV / Resume file is currently being updated and will be available for download soon.');
+  });
+}
+
+/* ============================================================
+   8. PROJECT IMAGE SCROLLERS (within carousel slides)
    ============================================================ */
 function initProjectScrollers() {
   const slideImages = document.querySelectorAll('.slide-image');
@@ -273,7 +288,260 @@ function initProjectScrollers() {
 }
 
 /* ============================================================
-   8. TOAST NOTIFICATION HELPER
+   9. PROJECT CAROUSEL
+   ============================================================ */
+function initCarousel() {
+  const track = document.getElementById('carouselTrack');
+  const prevBtn = document.getElementById('carouselPrev');
+  const nextBtn = document.getElementById('carouselNext');
+  const dotsContainer = document.getElementById('carouselDots');
+  const counter = document.getElementById('carouselCounter');
+
+  if (!track || !prevBtn || !nextBtn || !dotsContainer || !counter) return;
+
+  const slides = Array.from(track.children);
+  const slideCount = slides.length;
+  let currentIndex = 0;
+  let isAnimating = false;
+
+  // Create dots
+  slides.forEach((_, idx) => {
+    const dot = document.createElement('div');
+    dot.classList.add('carousel-dot');
+    if (idx === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => goToSlide(idx));
+    dotsContainer.appendChild(dot);
+  });
+
+  const dots = Array.from(dotsContainer.children);
+
+  function updateCarousel() {
+    isAnimating = true;
+    setTimeout(() => isAnimating = false, 600);
+
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    dots.forEach(dot => dot.classList.remove('active'));
+    dots[currentIndex].classList.add('active');
+
+    counter.textContent = `${currentIndex + 1} / ${slideCount}`;
+  }
+
+  function goToSlide(index) {
+    if (isAnimating || currentIndex === index) return;
+    currentIndex = index;
+    updateCarousel();
+  }
+
+  prevBtn.addEventListener('click', () => {
+    if (isAnimating) return;
+    currentIndex = currentIndex > 0 ? currentIndex - 1 : slideCount - 1;
+    updateCarousel();
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (isAnimating) return;
+    currentIndex = currentIndex < slideCount - 1 ? currentIndex + 1 : 0;
+    updateCarousel();
+  });
+
+  // Touch swipe support
+  let startX = 0;
+  let endX = 0;
+
+  track.addEventListener('touchstart', e => {
+    startX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  track.addEventListener('touchend', e => {
+    endX = e.changedTouches[0].screenX;
+    if (isAnimating) return;
+    const threshold = 50;
+    if (startX - endX > threshold) {
+      currentIndex = currentIndex < slideCount - 1 ? currentIndex + 1 : 0;
+      updateCarousel();
+    } else if (endX - startX > threshold) {
+      currentIndex = currentIndex > 0 ? currentIndex - 1 : slideCount - 1;
+      updateCarousel();
+    }
+  }, { passive: true });
+
+  // Auto-scroll with pause on hover / touch
+  let autoScrollInterval;
+
+  function startAutoScroll() {
+    autoScrollInterval = setInterval(() => {
+      currentIndex = currentIndex < slideCount - 1 ? currentIndex + 1 : 0;
+      updateCarousel();
+    }, 5000);
+  }
+
+  function stopAutoScroll() {
+    clearInterval(autoScrollInterval);
+  }
+
+  track.addEventListener('mouseenter', stopAutoScroll);
+  track.addEventListener('mouseleave', startAutoScroll);
+  track.addEventListener('touchstart', stopAutoScroll, { passive: true });
+  track.addEventListener('touchend', startAutoScroll, { passive: true });
+
+  updateCarousel();
+  startAutoScroll();
+}
+
+/* ============================================================
+   10. SKILLS DRAWER (off-canvas panel)
+   ============================================================ */
+function initSkillsDrawer() {
+  const openBtn        = document.getElementById('openSkillsDrawer');
+  const closeBtn       = document.getElementById('closeSkillsDrawer');
+  const closeBtnBottom = document.getElementById('closeSkillsDrawerBottom');
+  const overlay        = document.getElementById('skillsDrawerOverlay');
+  const drawer         = document.getElementById('skillsDrawer');
+  const searchInput    = document.getElementById('skillsSearch');
+  const clearBtn       = document.getElementById('clearSkillsSearch');
+  const catBtns        = document.querySelectorAll('.drawer-cat-btn');
+  const grid           = document.getElementById('drawerSkillsGrid');
+  const emptyState     = document.getElementById('drawerEmpty');
+  const emptyTerm      = document.getElementById('emptySearchTerm');
+  const countBadge     = document.getElementById('skillsCountBadge');
+
+  if (!drawer || !overlay) return;
+
+  const allCards = Array.from(drawer.querySelectorAll('.skill-card'));
+  let activeFilter = 'all';
+  let activatedBars = new Set();
+
+  // ── Open ───────────────────────────────────────────────────
+  function openDrawer() {
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (openBtn) openBtn.setAttribute('aria-expanded', 'true');
+    setTimeout(() => {
+      if (searchInput) searchInput.focus();
+      animateVisibleBars();
+    }, 420);
+  }
+
+  // ── Close ──────────────────────────────────────────────────
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  if (openBtn)        openBtn.addEventListener('click', openDrawer);
+  if (closeBtn)       closeBtn.addEventListener('click', closeDrawer);
+  if (closeBtnBottom) closeBtnBottom.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+  });
+
+  // ── Filter + Search ────────────────────────────────────────
+  function applyFilters() {
+    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    let visibleCount = 0;
+
+    allCards.forEach(card => {
+      const name     = (card.dataset.name     || '').toLowerCase();
+      const category = (card.dataset.category || '').toLowerCase();
+      const tooltip  = (card.dataset.tooltip  || '').toLowerCase();
+
+      const matchesCategory = (activeFilter === 'all') || (category === activeFilter);
+      const matchesSearch   = !query || name.includes(query) || tooltip.includes(query) || category.includes(query);
+
+      if (matchesCategory && matchesSearch) {
+        card.classList.remove('filtered-out');
+        visibleCount++;
+      } else {
+        card.classList.add('filtered-out');
+      }
+    });
+
+    if (emptyState) {
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+      if (emptyTerm) emptyTerm.textContent = searchInput?.value || '';
+    }
+    if (grid) grid.style.display = visibleCount === 0 ? 'none' : 'grid';
+    if (countBadge) countBadge.textContent = `${visibleCount} Technolog${visibleCount === 1 ? 'y' : 'ies'}`;
+
+    animateVisibleBars();
+  }
+
+  // ── Animate Skill Bars (once per card) ─────────────────────
+  function animateVisibleBars() {
+    allCards.forEach((card, idx) => {
+      if (!card.classList.contains('filtered-out') && !activatedBars.has(card)) {
+        const delay = idx * 40;
+        setTimeout(() => {
+          card.classList.add('bar-animated');
+          activatedBars.add(card);
+        }, delay);
+      }
+    });
+  }
+
+  // ── Category tabs ──────────────────────────────────────────
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      if (searchInput) searchInput.value = '';
+      if (clearBtn)    clearBtn.style.display = 'none';
+      applyFilters();
+    });
+  });
+
+  // ── Live search ────────────────────────────────────────────
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const hasVal = searchInput.value.length > 0;
+      if (clearBtn) clearBtn.style.display = hasVal ? 'block' : 'none';
+      catBtns.forEach(b => b.classList.remove('active'));
+      const allBtn = drawer.querySelector('[data-filter="all"]');
+      if (allBtn) allBtn.classList.add('active');
+      activeFilter = 'all';
+      applyFilters();
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (searchInput) { searchInput.value = ''; searchInput.focus(); }
+      clearBtn.style.display = 'none';
+      applyFilters();
+    });
+  }
+
+  // ── 3D Tilt on drawer skill cards ─────────────────────────
+  const MAX_TILT = 14;
+  allCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const dx = (e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2);
+      const dy = (e.clientY - rect.top  - rect.height / 2) / (rect.height / 2);
+      card.style.transform = `perspective(600px) rotateX(${-dy * MAX_TILT}deg) rotateY(${dx * MAX_TILT}deg) translateY(-4px) scale(1.04)`;
+      card.style.boxShadow = `${-dx * MAX_TILT * 0.6}px ${dy * MAX_TILT * 0.6}px 24px var(--accent-glow)`;
+      card.style.borderColor = 'var(--border-hover)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform  = '';
+      card.style.boxShadow  = '';
+      card.style.borderColor = '';
+      card.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1), box-shadow 0.5s ease, border-color 0.3s';
+      setTimeout(() => { card.style.transition = ''; }, 500);
+    });
+  });
+}
+
+/* ============================================================
+   11. TOAST NOTIFICATION HELPER
    ============================================================ */
 function showToast(message, type = 'info') {
   let toast = document.getElementById('portfolioToast');

@@ -13,6 +13,15 @@ require_once __DIR__ . '/../includes/functions.php';
 
 init_secure_session();
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Accept, X-Requested-With');
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
 // Only allow POST
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     header('Allow: POST');

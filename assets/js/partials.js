@@ -1,7 +1,7 @@
 /**
  * Partials Loader & Shared Navigation Logic
  * Handles Navbar and Footer across all portfolio pages
- * Manages theme toggling, active states, and mobile menu
+ * Manages active states and mobile menu (dark mode only)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -51,8 +51,6 @@ function initNavbar(basePath, isInsideAdmin) {
   const navbar = document.getElementById('navbar');
   const navMenu = document.getElementById('navMenu');
   const hamburger = document.getElementById('hamburger');
-  const themeToggle = document.getElementById('themeToggle');
-  const themeIcon = document.getElementById('themeIcon');
   const navLinks = document.querySelectorAll('.nav-link');
   const navLogo = document.querySelector('.nav-logo');
 
@@ -78,35 +76,6 @@ function initNavbar(basePath, isInsideAdmin) {
       link.removeAttribute('aria-current');
     }
   });
-
-  // Theme Persistence & Toggle
-  const savedTheme = localStorage.getItem('portfolio-theme');
-  if (savedTheme === 'light') {
-    document.body.classList.add('light-mode');
-    if (themeIcon) {
-      themeIcon.classList.remove('fa-sun');
-      themeIcon.classList.add('fa-moon');
-    }
-  }
-
-  if (themeToggle && !themeToggle._hasListener) {
-    themeToggle._hasListener = true;
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-      const isLight = document.body.classList.contains('light-mode');
-      localStorage.setItem('portfolio-theme', isLight ? 'light' : 'dark');
-
-      if (themeIcon) {
-        if (isLight) {
-          themeIcon.classList.remove('fa-sun');
-          themeIcon.classList.add('fa-moon');
-        } else {
-          themeIcon.classList.remove('fa-moon');
-          themeIcon.classList.add('fa-sun');
-        }
-      }
-    });
-  }
 
   // Hamburger Mobile Toggle
   if (hamburger && navMenu && !hamburger._hasListener) {

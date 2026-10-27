@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Technical Skills & Proficiencies — Ethan McClarence Gacud">
+  <meta name="description" content="Technical Skills &amp; Proficiencies — Ethan McClarence Gacud">
   <meta name="author" content="Ethan McClarence Gacud">
   <title>Skills &amp; Tech Stack | Ethan Gacud</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -33,9 +33,6 @@
     </nav>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme" title="Toggle theme">
-        <i class="fa-solid fa-sun" id="themeIcon"></i>
-      </button>
       <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navMenu">
         <span></span><span></span><span></span>
       </button>
@@ -49,7 +46,7 @@
         <h1 class="section-heading reveal">Skills &amp; Technologies.</h1>
         <p class="section-lead reveal">An honest overview of languages, frameworks, databases, and development workflows I actively study and implement.</p>
 
-        <!-- Balanced 2-Column Desktop Grid / Stacked on Mobile -->
+        <!-- 4-Card 2-Column Overview Grid -->
         <div class="skills-container">
 
           <!-- Card 1: Programming Fundamentals -->
@@ -167,6 +164,19 @@
           </div>
 
         </div>
+
+        <!-- Drawer Trigger Banner -->
+        <div class="skills-drawer-trigger-card reveal">
+          <div class="trigger-info">
+            <div class="trigger-pill"><i class="fa-solid fa-bolt"></i> 26 Technologies &amp; Tools</div>
+            <h3>Want to explore detailed proficiency ratings &amp; 3D physics?</h3>
+            <p>Open the interactive Skills Drawer to view the complete tech stack organized with category filters, instant search, and live progress bars.</p>
+          </div>
+          <button type="button" class="btn-primary drawer-trigger-btn" id="openSkillsDrawer" aria-haspopup="dialog" aria-expanded="false">
+            <i class="fa-solid fa-layer-group"></i> Explore Full Tech Stack Drawer <span class="badge-count">26</span>
+          </button>
+        </div>
+
       </div>
     </section>
   </main>
@@ -194,6 +204,208 @@
       <p class="footer-copy">&copy; <span id="currentYear">2026</span> Ethan McClarence Gacud. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- OFF-CANVAS SKILLS DRAWER -->
+  <div class="skills-drawer-overlay" id="skillsDrawerOverlay" tabindex="-1"></div>
+  <aside class="skills-drawer" id="skillsDrawer" role="dialog" aria-modal="true" aria-labelledby="skillsDrawerTitle" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="drawer-eyebrow">Technical Capabilities</span>
+        <h2 id="skillsDrawerTitle" class="drawer-title">All Skills &amp; Stack</h2>
+        <span class="drawer-count-badge" id="skillsCountBadge">26 Technologies</span>
+      </div>
+      <button class="drawer-close-btn" id="closeSkillsDrawer" aria-label="Close skills drawer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Search -->
+    <div class="drawer-search-wrap">
+      <div class="drawer-search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="skillsSearch" placeholder="Search technology (e.g. PHP, MySQL, React, C, Git)..." autocomplete="off">
+        <button type="button" class="search-clear-btn" id="clearSkillsSearch" aria-label="Clear search" style="display:none;">
+          <i class="fa-solid fa-circle-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="drawer-categories">
+      <button type="button" class="drawer-cat-btn active" data-filter="all">All <span class="cat-pill">26</span></button>
+      <button type="button" class="drawer-cat-btn" data-filter="languages">Languages</button>
+      <button type="button" class="drawer-cat-btn" data-filter="frontend">Frontend &amp; Web</button>
+      <button type="button" class="drawer-cat-btn" data-filter="backend">Backend &amp; DB</button>
+      <button type="button" class="drawer-cat-btn" data-filter="tools">Tools</button>
+      <button type="button" class="drawer-cat-btn" data-filter="ai">AI Tools</button>
+      <button type="button" class="drawer-cat-btn" data-filter="platforms">Platforms</button>
+    </div>
+
+    <!-- Drawer Content Body -->
+    <div class="drawer-body">
+      <div class="drawer-skills-grid" id="drawerSkillsGrid">
+
+        <!-- LANGUAGES -->
+        <div class="skill-card" data-category="languages" data-name="C" data-tooltip="C" data-progress="75">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg" alt="C">
+          <span>C</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:75%"></div></div>
+        </div>
+        <div class="skill-card" data-category="languages" data-name="C++" data-tooltip="C++" data-progress="55">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" alt="C++">
+          <span>C++</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:55%"></div></div>
+        </div>
+        <div class="skill-card" data-category="languages" data-name="Python" data-tooltip="Python" data-progress="60">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+          <span>Python</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:60%"></div></div>
+        </div>
+        <div class="skill-card" data-category="languages" data-name="Lua" data-tooltip="Lua" data-progress="38">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua">
+          <span>Lua</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:38%"></div></div>
+        </div>
+
+        <!-- FRONTEND -->
+        <div class="skill-card" data-category="frontend" data-name="HTML5" data-tooltip="HTML5" data-progress="95">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" alt="HTML5">
+          <span>HTML5</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:95%"></div></div>
+        </div>
+        <div class="skill-card" data-category="frontend" data-name="CSS3" data-tooltip="CSS3" data-progress="90">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" alt="CSS3">
+          <span>CSS3</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:90%"></div></div>
+        </div>
+        <div class="skill-card" data-category="frontend" data-name="JavaScript" data-tooltip="JavaScript" data-progress="82">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript">
+          <span>JavaScript</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:82%"></div></div>
+        </div>
+        <div class="skill-card" data-category="frontend" data-name="React" data-tooltip="React" data-progress="30">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React">
+          <span>React</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:30%"></div></div>
+        </div>
+
+        <!-- BACKEND & DB -->
+        <div class="skill-card" data-category="backend" data-name="PHP" data-tooltip="PHP" data-progress="70">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" alt="PHP">
+          <span>PHP</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:70%"></div></div>
+        </div>
+        <div class="skill-card" data-category="backend" data-name="MySQL" data-tooltip="MySQL" data-progress="72">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" alt="MySQL">
+          <span>MySQL</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:72%"></div></div>
+        </div>
+        <div class="skill-card" data-category="backend" data-name="Node.js" data-tooltip="Node.js" data-progress="35">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js">
+          <span>Node.js</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:35%"></div></div>
+        </div>
+        <div class="skill-card" data-category="backend" data-name="Firebase" data-tooltip="Firebase" data-progress="45">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg" alt="Firebase">
+          <span>Firebase</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:45%"></div></div>
+        </div>
+
+        <!-- TOOLS -->
+        <div class="skill-card" data-category="tools" data-name="Git" data-tooltip="Git" data-progress="80">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git">
+          <span>Git</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:80%"></div></div>
+        </div>
+        <div class="skill-card" data-category="tools" data-name="GitHub" data-tooltip="GitHub" data-progress="80">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="github-icon">
+          <span>GitHub</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:80%"></div></div>
+        </div>
+        <div class="skill-card" data-category="tools" data-name="VS Code" data-tooltip="VS Code" data-progress="92">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" alt="VS Code">
+          <span>VS Code</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:92%"></div></div>
+        </div>
+        <div class="skill-card" data-category="tools" data-name="Figma" data-tooltip="Figma" data-progress="65">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" alt="Figma">
+          <span>Figma</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:65%"></div></div>
+        </div>
+
+        <!-- AI TOOLS -->
+        <div class="skill-card" data-category="ai" data-name="ChatGPT" data-tooltip="ChatGPT" data-progress="85">
+          <div class="icon-placeholder chatgpt-icon">GPT</div>
+          <span>ChatGPT</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:85%"></div></div>
+        </div>
+        <div class="skill-card" data-category="ai" data-name="Gemini" data-tooltip="Gemini" data-progress="80">
+          <div class="icon-placeholder gemini-icon">GEM</div>
+          <span>Gemini</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:80%"></div></div>
+        </div>
+        <div class="skill-card" data-category="ai" data-name="Claude" data-tooltip="Claude" data-progress="75">
+          <div class="icon-placeholder claude-icon">CLD</div>
+          <span>Claude</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:75%"></div></div>
+        </div>
+        <div class="skill-card" data-category="ai" data-name="GitHub Copilot" data-tooltip="Copilot" data-progress="60">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="Copilot" class="github-icon">
+          <span>Copilot</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:60%"></div></div>
+        </div>
+        <div class="skill-card" data-category="ai" data-name="Cursor" data-tooltip="Cursor" data-progress="45">
+          <div class="icon-placeholder cursor-icon">CUR</div>
+          <span>Cursor</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:45%"></div></div>
+        </div>
+        <div class="skill-card" data-category="ai" data-name="Zed AI" data-tooltip="Zed AI" data-progress="40">
+          <div class="icon-placeholder zed-icon">ZED</div>
+          <span>Zed AI</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:40%"></div></div>
+        </div>
+        <div class="skill-card" data-category="ai" data-name="Codex" data-tooltip="Codex" data-progress="35">
+          <div class="icon-placeholder codex-icon">CDX</div>
+          <span>Codex</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:35%"></div></div>
+        </div>
+        <div class="skill-card" data-category="ai" data-name="Antigravity" data-tooltip="Antigravity" data-progress="30">
+          <div class="icon-placeholder antigravity-icon">AG</div>
+          <span>Antigravity</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:30%"></div></div>
+        </div>
+
+        <!-- PLATFORMS -->
+        <div class="skill-card" data-category="platforms" data-name="Netlify" data-tooltip="Netlify" data-progress="75">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/netlify/netlify-original.svg" alt="Netlify">
+          <span>Netlify</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:75%"></div></div>
+        </div>
+        <div class="skill-card" data-category="platforms" data-name="Vercel" data-tooltip="Vercel" data-progress="55">
+          <div class="icon-placeholder vercel-icon">&#9650;</div>
+          <span>Vercel</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:55%"></div></div>
+        </div>
+        <div class="skill-card" data-category="platforms" data-name="Render" data-tooltip="Render" data-progress="40">
+          <div class="icon-placeholder render-icon">RND</div>
+          <span>Render</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="--p:40%"></div></div>
+        </div>
+
+      </div>
+
+      <div class="drawer-empty" id="drawerEmpty" style="display:none;">
+        <i class="fa-solid fa-filter"></i>
+        <p>No technologies found matching "<span id="emptySearchTerm"></span>"</p>
+      </div>
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="drawer-footer">
+      <span class="drawer-esc-hint"><kbd>ESC</kbd> to close drawer</span>
+      <button type="button" class="btn-outline btn-sm" id="closeSkillsDrawerBottom">Done Exploring</button>
+    </div>
+  </aside>
 
   <script src="assets/js/partials.js"></script>
   <script src="assets/js/main.js"></script>

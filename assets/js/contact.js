@@ -151,7 +151,11 @@ function initContactWorkflow() {
           message: message
         };
 
-        const res = await fetch('api/contact-submit.php', {
+        const endpointUrl = (window.location.protocol === 'file:')
+          ? 'http://localhost/PortfolioUpdate/Portfolio-Project/api/contact-submit.php'
+          : 'api/contact-submit.php';
+
+        const res = await fetch(endpointUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -167,6 +171,7 @@ function initContactWorkflow() {
           contactForm.reset();
           if (formSuccess) {
             formSuccess.style.display = 'flex';
+            formSuccess.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
           if (typeof window.showToast === 'function') {
             window.showToast('Message sent successfully! Thank you for reaching out.', 'success');
@@ -175,7 +180,10 @@ function initContactWorkflow() {
           // Display validation errors or error message
           const msg = data.message || 'Failed to send message. Please check the fields and try again.';
           if (formErrorMsg) formErrorMsg.textContent = msg;
-          if (formError) formError.style.display = 'flex';
+          if (formError) {
+            formError.style.display = 'flex';
+            formError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
 
           if (data.errors) {
             if (data.errors.name && step1Error) {
