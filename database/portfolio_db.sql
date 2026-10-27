@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS `contact_messages` (
     `name` VARCHAR(100) NOT NULL,
     `email` VARCHAR(100) NOT NULL,
     `message` TEXT NOT NULL,
-    `date_sent` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    `date_sent` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `status` ENUM('new', 'read', 'replied', 'archived') NOT NULL DEFAULT 'new'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -------------------------------------------------------------
