@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap');
 
 /* ============================================================
    ETHAN MCCLARENCE GACUD — PORTFOLIO STYLESHEET
@@ -138,10 +138,10 @@ button {
 }
 
 .loader-logo {
-  font-family: var(--font-heading);
+  font-family: 'Syne', var(--font-heading);
   font-weight: 800;
   font-size: 2.2rem;
-  letter-spacing: 4px;
+  letter-spacing: 3px;
   color: var(--accent);
 }
 
@@ -3446,7 +3446,7 @@ kbd {
 .nav-logo,
 .footer-logo,
 .sidebar-logo {
-  font-family: var(--font-heading);
+  font-family: 'Syne', var(--font-heading);
   font-weight: 800;
   font-size: 1.35rem;
   letter-spacing: 2px;
@@ -3864,4 +3864,27 @@ footer {
   border: 1px solid transparent;
   cursor: pointer;
   font-family: inherit;
+}
+
+
+/* ============================================================
+   HOMEPAGE SIGNATURE EDITORIAL TYPOGRAPHY (Syne 800)
+   ============================================================ */
+body[data-page="home"] .hero-content h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.2rem, 9vw, 6.5rem);
+  line-height: 1.04;
+  letter-spacing: -3px;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+body[data-page="home"] .hero-sub {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
 }
