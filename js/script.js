@@ -238,7 +238,7 @@ function initCoffeeButton() {
     e.preventDefault();
     // TODO: Replace with real Buy Me a Coffee or Ko-fi URL once Ethan sets up donations
     // Example: window.open('https://buymeacoffee.com/ethangacud', '_blank', 'noopener,noreferrer');
-    showToast('☕ Buy Me a Coffee link is coming soon! Thank you for your support.');
+    showToast('Buy Me a Coffee link is coming soon! Thank you for your support.');
   });
 }
 

@@ -18,8 +18,29 @@
   <!-- Custom Magnetic Cursor -->
   <div class="custom-cursor" id="customCursor"></div>
 
-  <!-- Reusable Navbar Partial -->
-  <div id="navbar-placeholder"></div>
+  <!-- Shared Navbar -->
+  <header class="navbar" id="navbar">
+    <a href="index.html" class="nav-logo" aria-label="Ethan McClarence Gacud Home">ETHAN.</a>
+
+    <nav id="navMenu" aria-label="Main Navigation">
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link" data-page="home">Home</a></li>
+        <li><a href="about.html" class="nav-link" data-page="about">About</a></li>
+        <li><a href="skills.html" class="nav-link active" data-page="skills">Skills</a></li>
+        <li><a href="projects.html" class="nav-link" data-page="projects">Projects</a></li>
+        <li><a href="contact.html" class="nav-link" data-page="contact">Contact Us</a></li>
+      </ul>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme" title="Toggle theme">
+        <i class="fa-solid fa-sun" id="themeIcon"></i>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
 
   <main>
     <section id="skills">
@@ -150,8 +171,29 @@
     </section>
   </main>
 
-  <!-- Reusable Footer Partial -->
-  <div id="footer-placeholder"></div>
+  <!-- Shared Footer -->
+  <footer>
+    <div class="footer-inner">
+      <a href="index.html" class="footer-logo" aria-label="Ethan McClarence Gacud">ETHAN.</a>
+      
+      <div class="footer-links">
+        <a href="mailto:ethangacud@gmail.com" class="footer-link" aria-label="Send email to Ethan">
+          <i class="fa-solid fa-envelope"></i><span>ethangacud@gmail.com</span>
+        </a>
+        <a href="tel:+639398764353" class="footer-link" aria-label="Call Ethan">
+          <i class="fa-solid fa-phone"></i><span>+63 939 876 4353</span>
+        </a>
+        <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="Ethan on Facebook">
+          <i class="fa-brands fa-facebook-f"></i><span>takodachi.inya</span>
+        </a>
+        <a href="https://www.linkedin.com/in/ethan-mcclarence-panong-gacud-0568733b7/" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="Ethan on LinkedIn">
+          <i class="fa-brands fa-linkedin-in"></i><span>Ethan McClarence Gacud</span>
+        </a>
+      </div>
+
+      <p class="footer-copy">&copy; <span id="currentYear">2026</span> Ethan McClarence Gacud. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script src="assets/js/partials.js"></script>
   <script src="assets/js/main.js"></script>

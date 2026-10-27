@@ -1,44 +1,50 @@
 /**
  * Partials Loader & Shared Navigation Logic
- * Loads reusable navbar and footer across all portfolio pages
- * Handles theme toggling, active states, and mobile menu
+ * Handles Navbar and Footer across all portfolio pages
+ * Manages theme toggling, active states, and mobile menu
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadPartials();
+  setupNavbarAndFooter();
 });
 
-async function loadPartials() {
+async function setupNavbarAndFooter() {
   const isInsideAdmin = window.location.pathname.includes('/admin/');
   const basePath = isInsideAdmin ? '../' : '';
 
-  // 1. Load Navbar
+  // 1. If navbar placeholder exists and is empty, fetch it; otherwise initialize existing navbar
   const navPlaceholder = document.getElementById('navbar-placeholder') || document.getElementById('navbar-container');
-  if (navPlaceholder) {
+  const existingNavbar = document.getElementById('navbar');
+
+  if (!existingNavbar && navPlaceholder) {
     try {
       const res = await fetch(`${basePath}partials/navbar.html`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const html = await res.text();
-      navPlaceholder.innerHTML = html;
-      initNavbar(basePath, isInsideAdmin);
+      if (res.ok) {
+        navPlaceholder.innerHTML = await res.text();
+      }
     } catch (err) {
-      console.warn('Navbar partial could not be loaded via fetch:', err);
+      console.warn('Navbar partial fetch fallback:', err);
     }
   }
 
-  // 2. Load Footer
+  initNavbar(basePath, isInsideAdmin);
+
+  // 2. If footer placeholder exists and is empty, fetch it; otherwise initialize existing footer
   const footerPlaceholder = document.getElementById('footer-placeholder') || document.getElementById('footer-container');
-  if (footerPlaceholder) {
+  const existingFooter = document.querySelector('footer');
+
+  if (!existingFooter && footerPlaceholder) {
     try {
       const res = await fetch(`${basePath}partials/footer.html`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const html = await res.text();
-      footerPlaceholder.innerHTML = html;
-      initFooter(basePath, isInsideAdmin);
+      if (res.ok) {
+        footerPlaceholder.innerHTML = await res.text();
+      }
     } catch (err) {
-      console.warn('Footer partial could not be loaded via fetch:', err);
+      console.warn('Footer partial fetch fallback:', err);
     }
   }
+
+  initFooter(basePath, isInsideAdmin);
 }
 
 function initNavbar(basePath, isInsideAdmin) {
@@ -50,7 +56,6 @@ function initNavbar(basePath, isInsideAdmin) {
   const navLinks = document.querySelectorAll('.nav-link');
   const navLogo = document.querySelector('.nav-logo');
 
-  // Adjust links if inside subfolder like /admin/
   if (isInsideAdmin) {
     if (navLogo) navLogo.setAttribute('href', `${basePath}index.html`);
     navLinks.forEach(link => {
@@ -84,7 +89,8 @@ function initNavbar(basePath, isInsideAdmin) {
     }
   }
 
-  if (themeToggle) {
+  if (themeToggle && !themeToggle._hasListener) {
+    themeToggle._hasListener = true;
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('light-mode');
       const isLight = document.body.classList.contains('light-mode');
@@ -103,14 +109,14 @@ function initNavbar(basePath, isInsideAdmin) {
   }
 
   // Hamburger Mobile Toggle
-  if (hamburger && navMenu) {
+  if (hamburger && navMenu && !hamburger._hasListener) {
+    hamburger._hasListener = true;
     hamburger.addEventListener('click', () => {
       const isOpen = hamburger.classList.toggle('open');
       navMenu.classList.toggle('open');
       hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 
-    // Close when clicking links
     navLinks.forEach(link => {
       link.addEventListener('click', () => {
         hamburger.classList.remove('open');
@@ -119,7 +125,6 @@ function initNavbar(basePath, isInsideAdmin) {
       });
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && navMenu.classList.contains('open')) {
         hamburger.classList.remove('open');
@@ -130,7 +135,6 @@ function initNavbar(basePath, isInsideAdmin) {
     });
   }
 
-  // Navbar background change on scroll
   window.addEventListener('scroll', () => {
     if (navbar) {
       if (window.scrollY > 40) {
@@ -143,13 +147,11 @@ function initNavbar(basePath, isInsideAdmin) {
 }
 
 function initFooter(basePath, isInsideAdmin) {
-  // Update current year dynamically
   const yearSpan = document.getElementById('currentYear');
   if (yearSpan) {
     yearSpan.textContent = new Date().getFullYear();
   }
 
-  // Adjust logo link if inside admin
   if (isInsideAdmin) {
     const footerLogo = document.querySelector('.footer-logo');
     if (footerLogo) footerLogo.setAttribute('href', `${basePath}index.html`);
