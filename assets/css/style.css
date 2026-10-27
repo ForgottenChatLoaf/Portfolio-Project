@@ -1430,61 +1430,7 @@ p, li, a, input, textarea, label, select, button {
   color: #ef4444;
 }
 
-/* ============================================================
-   10. Footer
-   ============================================================ */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 50px 6%;
-  background: var(--bg);
-  margin-top: auto;
-}
-
-.footer-inner {
-  max-width: var(--container-max);
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  text-align: center;
-}
-
-.footer-logo {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.3rem;
-  letter-spacing: 3px;
-  color: var(--text-primary);
-}
-
-.footer-logo:hover {
-  color: var(--accent);
-}
-
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  justify-content: center;
-}
-
-.footer-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.footer-link:hover {
-  color: var(--accent);
-}
-
-.footer-copy {
-  font-size: 12.5px;
-  color: var(--text-muted);
-}
+/* (Section 10 Footer styles consolidated into Section 12) */
 
 /* ============================================================
    11. Responsive Layouts
@@ -3494,21 +3440,48 @@ kbd {
 
 
 /* ============================================================
-   12. Simplified 2-Column Personal Footer
+/* ============================================================
+   12. Simplified 2-Column Personal Footer & Logo Dot
    ============================================================ */
+.nav-logo,
+.footer-logo,
+.sidebar-logo {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.logo-dot,
+.nav-logo span,
+.footer-logo span,
+.sidebar-logo span,
+.loader-logo span {
+  color: var(--accent);
+  transition: color 0.3s ease;
+}
+
 footer {
+  width: 100%;
   border-top: 1px solid var(--border);
-  padding: 48px 6% 32px;
+  padding: 56px 6% 36px;
   background: #09090b;
   margin-top: auto;
 }
 
 .footer-inner {
   max-width: var(--container-max);
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 40px;
+  text-align: left;
+  align-items: stretch;
 }
 
 .footer-simple-grid {
@@ -3516,36 +3489,44 @@ footer {
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: 32px;
+  gap: 36px;
+  width: 100%;
 }
 
 .footer-brand-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 360px;
+  align-items: flex-start;
+  text-align: left;
+  gap: 12px;
+  max-width: 440px;
 }
 
 .footer-brand-col .footer-logo {
   font-family: var(--font-heading);
-  font-weight: 700;
-  font-size: 1.35rem;
+  font-weight: 800;
+  font-size: 1.4rem;
   letter-spacing: 2px;
   color: var(--text-primary);
-  display: inline-block;
+  display: inline-flex;
+  align-items: baseline;
+  text-decoration: none;
 }
 
 .footer-tagline {
   font-size: 0.95rem;
   color: var(--text-secondary);
   line-height: 1.6;
+  text-align: left;
+  margin: 0;
 }
 
 .footer-connect-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   align-items: flex-start;
+  text-align: left;
 }
 
 .footer-connect-title {
@@ -3571,10 +3552,11 @@ footer {
   font-size: 0.92rem;
   color: var(--text-secondary);
   transition: var(--transition);
+  text-decoration: none;
 }
 
 .footer-connect-link i {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--accent);
   transition: var(--transition);
 }
@@ -3584,7 +3566,7 @@ footer {
 }
 
 .footer-connect-link:hover i {
-  transform: scale(1.15);
+  transform: translateY(-2px);
   color: var(--accent-light);
 }
 
@@ -3592,52 +3574,33 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   padding-top: 24px;
   border-top: 1px solid var(--border);
-  flex-wrap: wrap;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .footer-copy {
-  font-size: 0.85rem;
+  font-size: 13px;
   color: var(--text-muted);
+  margin: 0;
 }
 
 .back-to-top {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  text-decoration: none;
   transition: var(--transition);
-  cursor: pointer;
-}
-
-.back-to-top i {
-  font-size: 11px;
-  transition: transform 0.2s ease;
 }
 
 .back-to-top:hover {
-  color: var(--text-primary);
-}
-
-.back-to-top:hover i {
-  transform: translateY(-2px);
   color: var(--accent);
-}
-
-@media (max-width: 640px) {
-  .footer-simple-grid {
-    flex-direction: column;
-    gap: 28px;
-  }
-  .footer-bottom-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
+  transform: translateY(-2px);
 }
 
 /* ============================================================
