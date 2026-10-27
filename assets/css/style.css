@@ -53,20 +53,26 @@
 html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: var(--accent) var(--bg-elevated);
+  scrollbar-color: rgba(108, 99, 255, 0.45) transparent;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 3.5px;
+  height: 3.5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
+  background: rgba(108, 99, 255, 0.45);
+  border-radius: 100px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
-  border-radius: 10px;
 }
 
 html, body {
@@ -3445,8 +3451,9 @@ kbd {
    ============================================================ */
 .nav-logo,
 .footer-logo,
-.sidebar-logo {
-  font-family: 'Syne', var(--font-heading);
+.sidebar-logo,
+.footer-brand-col .footer-logo {
+  font-family: 'Syne', sans-serif !important;
   font-weight: 800;
   font-size: 1.35rem;
   letter-spacing: 2px;
@@ -3503,7 +3510,7 @@ footer {
 }
 
 .footer-brand-col .footer-logo {
-  font-family: var(--font-heading);
+  font-family: 'Syne', sans-serif !important;
   font-weight: 800;
   font-size: 1.4rem;
   letter-spacing: 2px;
