@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Admin Dashboard | Messages & Management</title>
+  <title>Admin Dashboard | Messages &amp; Management</title>
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,195 +12,259 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-<body id="adminDashboard">
-
-  <!-- Header -->
-  <header style="border-bottom: 1px solid var(--border); padding: 18px 5%; background: var(--bg-surface); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; position: sticky; top: 0; z-index: 100;">
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <a href="../index.html" class="nav-logo" style="font-size: 1.25rem;">ETHAN.</a>
-      <span class="admin-badge"><i class="fa-solid fa-shield-halved"></i> Admin Portal</span>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: 14px;">
-      <span class="admin-badge" style="background: var(--accent-dim); color: var(--accent); border-color: var(--border-hover);">
-        <i class="fa-solid fa-user-check"></i> <strong id="adminUserBadge">admin</strong>
-      </span>
-      <a href="../index.html" class="btn-ghost btn-sm" target="_blank" title="Preview public website">
-        <i class="fa-solid fa-globe"></i> View Site
-      </a>
-      <button type="button" class="btn-outline btn-sm" id="adminLogoutBtn">
-        <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-      </button>
-    </div>
-  </header>
-
-  <main style="padding: 36px 5% 60px; max-width: 1380px; margin: 0 auto; width: 100%;">
-    
-    <!-- Title & Action Bar -->
-    <div class="admin-header">
-      <div>
-        <span class="section-eyebrow">Portfolio Administration</span>
-        <h1 style="font-size: 2.2rem; margin-top: 4px;">Message Center</h1>
-        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px;">
-          Manage, inspect, filter, and respond to inquiries submitted through the contact form.
-        </p>
-      </div>
-
-      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <a href="../api/admin-export.php" class="btn-outline btn-sm" id="exportCsvBtn" title="Download sanitized CSV spreadsheet">
-          <i class="fa-solid fa-file-csv"></i> Export CSV
-        </a>
-        <button type="button" class="btn-outline btn-sm" id="refreshMessagesBtn" title="Reload messages and statistics from database">
-          <i class="fa-solid fa-rotate-right"></i> Refresh
-        </button>
-      </div>
-    </div>
-
-    <!-- Summary Statistics Cards -->
-    <section class="admin-stats-grid" aria-label="Messages Summary Statistics">
-      <div class="stat-card stat-total">
-        <div class="stat-info-left">
-          <span class="stat-label">Total Inquiries</span>
-          <span class="stat-value" id="statTotal">0</span>
-        </div>
-        <div class="stat-icon-wrap" aria-hidden="true">
-          <i class="fa-solid fa-inbox"></i>
-        </div>
-      </div>
-
-      <div class="stat-card stat-new">
-        <div class="stat-info-left">
-          <span class="stat-label">
-            <span class="pulse-dot" aria-hidden="true"></span>
-            New / Unread
-          </span>
-          <span class="stat-value" id="statNew">0</span>
-        </div>
-        <div class="stat-icon-wrap" aria-hidden="true">
-          <i class="fa-solid fa-envelope"></i>
-        </div>
-      </div>
-
-      <div class="stat-card stat-week">
-        <div class="stat-info-left">
-          <span class="stat-label">This Week</span>
-          <span class="stat-value" id="statWeek">0</span>
-        </div>
-        <div class="stat-icon-wrap" aria-hidden="true">
-          <i class="fa-solid fa-calendar-week"></i>
-        </div>
-      </div>
-
-      <div class="stat-card stat-replied">
-        <div class="stat-info-left">
-          <span class="stat-label">Replied</span>
-          <span class="stat-value" id="statReplied">0</span>
-        </div>
-        <div class="stat-icon-wrap" aria-hidden="true">
-          <i class="fa-solid fa-reply"></i>
-        </div>
-      </div>
-    </section>
-
-    <!-- Toolbar: Filter Tabs & Search / Sort -->
-    <div class="admin-toolbar">
-      <!-- Status Tabs -->
-      <div class="admin-tabs" role="tablist" aria-label="Message status filters">
-        <button type="button" class="tab-btn active" data-filter="all">
-          <i class="fa-solid fa-list-check"></i> All <span class="tab-pill" id="countAll">0</span>
-        </button>
-        <button type="button" class="tab-btn" data-filter="new">
-          <i class="fa-solid fa-circle-dot" style="color: #10b981;"></i> New <span class="tab-pill" id="countNew">0</span>
-        </button>
-        <button type="button" class="tab-btn" data-filter="read">
-          <i class="fa-solid fa-envelope-open"></i> Read <span class="tab-pill" id="countRead">0</span>
-        </button>
-        <button type="button" class="tab-btn" data-filter="replied">
-          <i class="fa-solid fa-reply" style="color: #c084fc;"></i> Replied <span class="tab-pill" id="countReplied">0</span>
-        </button>
-        <button type="button" class="tab-btn" data-filter="archived">
-          <i class="fa-solid fa-box-archive"></i> Archived <span class="tab-pill" id="countArchived">0</span>
-        </button>
-      </div>
-
-      <!-- Search & Sort Controls -->
-      <div class="admin-actions-bar">
-        <div class="admin-search-box">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="search" id="messagesSearchInput" placeholder="Search by name, email, keyword..." autocomplete="off">
-        </div>
-
-        <select id="messagesSortSelect" class="admin-sort-select" title="Sort messages order">
-          <option value="newest">Sort: Newest First</option>
-          <option value="oldest">Sort: Oldest First</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Loading Indicator -->
-    <div id="messagesLoading" style="text-align: center; padding: 56px 20px; color: var(--text-secondary); display: none;">
-      <i class="fa-solid fa-spinner fa-spin" style="font-size: 32px; color: var(--accent); margin-bottom: 14px;"></i>
-      <p style="font-size: 0.95rem;">Retrieving messages from database...</p>
-    </div>
-
-    <!-- Empty State -->
-    <div id="emptyMessagesState" style="text-align: center; padding: 70px 24px; background: var(--bg-surface); border: 1px dashed var(--border); border-radius: var(--radius); display: none;">
-      <i class="fa-regular fa-envelope-open" style="font-size: 44px; color: var(--text-muted); margin-bottom: 16px;"></i>
-      <h3 style="font-size: 1.3rem;">No Messages Found</h3>
-      <p id="emptyStateMessage" style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 6px;">
-        No contact inquiries match the current filter or search criteria.
-      </p>
-    </div>
-
-    <!-- Messages Table -->
-    <div class="table-responsive" id="tableContainer">
-      <table class="messages-table" aria-label="Contact Messages Table">
-        <thead>
-          <tr>
-            <th style="width: 70px;">ID</th>
-            <th style="width: 120px;">Status</th>
-            <th style="width: 220px;">Sender</th>
-            <th>Message Snippet</th>
-            <th style="width: 180px;">Received</th>
-            <th style="width: 110px; text-align: center;">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="messagesTableBody">
-          <!-- Populated dynamically by admin.js -->
-        </tbody>
-      </table>
-    </div>
-  </main>
+<body id="adminDashboard" class="admin-layout">
 
   <!-- ============================================================
-       CUSTOM DELETION CONFIRMATION MODAL (Replaces native browser alert)
+       SIDEBAR
        ============================================================ -->
-  <div class="admin-modal-overlay" id="deleteConfirmModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
-    <div class="admin-modal-card">
-      <div class="modal-body" style="text-align: center; padding-top: 32px;">
-        <div class="danger-modal-icon">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-        <h3 id="deleteModalTitle" style="font-size: 1.35rem; margin-bottom: 8px;">Delete Message?</h3>
-        <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
-          Are you sure you want to permanently delete this inquiry? This action cannot be undone.
-        </p>
+  <aside class="admin-sidebar" id="adminSidebar" aria-label="Admin navigation">
+    <div class="sidebar-brand">
+      <a href="../index.html" class="nav-logo" aria-label="Portfolio home">ETHAN.</a>
+    </div>
 
-        <div class="modal-message-preview">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 600; color: var(--text-primary);">
-            <span id="delModalSender">—</span>
-            <span id="delModalId" style="color: var(--accent-light);">#0</span>
-          </div>
-          <div id="delModalSnippet" style="font-style: italic; color: var(--text-muted); font-size: 0.85rem;">—</div>
-        </div>
+    <nav class="sidebar-nav" aria-label="Admin sections">
+      <ul>
+        <li>
+          <a href="#" class="sidebar-link active" data-section="overview" aria-current="page">
+            <i class="fa-solid fa-house-chimney" aria-hidden="true"></i>
+            <span>Overview</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" data-section="messages">
+            <i class="fa-solid fa-inbox" aria-hidden="true"></i>
+            <span>Messages</span>
+            <span class="sidebar-badge" id="sidebarNewCount" aria-label="new messages"></span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="../index.html" class="sidebar-link sidebar-link-ghost" target="_blank" rel="noopener">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        <span>View Site</span>
+      </a>
+      <button type="button" class="sidebar-link sidebar-link-ghost sidebar-signout" id="adminLogoutBtn">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Mobile sidebar overlay backdrop -->
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       MAIN CONTENT AREA
+       ============================================================ -->
+  <div class="admin-main" id="adminMain">
+
+    <!-- Top bar (visible on mobile: hamburger + branding + quick actions) -->
+    <header class="admin-topbar" aria-label="Admin top bar">
+      <button class="sidebar-toggle" id="sidebarToggle"
+              aria-label="Open navigation menu" aria-expanded="false" aria-controls="adminSidebar">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+
+      <div class="topbar-identity">
+        <span class="topbar-user-avatar" id="topbarUserAvatar" aria-hidden="true">A</span>
+        <span class="topbar-user-name" id="topbarUserName">Admin</span>
       </div>
 
-      <div class="modal-footer" style="justify-content: center; gap: 12px; padding: 20px 24px 28px;">
-        <button type="button" class="btn-outline btn-sm" id="cancelDeleteBtn">
-          Cancel
+      <div class="topbar-actions">
+        <a href="../api/admin-export.php" class="btn-outline btn-sm" id="exportCsvBtn" title="Download sanitized CSV">
+          <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
+          <span class="topbar-btn-label">Export CSV</span>
+        </a>
+        <button type="button" class="btn-outline btn-sm" id="refreshMessagesBtn" title="Reload messages from database">
+          <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+          <span class="topbar-btn-label">Refresh</span>
         </button>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="admin-content" id="adminContent">
+
+      <!-- ============================================================
+           GREETING HEADER
+           ============================================================ -->
+      <section class="dash-greeting" aria-label="Dashboard greeting">
+        <div>
+          <h1 class="dash-greeting-label" id="dashGreetingLabel">Good evening, Ethan.</h1>
+          <p class="dash-greeting-sub">Here&rsquo;s what&rsquo;s happening with your portfolio.</p>
+        </div>
+        <div class="dash-meta-badge">
+          <i class="fa-regular fa-clock" aria-hidden="true"></i>
+          <span id="dashCurrentTime"></span>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           STATISTICS CARDS
+           ============================================================ -->
+      <section class="admin-stats-grid" aria-label="Messages summary statistics">
+
+        <div class="stat-card stat-total">
+          <div class="stat-icon-wrap" aria-hidden="true">
+            <i class="fa-solid fa-inbox"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-value" id="statTotal">—</span>
+            <span class="stat-label">Total Inquiries</span>
+            <span class="stat-context">All time</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-new">
+          <div class="stat-icon-wrap" aria-hidden="true">
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-value" id="statNew">—</span>
+            <span class="stat-label">
+              <span class="pulse-dot" aria-hidden="true"></span>New / Unread
+            </span>
+            <span class="stat-context" id="statNewContext">Needs review</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-week">
+          <div class="stat-icon-wrap" aria-hidden="true">
+            <i class="fa-solid fa-calendar-week"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-value" id="statWeek">—</span>
+            <span class="stat-label">This Week</span>
+            <span class="stat-context">Last 7 days</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-replied">
+          <div class="stat-icon-wrap" aria-hidden="true">
+            <i class="fa-solid fa-reply"></i>
+          </div>
+          <div class="stat-body">
+            <span class="stat-value" id="statReplied">—</span>
+            <span class="stat-label">Replied</span>
+            <span class="stat-context">Marked as replied</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================
+           INBOX SECTION
+           ============================================================ -->
+      <section class="inbox-section" aria-label="Message inbox">
+
+        <div class="inbox-header">
+          <div class="inbox-title-group">
+            <h2 class="inbox-title">Your Inbox</h2>
+            <p class="inbox-subtitle">Recent contact submissions</p>
+          </div>
+        </div>
+
+        <!-- Toolbar: filter tabs + search/sort -->
+        <div class="admin-toolbar">
+          <div class="admin-tabs" role="tablist" aria-label="Message status filters">
+            <button type="button" class="tab-btn active" data-filter="all" role="tab" aria-selected="true">
+              All <span class="tab-pill" id="countAll">0</span>
+            </button>
+            <button type="button" class="tab-btn" data-filter="new" role="tab" aria-selected="false">
+              <span class="tab-status-dot dot-new" aria-hidden="true"></span>New
+              <span class="tab-pill" id="countNew">0</span>
+            </button>
+            <button type="button" class="tab-btn" data-filter="read" role="tab" aria-selected="false">
+              Read <span class="tab-pill" id="countRead">0</span>
+            </button>
+            <button type="button" class="tab-btn" data-filter="replied" role="tab" aria-selected="false">
+              Replied <span class="tab-pill" id="countReplied">0</span>
+            </button>
+            <button type="button" class="tab-btn" data-filter="archived" role="tab" aria-selected="false">
+              Archived <span class="tab-pill" id="countArchived">0</span>
+            </button>
+          </div>
+
+          <div class="admin-actions-bar">
+            <div class="admin-search-box">
+              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+              <input type="search" id="messagesSearchInput"
+                     placeholder="Search by name, email, keyword…"
+                     autocomplete="off" aria-label="Search messages">
+            </div>
+            <select id="messagesSortSelect" class="admin-sort-select"
+                    title="Sort messages order" aria-label="Sort order">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Loading state -->
+        <div id="messagesLoading" class="inbox-state" style="display: none;"
+             aria-live="polite" aria-busy="true">
+          <i class="fa-solid fa-spinner fa-spin inbox-state-icon" aria-hidden="true"></i>
+          <p>Loading messages&hellip;</p>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyMessagesState" class="inbox-state" style="display: none;" aria-live="polite">
+          <i class="fa-regular fa-envelope-open inbox-state-icon" aria-hidden="true"></i>
+          <p class="inbox-state-title">No messages found</p>
+          <p id="emptyStateMessage">No contact inquiries match the current filter.</p>
+        </div>
+
+        <!-- Messages Table -->
+        <div class="table-responsive" id="tableContainer">
+          <table class="messages-table" aria-label="Contact messages">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 56px;">#</th>
+                <th scope="col" style="width: 110px;">Status</th>
+                <th scope="col" style="width: 230px;">Sender</th>
+                <th scope="col">Preview</th>
+                <th scope="col" style="width: 160px;">Received</th>
+                <th scope="col" style="width: 96px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="messagesTableBody">
+              <!-- Populated by admin.js -->
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       CUSTOM DELETION CONFIRMATION MODAL (no native browser confirm)
+       ============================================================ -->
+  <div class="admin-modal-overlay" id="deleteConfirmModal"
+       role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="admin-modal-card">
+      <div class="modal-body" style="text-align: center; padding-top: 32px;">
+        <div class="danger-modal-icon" aria-hidden="true">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h2 id="deleteModalTitle" style="font-size: 1.25rem; margin-bottom: 8px;">Delete Message?</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
+          Are you sure you want to permanently delete this inquiry?<br>This action cannot be undone.
+        </p>
+        <div class="modal-message-preview">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: 600; color: var(--text-primary);">
+            <span id="delModalSender">&mdash;</span>
+            <span id="delModalId" style="color: var(--accent-light);">#0</span>
+          </div>
+          <div id="delModalSnippet" style="font-style: italic; color: var(--text-muted); font-size: 0.84rem;">&mdash;</div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 10px; padding: 18px 24px 26px;">
+        <button type="button" class="btn-outline btn-sm" id="cancelDeleteBtn">Cancel</button>
         <button type="button" class="btn-danger-confirm" id="confirmDeleteBtn">
-          <i class="fa-solid fa-trash-can"></i> Yes, Delete Message
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Yes, Delete Message
         </button>
       </div>
     </div>
@@ -209,16 +273,17 @@
   <!-- ============================================================
        MESSAGE DETAIL INSPECTOR MODAL
        ============================================================ -->
-  <div class="admin-modal-overlay" id="messageDetailModal" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+  <div class="admin-modal-overlay" id="messageDetailModal"
+       role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
     <div class="admin-modal-card modal-lg">
       <div class="modal-header">
-        <h3 id="detailModalTitle">
-          <i class="fa-regular fa-message" style="color: var(--accent);"></i>
+        <h2 id="detailModalTitle">
+          <i class="fa-regular fa-message" style="color: var(--accent);" aria-hidden="true"></i>
           <span>Message Details</span>
-          <span id="detailModalIdBadge" class="tab-pill" style="margin-left: 8px; font-size: 12px;">#0</span>
-        </h3>
+          <span id="detailModalIdBadge" class="tab-pill" style="margin-left: 8px; font-size: 11px;">#0</span>
+        </h2>
         <button type="button" class="btn-close-modal" id="closeDetailModalBtn" aria-label="Close dialog">
-          <i class="fa-solid fa-xmark"></i>
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
 
@@ -226,15 +291,15 @@
         <div class="detail-meta-grid">
           <div class="detail-meta-item">
             <label>Sender Name</label>
-            <span id="detailSenderName">—</span>
+            <span id="detailSenderName">&mdash;</span>
           </div>
           <div class="detail-meta-item">
             <label>Email Address</label>
-            <a href="#" id="detailSenderEmail" target="_blank">—</a>
+            <a href="#" id="detailSenderEmail" target="_blank">&mdash;</a>
           </div>
           <div class="detail-meta-item">
             <label>Date Received</label>
-            <span id="detailDateSent">—</span>
+            <span id="detailDateSent">&mdash;</span>
           </div>
           <div class="detail-meta-item">
             <label>Current Status</label>
@@ -243,48 +308,49 @@
         </div>
 
         <div>
-          <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;">
+          <label style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+                        letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;">
             Full Message Content
           </label>
-          <div class="detail-message-box" id="detailMessageContent">—</div>
+          <div class="detail-message-box" id="detailMessageContent">&mdash;</div>
         </div>
 
         <div class="detail-status-bar">
           <span>Change Status:</span>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button type="button" class="tab-btn" data-status-btn="new">
-              <i class="fa-solid fa-circle-dot" style="color: #10b981;"></i> New
+              <span class="tab-status-dot dot-new" aria-hidden="true"></span>New
             </button>
             <button type="button" class="tab-btn" data-status-btn="read">
-              <i class="fa-solid fa-envelope-open"></i> Read
+              <i class="fa-solid fa-envelope-open" aria-hidden="true"></i>Read
             </button>
             <button type="button" class="tab-btn" data-status-btn="replied">
-              <i class="fa-solid fa-reply" style="color: #c084fc;"></i> Replied
+              <i class="fa-solid fa-reply" aria-hidden="true"></i>Replied
             </button>
             <button type="button" class="tab-btn" data-status-btn="archived">
-              <i class="fa-solid fa-box-archive"></i> Archived
+              <i class="fa-solid fa-box-archive" aria-hidden="true"></i>Archived
             </button>
           </div>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-outline btn-sm" id="detailDeleteShortcutBtn" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); margin-right: auto;">
-          <i class="fa-solid fa-trash-can"></i> Delete
+        <button type="button" class="btn-outline btn-sm" id="detailDeleteShortcutBtn"
+                style="color: #ef4444; border-color: rgba(239,68,68,0.3); margin-right: auto;">
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Delete
         </button>
-        <a href="#" id="detailReplyMailtoBtn" class="btn-primary btn-sm" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
-          <i class="fa-solid fa-reply"></i> Reply via Email
+        <a href="#" id="detailReplyMailtoBtn" class="btn-primary btn-sm" target="_blank"
+           style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+          <i class="fa-solid fa-reply" aria-hidden="true"></i> Reply via Email
         </a>
-        <button type="button" class="btn-ghost btn-sm" id="detailDoneBtn">
-          Close
-        </button>
+        <button type="button" class="btn-ghost btn-sm" id="detailDoneBtn">Close</button>
       </div>
     </div>
   </div>
 
   <!-- Toast Notification Container -->
   <div id="adminToast" class="portfolio-toast" role="alert" aria-live="assertive">
-    <i class="fa-solid fa-circle-check toast-icon"></i>
+    <i class="fa-solid fa-circle-check toast-icon" aria-hidden="true"></i>
     <span id="toastMessage">Notification</span>
   </div>
 

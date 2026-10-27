@@ -114,6 +114,19 @@ function initAdminDashboard() {
   const statNew = document.getElementById('statNew');
   const statWeek = document.getElementById('statWeek');
   const statReplied = document.getElementById('statReplied');
+  const statNewContext = document.getElementById('statNewContext');
+
+  // Sidebar & topbar
+  const sidebarEl = document.getElementById('adminSidebar');
+  const sidebarToggleBtn = document.getElementById('sidebarToggle');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const topbarUserAvatar = document.getElementById('topbarUserAvatar');
+  const topbarUserName = document.getElementById('topbarUserName');
+  const sidebarNewCount = document.getElementById('sidebarNewCount');
+
+  // Greeting
+  const greetingLabel = document.getElementById('dashGreetingLabel');
+  const dashCurrentTime = document.getElementById('dashCurrentTime');
 
   // Filter Tab Badges
   const countAll = document.getElementById('countAll');
@@ -161,6 +174,49 @@ function initAdminDashboard() {
   // 1. Verify authentication immediately
   verifySession();
 
+  // 2. Initialise greeting, clock, and sidebar
+  initGreetingAndClock();
+  initSidebarToggle();
+
+  function initGreetingAndClock() {
+    function updateGreeting() {
+      const now = new Date();
+      const h = now.getHours();
+      const greeting = h < 12 ? 'Good morning, Ethan.' :
+                       h < 17 ? 'Good afternoon, Ethan.' :
+                                'Good evening, Ethan.';
+      if (greetingLabel) greetingLabel.textContent = greeting;
+      if (dashCurrentTime) {
+        dashCurrentTime.textContent = now.toLocaleTimeString(undefined, {
+          hour: '2-digit', minute: '2-digit'
+        });
+      }
+    }
+    updateGreeting();
+    setInterval(updateGreeting, 60000);
+  }
+
+  function initSidebarToggle() {
+    if (!sidebarToggleBtn || !sidebarEl) return;
+    const openSidebar = () => {
+      sidebarEl.classList.add('open');
+      if (sidebarOverlay) sidebarOverlay.classList.add('visible');
+      sidebarToggleBtn.setAttribute('aria-expanded', 'true');
+    };
+    const closeSidebar = () => {
+      sidebarEl.classList.remove('open');
+      if (sidebarOverlay) sidebarOverlay.classList.remove('visible');
+      sidebarToggleBtn.setAttribute('aria-expanded', 'false');
+    };
+    sidebarToggleBtn.addEventListener('click', () => {
+      sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebarEl.classList.contains('open')) closeSidebar();
+    });
+  }
+
   async function verifySession() {
     try {
       const res = await fetch('../api/admin-session.php');
@@ -173,6 +229,13 @@ function initAdminDashboard() {
 
       if (adminUserBadge && data.user?.username) {
         adminUserBadge.textContent = data.user.username;
+      }
+
+      // Sync topbar user name & avatar initial
+      if (data.user?.username) {
+        const uname = data.user.username;
+        if (topbarUserName) topbarUserName.textContent = uname;
+        if (topbarUserAvatar) topbarUserAvatar.textContent = uname.charAt(0).toUpperCase();
       }
 
       // Session verified; load messages
@@ -236,9 +299,23 @@ function initAdminDashboard() {
     if (!stats) return;
 
     if (statTotal) statTotal.textContent = stats.total ?? allMessages.length;
-    if (statNew) statNew.textContent = stats.new ?? 0;
+    const newCount = stats.new ?? 0;
+    if (statNew) statNew.textContent = newCount;
+    if (statNewContext) {
+      statNewContext.textContent = newCount === 0 ? 'All caught up' : `${newCount} need${newCount === 1 ? 's' : ''} review`;
+    }
     if (statWeek) statWeek.textContent = stats.this_week ?? 0;
     if (statReplied) statReplied.textContent = stats.replied ?? 0;
+
+    // Sidebar badge
+    if (sidebarNewCount) {
+      if (newCount > 0) {
+        sidebarNewCount.textContent = newCount;
+        sidebarNewCount.style.display = '';
+      } else {
+        sidebarNewCount.style.display = 'none';
+      }
+    }
 
     // Filter pill counts
     if (countAll) countAll.textContent = allMessages.length;
@@ -352,9 +429,25 @@ function initAdminDashboard() {
       });
       tdStatus.appendChild(badge);
 
-      // Column 3: Sender Name & Email
+      // Column 3: Sender Name & Email (with avatar initial)
       const tdSender = document.createElement('td');
       tdSender.className = 'td-sender';
+
+      const senderWrap = document.createElement('div');
+      senderWrap.className = 'sender-row';
+
+      // Avatar initial
+      const avatar = document.createElement('span');
+      avatar.className = 'sender-avatar';
+      const initials = (msg.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      avatar.textContent = initials;
+      avatar.setAttribute('aria-hidden', 'true');
+      // Deterministic color from name
+      const hue = [...(msg.name || 'A')].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
+      avatar.style.setProperty('--avatar-hue', hue);
+
+      const senderMeta = document.createElement('div');
+
       const senderName = document.createElement('div');
       senderName.style.fontWeight = '600';
       senderName.style.color = 'var(--text-primary)';
@@ -369,8 +462,11 @@ function initAdminDashboard() {
       emailLink.style.marginTop = '2px';
       emailLink.addEventListener('click', (e) => e.stopPropagation());
 
-      tdSender.appendChild(senderName);
-      tdSender.appendChild(emailLink);
+      senderMeta.appendChild(senderName);
+      senderMeta.appendChild(emailLink);
+      senderWrap.appendChild(avatar);
+      senderWrap.appendChild(senderMeta);
+      tdSender.appendChild(senderWrap);
 
       // Column 4: Message Snippet
       const tdMsg = document.createElement('td');
