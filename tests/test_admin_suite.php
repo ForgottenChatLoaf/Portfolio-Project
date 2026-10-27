@@ -346,6 +346,37 @@ assert_test(
 $pdo->exec("DELETE FROM contact_messages WHERE id = {$formulaMsgId}");
 
 // -------------------------------------------------------------
+// TEST 10: Mark All as Read Workflow & DB Verification
+// -------------------------------------------------------------
+echo "\n--- 10. Mark All as Read Workflow ---\n";
+// Insert 2 temporary messages with 'new' status
+$pdo->exec("INSERT INTO contact_messages (name, email, message, date_sent, status) VALUES ('Test MarkRead 1', 'test1@example.com', 'Message 1', NOW(), 'new')");
+$markId1 = (int)$pdo->lastInsertId();
+$pdo->exec("INSERT INTO contact_messages (name, email, message, date_sent, status) VALUES ('Test MarkRead 2', 'test2@example.com', 'Message 2', NOW(), 'new')");
+$markId2 = (int)$pdo->lastInsertId();
+
+$markOpts = [
+    'http' => [
+        'method'  => 'POST',
+        'header'  => "Cookie: {$sessionCookie}\r\nContent-Type: application/json\r\n",
+        'content' => json_encode(['action' => 'mark_all_read', 'csrf_token' => $csrfToken]),
+        'ignore_errors' => true
+    ]
+];
+$markRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-messages.php', false, stream_context_create($markOpts));
+$markJson = json_decode($markRes, true);
+
+$unmarkCount = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages WHERE id IN ({$markId1}, {$markId2}) AND status = 'new'")->fetchColumn();
+assert_test(
+    "Mark all as read endpoint transitions all new messages to 'read'",
+    ($markJson['status'] ?? '') === 'success' && $unmarkCount === 0,
+    "Updated: " . ($markJson['updated_count'] ?? 0) . " messages, pending new: {$unmarkCount}"
+);
+
+// Clean up
+$pdo->exec("DELETE FROM contact_messages WHERE id IN ({$markId1}, {$markId2})");
+
+// -------------------------------------------------------------
 // SUMMARY
 // -------------------------------------------------------------
 echo "\n======================================================\n";

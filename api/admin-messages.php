@@ -101,6 +101,26 @@ if (empty($clientCsrf) || !verify_csrf_token((string)$clientCsrf)) {
     ]);
 }
 
+if ($method === 'POST' && ($input['action'] ?? '') === 'mark_all_read') {
+    try {
+        $stmt = $pdo->prepare("UPDATE contact_messages SET status = 'read' WHERE status = 'new'");
+        $stmt->execute();
+        $updated = $stmt->rowCount();
+
+        send_json_response(200, [
+            'status'        => 'success',
+            'message'       => $updated > 0 ? "Marked {$updated} message(s) as read." : "No new messages to mark as read.",
+            'updated_count' => $updated
+        ]);
+    } catch (Throwable $e) {
+        error_log('Admin Mark All Read Error: ' . $e->getMessage());
+        send_json_response(500, [
+            'status'  => 'error',
+            'message' => 'Failed to mark messages as read.'
+        ]);
+    }
+}
+
 if ($method === 'PATCH' || ($method === 'POST' && ($input['action'] ?? '') === 'update_status')) {
     $id = filter_var($input['id'] ?? 0, FILTER_VALIDATE_INT);
     $newStatus = trim((string)($input['status'] ?? ''));

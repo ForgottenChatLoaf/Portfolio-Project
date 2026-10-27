@@ -8,10 +8,11 @@
 document.addEventListener('DOMContentLoaded', () => {
   const isLoginPage = document.getElementById('adminLoginForm') !== null;
   const isDashboardPage = document.getElementById('adminDashboard') !== null;
+  const isMessagesPage = document.getElementById('adminMessagesPage') !== null;
 
   if (isLoginPage) {
     initAdminLogin();
-  } else if (isDashboardPage) {
+  } else if (isDashboardPage || isMessagesPage) {
     initAdminDashboard();
   }
 });
@@ -97,10 +98,13 @@ function initAdminLogin() {
    ADMIN DASHBOARD LOGIC
    ============================================================ */
 function initAdminDashboard() {
-  // DOM Elements
+  const isOverviewPage = document.getElementById('adminDashboard') !== null;
   const adminUserBadge = document.getElementById('adminUserBadge');
   const logoutBtn = document.getElementById('adminLogoutBtn');
   const refreshBtn = document.getElementById('refreshMessagesBtn');
+  const refreshDashboardBtn = document.getElementById('refreshDashboardBtn');
+  const markAllReadBtn = document.getElementById('markAllReadBtn');
+  const overviewMarkAllReadBtn = document.getElementById('overviewMarkAllReadBtn');
   const searchInput = document.getElementById('messagesSearchInput');
   const sortSelect = document.getElementById('messagesSortSelect');
   const messagesTableBody = document.getElementById('messagesTableBody');
@@ -350,7 +354,18 @@ function initAdminDashboard() {
   function applyFiltersAndRender() {
     let list = [...allMessages];
 
-    // Status Filter
+    // On Overview hub, show only the latest 4 inquiries
+    if (isOverviewPage) {
+      list.sort((a, b) => {
+        const dateA = new Date((a.date_sent || '').replace(' ', 'T')).getTime() || 0;
+        const dateB = new Date((b.date_sent || '').replace(' ', 'T')).getTime() || 0;
+        return dateB - dateA || b.id - a.id;
+      });
+      renderMessagesTable(list.slice(0, 4));
+      return;
+    }
+
+    // Status Filter (Messages page)
     if (currentFilter !== 'all') {
       list = list.filter(m => (m.status || 'new') === currentFilter);
     }
@@ -805,12 +820,66 @@ function initAdminDashboard() {
     });
   }
 
-  // Refresh Button
+  // Mark All As Read Logic
+  async function markAllAsRead() {
+    const unreadCount = allMessages.filter(m => (m.status || 'new') === 'new').length;
+    if (unreadCount === 0) {
+      showToast('All messages are already marked as read.', 'info');
+      return;
+    }
+
+    const token = await ensureCsrfToken();
+    const actionBtns = [markAllReadBtn, overviewMarkAllReadBtn].filter(Boolean);
+
+    actionBtns.forEach(btn => {
+      btn.disabled = true;
+      btn.dataset.origHtml = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+    });
+
+    try {
+      const res = await fetch('../api/admin-messages.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': token
+        },
+        body: JSON.stringify({ action: 'mark_all_read', csrf_token: token })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        showToast(data.message || 'Marked all messages as read!', 'success');
+        await loadMessages();
+      } else {
+        showToast(data.message || 'Failed to update messages.', 'error');
+      }
+    } catch (err) {
+      console.error('Mark all read error:', err);
+      showToast('Network error while marking messages as read.', 'error');
+    } finally {
+      actionBtns.forEach(btn => {
+        btn.disabled = false;
+        if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml;
+      });
+    }
+  }
+
+  markAllReadBtn?.addEventListener('click', markAllAsRead);
+  overviewMarkAllReadBtn?.addEventListener('click', markAllAsRead);
+
+  // Refresh Buttons
   refreshBtn?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
     currentSearch = '';
     loadMessages();
     showToast('Inquiries refreshed from database.', 'info');
+  });
+
+  refreshDashboardBtn?.addEventListener('click', () => {
+    loadMessages();
+    showToast('Dashboard statistics refreshed.', 'info');
   });
 
   // Logout Button

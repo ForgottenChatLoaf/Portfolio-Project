@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Admin Dashboard | Messages &amp; Management</title>
+  <title>Admin Dashboard | Overview</title>
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,13 +25,13 @@
     <nav class="sidebar-nav" aria-label="Admin sections">
       <ul>
         <li>
-          <a href="#" class="sidebar-link active" data-section="overview" aria-current="page">
+          <a href="dashboard.html" class="sidebar-link active" data-section="overview" aria-current="page">
             <i class="fa-solid fa-house-chimney" aria-hidden="true"></i>
             <span>Overview</span>
           </a>
         </li>
         <li>
-          <a href="#" class="sidebar-link" data-section="messages">
+          <a href="messages.html" class="sidebar-link" data-section="messages">
             <i class="fa-solid fa-inbox" aria-hidden="true"></i>
             <span>Messages</span>
             <span class="sidebar-badge" id="sidebarNewCount" aria-label="new messages"></span>
@@ -60,7 +60,7 @@
        ============================================================ -->
   <div class="admin-main" id="adminMain">
 
-    <!-- Top bar (visible on mobile: hamburger + branding + quick actions) -->
+    <!-- Top bar -->
     <header class="admin-topbar" aria-label="Admin top bar">
       <button class="sidebar-toggle" id="sidebarToggle"
               aria-label="Open navigation menu" aria-expanded="false" aria-controls="adminSidebar">
@@ -73,11 +73,11 @@
       </div>
 
       <div class="topbar-actions">
-        <a href="../api/admin-export.php" class="btn-outline btn-sm" id="exportCsvBtn" title="Download sanitized CSV">
-          <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
-          <span class="topbar-btn-label">Export CSV</span>
+        <a href="messages.html" class="btn-primary btn-sm">
+          <i class="fa-solid fa-inbox" aria-hidden="true"></i>
+          <span class="topbar-btn-label">Go to Inbox</span>
         </a>
-        <button type="button" class="btn-outline btn-sm" id="refreshMessagesBtn" title="Reload messages from database">
+        <button type="button" class="btn-outline btn-sm" id="refreshDashboardBtn" title="Reload dashboard statistics">
           <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
           <span class="topbar-btn-label">Refresh</span>
         </button>
@@ -93,7 +93,7 @@
       <section class="dash-greeting" aria-label="Dashboard greeting">
         <div>
           <h1 class="dash-greeting-label" id="dashGreetingLabel">Good evening, Ethan.</h1>
-          <p class="dash-greeting-sub">Here&rsquo;s what&rsquo;s happening with your portfolio.</p>
+          <p class="dash-greeting-sub">Here&rsquo;s what&rsquo;s happening with your portfolio today.</p>
         </div>
         <div class="dash-meta-badge">
           <i class="fa-regular fa-clock" aria-hidden="true"></i>
@@ -104,16 +104,16 @@
       <!-- ============================================================
            STATISTICS CARDS
            ============================================================ -->
-      <section class="admin-stats-grid" aria-label="Messages summary statistics">
+      <section class="admin-stats-grid" aria-label="Portfolio statistics summary">
 
         <div class="stat-card stat-total">
           <div class="stat-icon-wrap" aria-hidden="true">
             <i class="fa-solid fa-inbox"></i>
           </div>
           <div class="stat-body">
-            <span class="stat-value" id="statTotal">—</span>
+            <span class="stat-value" id="statTotal">&mdash;</span>
             <span class="stat-label">Total Inquiries</span>
-            <span class="stat-context">All time</span>
+            <span class="stat-context">All time submissions</span>
           </div>
         </div>
 
@@ -122,7 +122,7 @@
             <i class="fa-solid fa-envelope"></i>
           </div>
           <div class="stat-body">
-            <span class="stat-value" id="statNew">—</span>
+            <span class="stat-value" id="statNew">&mdash;</span>
             <span class="stat-label">
               <span class="pulse-dot" aria-hidden="true"></span>New / Unread
             </span>
@@ -135,7 +135,7 @@
             <i class="fa-solid fa-calendar-week"></i>
           </div>
           <div class="stat-body">
-            <span class="stat-value" id="statWeek">—</span>
+            <span class="stat-value" id="statWeek">&mdash;</span>
             <span class="stat-label">This Week</span>
             <span class="stat-context">Last 7 days</span>
           </div>
@@ -146,101 +146,133 @@
             <i class="fa-solid fa-reply"></i>
           </div>
           <div class="stat-body">
-            <span class="stat-value" id="statReplied">—</span>
+            <span class="stat-value" id="statReplied">&mdash;</span>
             <span class="stat-label">Replied</span>
-            <span class="stat-context">Marked as replied</span>
+            <span class="stat-context">Handled inquiries</span>
           </div>
         </div>
 
       </section>
 
       <!-- ============================================================
-           INBOX SECTION
+           QUICK ACTIONS SECTION
            ============================================================ -->
-      <section class="inbox-section" aria-label="Message inbox">
+      <section class="quick-actions-section" aria-label="Quick management actions">
+        <h2 class="quick-actions-title">
+          <i class="fa-solid fa-bolt" style="color: var(--accent-light);" aria-hidden="true"></i>
+          <span>Quick Actions</span>
+        </h2>
+        <div class="quick-actions-grid">
 
-        <div class="inbox-header">
-          <div class="inbox-title-group">
-            <h2 class="inbox-title">Your Inbox</h2>
-            <p class="inbox-subtitle">Recent contact submissions</p>
-          </div>
-        </div>
-
-        <!-- Toolbar: filter tabs + search/sort -->
-        <div class="admin-toolbar">
-          <div class="admin-tabs" role="tablist" aria-label="Message status filters">
-            <button type="button" class="tab-btn active" data-filter="all" role="tab" aria-selected="true">
-              All <span class="tab-pill" id="countAll">0</span>
-            </button>
-            <button type="button" class="tab-btn" data-filter="new" role="tab" aria-selected="false">
-              <span class="tab-status-dot dot-new" aria-hidden="true"></span>New
-              <span class="tab-pill" id="countNew">0</span>
-            </button>
-            <button type="button" class="tab-btn" data-filter="read" role="tab" aria-selected="false">
-              Read <span class="tab-pill" id="countRead">0</span>
-            </button>
-            <button type="button" class="tab-btn" data-filter="replied" role="tab" aria-selected="false">
-              Replied <span class="tab-pill" id="countReplied">0</span>
-            </button>
-            <button type="button" class="tab-btn" data-filter="archived" role="tab" aria-selected="false">
-              Archived <span class="tab-pill" id="countArchived">0</span>
-            </button>
-          </div>
-
-          <div class="admin-actions-bar">
-            <div class="admin-search-box">
-              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-              <input type="search" id="messagesSearchInput"
-                     placeholder="Search by name, email, keyword…"
-                     autocomplete="off" aria-label="Search messages">
+          <a href="messages.html" class="quick-action-card">
+            <div class="quick-action-icon">
+              <i class="fa-solid fa-inbox" aria-hidden="true"></i>
             </div>
-            <select id="messagesSortSelect" class="admin-sort-select"
-                    title="Sort messages order" aria-label="Sort order">
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
-            </select>
+            <div class="quick-action-info">
+              <div class="quick-action-heading">
+                <span>Manage Inbox</span>
+                <i class="fa-solid fa-arrow-right" style="font-size: 11px; opacity: 0.7;" aria-hidden="true"></i>
+              </div>
+              <p class="quick-action-sub">View full list, filter &amp; search</p>
+            </div>
+          </a>
+
+          <button type="button" class="quick-action-card" id="overviewMarkAllReadBtn">
+            <div class="quick-action-icon" style="color: #34d399;">
+              <i class="fa-solid fa-check-double" aria-hidden="true"></i>
+            </div>
+            <div class="quick-action-info">
+              <div class="quick-action-heading">
+                <span>Mark All Read</span>
+              </div>
+              <p class="quick-action-sub">Clear unread notifications queue</p>
+            </div>
+          </button>
+
+          <a href="../api/admin-export.php" class="quick-action-card" title="Download sanitized CSV">
+            <div class="quick-action-icon" style="color: #fbbf24;">
+              <i class="fa-solid fa-file-csv" aria-hidden="true"></i>
+            </div>
+            <div class="quick-action-info">
+              <div class="quick-action-heading">
+                <span>Export CSV</span>
+              </div>
+              <p class="quick-action-sub">Download spreadsheet report</p>
+            </div>
+          </a>
+
+          <a href="../index.html" class="quick-action-card" target="_blank" rel="noopener">
+            <div class="quick-action-icon" style="color: #818cf8;">
+              <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </div>
+            <div class="quick-action-info">
+              <div class="quick-action-heading">
+                <span>View Public Site</span>
+              </div>
+              <p class="quick-action-sub">Open live portfolio in new tab</p>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ============================================================
+           RECENT ACTIVITY (LATEST INQUIRIES)
+           ============================================================ -->
+      <section class="inbox-section" aria-label="Recent contact inquiries">
+
+        <div class="inbox-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div class="inbox-title-group">
+            <h2 class="inbox-title">Recent Inquiries</h2>
+            <p class="inbox-subtitle">Latest contact form submissions</p>
           </div>
+          <a href="messages.html" class="btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 8px;">
+            <span>View All Messages</span>
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </a>
         </div>
 
-        <!-- Loading state -->
-        <div id="messagesLoading" class="inbox-state" style="display: none;"
-             aria-live="polite" aria-busy="true">
-          <i class="fa-solid fa-spinner fa-spin inbox-state-icon" aria-hidden="true"></i>
-          <p>Loading messages&hellip;</p>
-        </div>
-
-        <!-- Empty state -->
-        <div id="emptyMessagesState" class="inbox-state" style="display: none;" aria-live="polite">
-          <i class="fa-regular fa-envelope-open inbox-state-icon" aria-hidden="true"></i>
-          <p class="inbox-state-title">No messages found</p>
-          <p id="emptyStateMessage">No contact inquiries match the current filter.</p>
-        </div>
-
-        <!-- Messages Table -->
+        <!-- Table Container -->
         <div class="table-responsive" id="tableContainer">
-          <table class="messages-table" aria-label="Contact messages">
+          <table class="messages-table" aria-label="Recent submissions list">
             <thead>
               <tr>
-                <th scope="col" style="width: 56px;">#</th>
-                <th scope="col" style="width: 110px;">Status</th>
-                <th scope="col" style="width: 230px;">Sender</th>
+                <th scope="col" style="width: 50px;">#</th>
+                <th scope="col" style="width: 130px;">Status</th>
+                <th scope="col" style="width: 220px;">Sender</th>
                 <th scope="col">Preview</th>
-                <th scope="col" style="width: 160px;">Received</th>
-                <th scope="col" style="width: 96px; text-align: center;">Actions</th>
+                <th scope="col" style="width: 170px;">Received</th>
+                <th scope="col" style="width: 90px; text-align: center;">Actions</th>
               </tr>
             </thead>
             <tbody id="messagesTableBody">
-              <!-- Populated by admin.js -->
+              <!-- Dynamically populated via admin.js (limited to latest 4) -->
             </tbody>
           </table>
+
+          <!-- Empty State -->
+          <div id="emptyMessagesState" class="empty-state" style="display: none; padding: 50px 20px; text-align: center;">
+            <i class="fa-regular fa-folder-open" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 14px;" aria-hidden="true"></i>
+            <h3 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 4px;">No inquiries yet</h3>
+            <p id="emptyStateMessage" style="color: var(--text-muted); font-size: 0.88rem;">
+              When visitors submit the contact form, their inquiries will appear here.
+            </p>
+          </div>
+
+          <!-- Loading Indicator -->
+          <div id="messagesLoading" class="loading-state" style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 45px 20px;">
+            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 1.4rem; color: var(--accent);" aria-hidden="true"></i>
+            <span style="color: var(--text-secondary); font-size: 0.9rem;">Loading recent inquiries...</span>
+          </div>
         </div>
 
       </section>
+
     </main>
   </div>
 
   <!-- ============================================================
-       CUSTOM DELETION CONFIRMATION MODAL (no native browser confirm)
+       CUSTOM DELETION CONFIRMATION MODAL
        ============================================================ -->
   <div class="admin-modal-overlay" id="deleteConfirmModal"
        role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
@@ -303,7 +335,7 @@
           </div>
           <div class="detail-meta-item">
             <label>Current Status</label>
-            <div id="detailStatusBadgeWrap"></div>
+            <span id="detailStatusBadge" class="status-badge">&mdash;</span>
           </div>
         </div>
 
