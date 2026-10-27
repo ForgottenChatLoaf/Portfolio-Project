@@ -3767,6 +3767,7 @@ footer {
   object-fit: cover;
 }
 
+.profile-modal-card,
 .profile-modal-box {
   max-width: 520px;
   width: 90%;
@@ -3892,4 +3893,12 @@ footer {
 .profile-modal-footer .modal-footer-actions {
   display: flex;
   gap: 10px;
+}
+
+
+.sidebar-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
 }

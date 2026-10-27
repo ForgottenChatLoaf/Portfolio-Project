@@ -37,6 +37,12 @@
             <span class="sidebar-badge" id="sidebarNewCount" aria-label="new messages"></span>
           </a>
         </li>
+        <li>
+          <button type="button" class="sidebar-link sidebar-btn" id="sidebarOpenProfileBtn" aria-label="Customize Profile and Appearance">
+            <i class="fa-solid fa-palette" aria-hidden="true"></i>
+            <span>Customization</span>
+          </button>
+        </li>
       </ul>
     </nav>
 
@@ -288,16 +294,15 @@
   </div>
 
   <!-- ============================================================
-       ADMIN PROFILE & APPEARANCE EDITOR MODAL (Experimental)
+       ADMIN PROFILE & APPEARANCE EDITOR MODAL (Overlay)
        ============================================================ -->
-  <div class="admin-modal" id="adminProfileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle" hidden>
-    <div class="modal-backdrop" id="profileModalBackdrop"></div>
-    <div class="modal-box profile-modal-box">
+  <div class="admin-modal-overlay" id="adminProfileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle" aria-hidden="true">
+    <div class="admin-modal-card profile-modal-card">
       <div class="modal-header">
-        <h2 id="profileModalTitle" style="font-family: 'DM Sans', sans-serif; font-size: 1.15rem; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+        <h2 id="profileModalTitle">
           <i class="fa-solid fa-user-gear" style="color: var(--accent);" aria-hidden="true"></i> Admin Profile & Appearance
         </h2>
-        <button type="button" class="modal-close" id="closeProfileModalBtn" aria-label="Close profile modal">&times;</button>
+        <button type="button" class="btn-close-modal" id="closeProfileModalBtn" aria-label="Close profile modal">&times;</button>
       </div>
 
       <form id="adminProfileForm" novalidate>

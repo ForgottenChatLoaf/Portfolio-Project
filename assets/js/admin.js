@@ -1007,9 +1007,8 @@ function initAdminDashboard() {
      ADMIN PROFILE & APPEARANCE EDITOR (Experimental)
      ============================================================ */
   function initAdminProfileModal() {
-    const openBtn = document.getElementById('openProfileModalBtn');
+    const openBtns = document.querySelectorAll('#openProfileModalBtn, #sidebarOpenProfileBtn, [data-open-profile-modal]');
     const modal = document.getElementById('adminProfileModal');
-    const backdrop = document.getElementById('profileModalBackdrop');
     const closeBtn = document.getElementById('closeProfileModalBtn');
     const cancelBtn = document.getElementById('cancelProfileModalBtn');
     const form = document.getElementById('adminProfileForm');
@@ -1106,25 +1105,34 @@ function initAdminDashboard() {
       renderAccentGrid();
       syncAvatarPreview();
 
-      modal.hidden = false;
-      modal.classList.add('show');
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      if (sidebarEl && sidebarEl.classList.contains('open')) {
+        sidebarEl.classList.remove('open');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('visible');
+      }
       nameInput?.focus();
     }
 
     function closeModal() {
-      modal.hidden = true;
-      modal.classList.remove('show');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
       // Revert accent preview to saved profile if cancelled
       applyAccentColor(currentAdminProfile.accent_color || '#6c63ff');
     }
 
-    openBtn?.addEventListener('click', openModal);
-    backdrop?.addEventListener('click', closeModal);
+    openBtns.forEach(btn => btn.addEventListener('click', openModal));
+    // Click outside modal card on overlay background to close
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
     closeBtn?.addEventListener('click', closeModal);
     cancelBtn?.addEventListener('click', closeModal);
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !modal.hidden) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) {
         closeModal();
       }
     });
