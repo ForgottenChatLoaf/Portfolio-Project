@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio of Ethan McClarence Gacud, a student web developer from Quezon City, Philippines, focusing on HTML, CSS, JavaScript, PHP, and MySQL.">
+  <meta name="author" content="Ethan McClarence Gacud">
+  <title>Ethan Gacud | Portfolio</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body data-page="home">
+
+  <!-- Loading Screen -->
+  <div id="loader" class="loader">
+    <div class="loader-content">
+      <div class="loader-logo">ETHAN.</div>
+      <div class="loader-counter"><span id="loaderPercentage">0</span>%</div>
+    </div>
+  </div>
+
+  <!-- Custom Magnetic Cursor -->
+  <div class="custom-cursor" id="customCursor"></div>
+
+  <!-- Reusable Navbar Partial -->
+  <div id="navbar-placeholder"></div>
+
+  <main>
+    <!-- Hero / Home Section -->
+    <section class="hero-section" id="home">
+      <canvas id="shootingStars"></canvas>
+      <div class="hero-content">
+        <div class="hero-badge reveal-hero" style="--d:0ms">
+          <span class="status-dot"></span>
+          Available for opportunities
+        </div>
+        <h1 class="reveal-hero" style="--d:120ms">
+          Hi, I'm <span class="accent">Ethan.</span>
+        </h1>
+        <p class="hero-sub reveal-hero" style="--d:240ms">
+          I build fast, interactive web experiences.
+        </p>
+        <p class="hero-body reveal-hero" style="--d:360ms">
+          Student developer focused on <br>
+          <span class="typed-text" id="typedText">frontend craft</span><span class="cursor">|</span>
+        </p>
+        <div class="hero-cta reveal-hero" style="--d:480ms">
+          <a href="projects.html" class="btn-primary">View My Work <i class="fa-solid fa-arrow-right"></i></a>
+          <a href="contact.html" class="btn-outline">Get in Touch</a>
+          <!-- Buy Me a Coffee (Phase 4 Design Placeholder) -->
+          <button type="button" class="btn-coffee" id="buyMeCoffeeBtn" title="Buy Ethan a coffee">
+            Buy Me a Coffee ☕
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Reusable Footer Partial -->
+  <div id="footer-placeholder"></div>
+
+  <script src="assets/js/partials.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Dashboard | Messages</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body id="adminDashboard">
+
+  <!-- Header -->
+  <header style="border-bottom: 1px solid var(--border); padding: 18px 5%; background: var(--bg-surface); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="../index.html" class="nav-logo" style="font-size: 1.25rem;">ETHAN.</a>
+      <span class="admin-badge"><i class="fa-solid fa-shield-halved"></i> Admin Portal</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span class="admin-badge" style="background: var(--accent-dim); color: var(--accent); border-color: var(--border-hover);">
+        <i class="fa-solid fa-user-check"></i> <strong id="adminUserBadge">admin</strong>
+      </span>
+      <a href="../index.html" class="btn-ghost btn-sm" target="_blank" title="Preview public website">
+        <i class="fa-solid fa-globe"></i> View Site
+      </a>
+      <button type="button" class="btn-outline btn-sm" id="adminLogoutBtn">
+        <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+      </button>
+    </div>
+  </header>
+
+  <main style="padding: 40px 5%; max-width: 1300px; margin: 0 auto; width: 100%;">
+    <div class="admin-header">
+      <div>
+        <span class="section-eyebrow">Database Inquiries</span>
+        <h1 style="font-size: 2.2rem; margin-top: 4px;">Contact Messages</h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px;">
+          Submissions received from the two-step public contact form.
+        </p>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <span class="admin-badge" id="messageCountBadge">0 messages</span>
+        <button type="button" class="btn-outline btn-sm" id="refreshMessagesBtn" title="Reload messages from database">
+          <i class="fa-solid fa-rotate-right"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Search / Filter Bar -->
+    <div style="margin-bottom: 24px; max-width: 480px;">
+      <div style="position: relative;">
+        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+        <input type="search" id="messagesSearchInput" placeholder="Search by name, email, or message keyword..." style="width: 100%; padding: 12px 16px 12px 42px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-family: inherit;">
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="messagesLoading" style="text-align: center; padding: 48px; color: var(--text-secondary); display: none;">
+      <i class="fa-solid fa-spinner fa-spin" style="font-size: 28px; color: var(--accent); margin-bottom: 12px;"></i>
+      <p>Fetching messages from database...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyMessagesState" style="text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 1px dashed var(--border); border-radius: var(--radius); display: none;">
+      <i class="fa-regular fa-envelope-open" style="font-size: 40px; color: var(--text-muted); margin-bottom: 14px;"></i>
+      <h3>No Messages Found</h3>
+      <p style="color: var(--text-secondary); font-size: 0.92rem; margin-top: 6px;">No contact inquiries currently match the criteria.</p>
+    </div>
+
+    <!-- Messages Table -->
+    <div class="table-responsive">
+      <table class="messages-table" aria-label="Contact Messages">
+        <thead>
+          <tr>
+            <th style="width: 70px;">ID</th>
+            <th style="width: 180px;">Name</th>
+            <th style="width: 220px;">Email</th>
+            <th>Message Content</th>
+            <th style="width: 180px;">Date Received</th>
+            <th style="width: 70px; text-align: center;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="messagesTableBody">
+          <!-- Populated dynamically by admin.js -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="../assets/js/admin.js"></script>
+</body>
+</html>

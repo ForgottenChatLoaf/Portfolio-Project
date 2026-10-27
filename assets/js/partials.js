@@ -1,0 +1,166 @@
+/**
+ * Partials Loader & Shared Navigation Logic
+ * Loads reusable navbar and footer across all portfolio pages
+ * Handles theme toggling, active states, and mobile menu
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadPartials();
+});
+
+async function loadPartials() {
+  const isInsideAdmin = window.location.pathname.includes('/admin/');
+  const basePath = isInsideAdmin ? '../' : '';
+
+  // 1. Load Navbar
+  const navPlaceholder = document.getElementById('navbar-placeholder') || document.getElementById('navbar-container');
+  if (navPlaceholder) {
+    try {
+      const res = await fetch(`${basePath}partials/navbar.html`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      navPlaceholder.innerHTML = html;
+      initNavbar(basePath, isInsideAdmin);
+    } catch (err) {
+      console.warn('Navbar partial could not be loaded via fetch:', err);
+    }
+  }
+
+  // 2. Load Footer
+  const footerPlaceholder = document.getElementById('footer-placeholder') || document.getElementById('footer-container');
+  if (footerPlaceholder) {
+    try {
+      const res = await fetch(`${basePath}partials/footer.html`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      footerPlaceholder.innerHTML = html;
+      initFooter(basePath, isInsideAdmin);
+    } catch (err) {
+      console.warn('Footer partial could not be loaded via fetch:', err);
+    }
+  }
+}
+
+function initNavbar(basePath, isInsideAdmin) {
+  const navbar = document.getElementById('navbar');
+  const navMenu = document.getElementById('navMenu');
+  const hamburger = document.getElementById('hamburger');
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const navLogo = document.querySelector('.nav-logo');
+
+  // Adjust links if inside subfolder like /admin/
+  if (isInsideAdmin) {
+    if (navLogo) navLogo.setAttribute('href', `${basePath}index.html`);
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && !href.startsWith('http') && !href.startsWith('../')) {
+        link.setAttribute('href', `${basePath}${href}`);
+      }
+    });
+  }
+
+  // Detect active page
+  const currentPage = document.body.dataset.page || detectPageFromUrl();
+  navLinks.forEach(link => {
+    const pageAttr = link.getAttribute('data-page');
+    if (pageAttr === currentPage) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.classList.remove('active');
+      link.removeAttribute('aria-current');
+    }
+  });
+
+  // Theme Persistence & Toggle
+  const savedTheme = localStorage.getItem('portfolio-theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    if (themeIcon) {
+      themeIcon.classList.remove('fa-sun');
+      themeIcon.classList.add('fa-moon');
+    }
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('portfolio-theme', isLight ? 'light' : 'dark');
+
+      if (themeIcon) {
+        if (isLight) {
+          themeIcon.classList.remove('fa-sun');
+          themeIcon.classList.add('fa-moon');
+        } else {
+          themeIcon.classList.remove('fa-moon');
+          themeIcon.classList.add('fa-sun');
+        }
+      }
+    });
+  }
+
+  // Hamburger Mobile Toggle
+  if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => {
+      const isOpen = hamburger.classList.toggle('open');
+      navMenu.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Close when clicking links
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        navMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navMenu.classList.contains('open')) {
+        hamburger.classList.remove('open');
+        navMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.focus();
+      }
+    });
+  }
+
+  // Navbar background change on scroll
+  window.addEventListener('scroll', () => {
+    if (navbar) {
+      if (window.scrollY > 40) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }
+  }, { passive: true });
+}
+
+function initFooter(basePath, isInsideAdmin) {
+  // Update current year dynamically
+  const yearSpan = document.getElementById('currentYear');
+  if (yearSpan) {
+    yearSpan.textContent = new Date().getFullYear();
+  }
+
+  // Adjust logo link if inside admin
+  if (isInsideAdmin) {
+    const footerLogo = document.querySelector('.footer-logo');
+    if (footerLogo) footerLogo.setAttribute('href', `${basePath}index.html`);
+  }
+}
+
+function detectPageFromUrl() {
+  const path = window.location.pathname.toLowerCase();
+  if (path.endsWith('about.html')) return 'about';
+  if (path.endsWith('skills.html')) return 'skills';
+  if (path.endsWith('projects.html')) return 'projects';
+  if (path.endsWith('contact.html')) return 'contact';
+  return 'home';
+}

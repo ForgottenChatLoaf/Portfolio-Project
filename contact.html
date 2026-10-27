@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact Ethan McClarence Gacud — Get in touch for project inquiries, collaborations, or questions.">
+  <meta name="author" content="Ethan McClarence Gacud">
+  <title>Contact Us | Ethan Gacud</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body data-page="contact">
+
+  <!-- Custom Magnetic Cursor -->
+  <div class="custom-cursor" id="customCursor"></div>
+
+  <!-- Reusable Navbar Partial -->
+  <div id="navbar-placeholder"></div>
+
+  <main>
+    <section id="contact">
+      <div class="section-inner">
+        <span class="section-eyebrow reveal">Get in Touch</span>
+        <h1 class="section-heading reveal">Contact Me.</h1>
+
+        <div class="contact-layout reveal">
+
+          <!-- Left Aside: Contact Coordinates -->
+          <div class="contact-aside">
+            <p class="contact-invite">Have a project inquiry, feedback, or just want to say hi? <em>I'd love to hear from you.</em> Send a message and it will be safely logged into my database.</p>
+            
+            <div class="contact-info-list">
+              <a href="mailto:ethangacud@gmail.com" class="contact-info-item">
+                <span class="ci-icon"><i class="fa-solid fa-envelope"></i></span>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Email</div>
+                  <span>ethangacud@gmail.com</span>
+                </div>
+              </a>
+
+              <a href="tel:+639398764353" class="contact-info-item">
+                <span class="ci-icon"><i class="fa-solid fa-phone"></i></span>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Phone</div>
+                  <span>+63 939 876 4353</span>
+                </div>
+              </a>
+
+              <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" class="contact-info-item">
+                <span class="ci-icon"><i class="fa-brands fa-facebook-f"></i></span>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Facebook</div>
+                  <span>takodachi.inya</span>
+                </div>
+              </a>
+
+              <a href="https://www.linkedin.com/in/ethan-mcclarence-panong-gacud-0568733b7/" target="_blank" rel="noopener noreferrer" class="contact-info-item">
+                <span class="ci-icon"><i class="fa-brands fa-linkedin-in"></i></span>
+                <div>
+                  <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">LinkedIn</div>
+                  <span>Ethan McClarence Gacud</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: Two-Step Interactive Form Card -->
+          <div class="contact-form-wrapper">
+
+            <!-- STEP 1: Name Prompt Card -->
+            <div class="contact-step-card" id="contactStep1">
+              <div class="step-eyebrow">Step 1 of 2</div>
+              <h2 class="step-title">Welcome! What is your name?</h2>
+              <p class="step-desc">Before composing your message, please introduce yourself so I know who I'm chatting with.</p>
+
+              <form id="step1Form" novalidate>
+                <div class="form-group">
+                  <label for="step1Name">Your Full Name</label>
+                  <input type="text" id="step1Name" name="name" placeholder="e.g. Alex Johnson" autocomplete="name" required maxlength="100">
+                  <span class="field-error" id="step1Error"></span>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary" id="step1NextBtn">
+                    Continue to Message <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- STEP 2: Email & Message Form Card -->
+            <div class="contact-step-card" id="contactStep2" style="display: none;">
+              <!-- Personalized Welcome Banner -->
+              <div class="welcome-banner">
+                <div class="welcome-text">
+                  <h3>Welcome, <span class="accent" id="welcomeVisitorName">Visitor</span> to my Portfolio!</h3>
+                  <p>Ready to receive your message below.</p>
+                </div>
+                <button type="button" class="link-btn" id="changeNameBtn" title="Use a different name">
+                  <i class="fa-solid fa-user-pen"></i> Change Name
+                </button>
+              </div>
+
+              <form id="contactForm" novalidate>
+                <div class="form-group">
+                  <label for="contactEmail">Your Email Address</label>
+                  <input type="email" id="contactEmail" name="email" placeholder="alex@example.com" autocomplete="email" required maxlength="100">
+                  <span class="field-error" id="emailError"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="contactMessage">Your Message</label>
+                  <textarea id="contactMessage" name="message" placeholder="Tell me about your project, ask a question, or leave a note..." required maxlength="5000"></textarea>
+                  <span class="field-error" id="messageError"></span>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-primary" id="contactSubmitBtn">
+                    Send Message <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                  <button type="button" class="btn-ghost" id="contactResetBtn">Clear</button>
+                </div>
+
+                <!-- Feedback Notices -->
+                <div class="form-feedback" id="formSuccess">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>Message saved to database! Ethan will get back to you soon.</span>
+                </div>
+
+                <div class="form-feedback form-error-box" id="formError">
+                  <i class="fa-solid fa-circle-exclamation"></i>
+                  <span id="formErrorMsg">Failed to send message. Please try again.</span>
+                </div>
+              </form>
+            </div>
+
+          </div><!-- /contact-form-wrapper -->
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Reusable Footer Partial -->
+  <div id="footer-placeholder"></div>
+
+  <script src="assets/js/partials.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/contact.js"></script>
+</body>
+</html>

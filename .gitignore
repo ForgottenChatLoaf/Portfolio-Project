@@ -1,0 +1,17 @@
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+credentials.txt
+*.log
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Temporary / Scratch
+tmp/
+temp/
