@@ -1858,6 +1858,33 @@ footer {
   color: #fff;
 }
 
+/* Status workflow buttons in detail modal — colored icons */
+[data-status-btn="new"] .tab-status-dot.dot-new {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+
+[data-status-btn="new"] i {
+  color: #10b981;
+}
+
+[data-status-btn="read"] i {
+  color: #94a3b8;
+}
+
+[data-status-btn="replied"] i {
+  color: #c084fc;
+}
+
+[data-status-btn="archived"] i {
+  color: #64748b;
+}
+
+[data-status-btn].active[data-status-btn="new"] { border-color: #10b981; background: rgba(16,185,129,0.14); color: #10b981; }
+[data-status-btn].active[data-status-btn="read"] { border-color: rgba(148,163,184,0.4); background: rgba(148,163,184,0.12); color: #94a3b8; }
+[data-status-btn].active[data-status-btn="replied"] { border-color: rgba(192,132,252,0.4); background: rgba(168,85,247,0.14); color: #c084fc; }
+[data-status-btn].active[data-status-btn="archived"] { border-color: rgba(100,116,139,0.4); background: rgba(100,116,139,0.12); color: #64748b; }
+
 .admin-actions-bar {
   display: flex;
   align-items: center;
@@ -2010,13 +2037,17 @@ footer {
   background: var(--bg-elevated);
 }
 
-.modal-header h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
+.modal-header h3,
+.modal-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
   color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 10px;
+  letter-spacing: normal;
+  line-height: 1.4;
 }
 
 .modal-body {
