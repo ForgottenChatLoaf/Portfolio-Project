@@ -1,0 +1,22 @@
+# ============================================================
+# Security Hardening & Directory Restrictions
+# Ethan McClarence Gacud Portfolio
+# ============================================================
+
+# 1. Disable Directory Browsing
+Options -Indexes
+
+# 2. Block direct web access to sensitive folders and file extensions
+<FilesMatch "^(\.env|\.git|\.gitignore|composer\.(json|lock)|package(-lock)?\.json|.*\.sql|.*\.md)$">
+    Require all denied
+</FilesMatch>
+
+# 3. Protect includes and config directories from direct URL execution
+RedirectMatch 403 ^/(config|includes)/.*$
+
+# 4. Global Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

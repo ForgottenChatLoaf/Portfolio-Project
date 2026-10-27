@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTypingEffect();
   initShootingStars();
   initScrollReveal();
-  initCoffeeButton();
+  initCoffeeNavModal();
   initDownloadCv();
   initProjectScrollers();
   initCarousel();
@@ -231,16 +231,124 @@ function initScrollReveal() {
 }
 
 /* ============================================================
-   6. BUY ME A COFFEE BUTTON
+   6. BUY ME A COFFEE (Global Navbar Button + Responsive Modal)
    ============================================================ */
-function initCoffeeButton() {
-  const coffeeBtn = document.getElementById('buyMeCoffeeBtn');
-  if (!coffeeBtn) return;
+function initCoffeeNavModal() {
+  const navCoffeeBtn = document.getElementById('coffeeNavBtn');
+  const legacyCoffeeBtn = document.getElementById('buyMeCoffeeBtn');
 
-  coffeeBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    // TODO: Replace with real Buy Me a Coffee or Ko-fi URL once Ethan sets up donations
-    showToast('Buy Me a Coffee link is coming soon! Thank you for your support.');
+  // Helper to ensure modal exists in DOM
+  function ensureCoffeeModal() {
+    let modal = document.getElementById('coffeeModal');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.className = 'coffee-modal-overlay';
+    modal.id = 'coffeeModal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'coffeeModalTitle');
+    modal.setAttribute('aria-hidden', 'true');
+
+    modal.innerHTML = `
+      <div class="coffee-modal-card" role="document">
+        <button type="button" class="coffee-modal-close" id="coffeeModalClose" aria-label="Close support modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="coffee-modal-header">
+          <div class="coffee-modal-icon">
+            <i class="fa-solid fa-mug-hot"></i>
+          </div>
+          <h3 class="coffee-modal-title" id="coffeeModalTitle">Buy Me a Coffee</h3>
+          <p class="coffee-modal-subtitle">A little support goes a long way.</p>
+        </div>
+
+        <div class="coffee-modal-body">
+          <p>Enjoying my portfolio or projects? If you'd like, you can support my learning journey and future projects with a voluntary contribution.</p>
+          <p>There's absolutely no obligation. Visiting my portfolio and checking out my work is already appreciated!</p>
+
+          <div class="coffee-modal-payment">
+            <div class="coffee-payment-method">
+              <span>Available payment method:</span>
+              <span class="badge-maya">Maya</span>
+            </div>
+            <p class="coffee-payment-instruction">Scan the Maya QR code to send a contribution.</p>
+
+            <div class="coffee-qr-wrapper">
+              <img src="assets/images/payments/maya-qr.png" alt="Ethan's Maya QR code for voluntary support" loading="lazy">
+            </div>
+
+            <!-- TODO: Future payment methods (e.g. GCash, PayPal, Ko-fi) can be added here once supplied and verified by the owner -->
+            <p class="coffee-coming-soon">
+              <i class="fa-solid fa-clock"></i> More donation methods coming soon!
+            </p>
+          </div>
+
+          <div class="coffee-modal-footer">
+            <p>All contributions are completely voluntary. Please only contribute if you wish to.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Close on close button click
+    const closeBtn = modal.querySelector('#coffeeModalClose');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeCoffeeModal);
+    }
+
+    // Close on overlay background click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeCoffeeModal();
+      }
+    });
+
+    return modal;
+  }
+
+  function openCoffeeModal(e) {
+    if (e) e.preventDefault();
+    const modal = ensureCoffeeModal();
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    // Focus close button for keyboard accessibility
+    const closeBtn = modal.querySelector('#coffeeModalClose');
+    if (closeBtn) setTimeout(() => closeBtn.focus(), 50);
+  }
+
+  function closeCoffeeModal() {
+    const modal = document.getElementById('coffeeModal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (navCoffeeBtn) navCoffeeBtn.focus();
+  }
+
+  // Attach click listener to navbar coffee button
+  if (navCoffeeBtn) {
+    navCoffeeBtn.addEventListener('click', openCoffeeModal);
+  }
+
+  // Fallback for any legacy hero coffee button
+  if (legacyCoffeeBtn) {
+    legacyCoffeeBtn.addEventListener('click', openCoffeeModal);
+  }
+
+  // ESC key to close modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('coffeeModal');
+      if (modal && modal.classList.contains('active')) {
+        closeCoffeeModal();
+      }
+    }
   });
 }
 

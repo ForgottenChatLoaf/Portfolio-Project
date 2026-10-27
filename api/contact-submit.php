@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact Message Submission Endpoint
+ * Contact Message Submission Endpoint (Secured & Hardened)
  * Endpoint: /api/contact-submit.php
  * Method: POST
  * Portfolio of Ethan McClarence Gacud
@@ -15,14 +15,14 @@ init_secure_session();
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Accept, X-Requested-With');
+header('Access-Control-Allow-Headers: Content-Type, Accept, X-Requested-With, X-CSRF-Token');
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// Only allow POST
+// 1. Verify HTTP Method
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     header('Allow: POST');
     send_json_response(405, [
@@ -33,6 +33,53 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
 
 $input = get_request_data();
 
+// 2. Lightweight Honeypot Bot Detection
+// If the hidden website_url field contains anything, reject silently or with friendly notice
+$honeypot = trim((string)($input['website_url'] ?? $input['website'] ?? ''));
+if (!empty($honeypot)) {
+    // Artificial bot response
+    send_json_response(200, [
+        'status'  => 'success',
+        'message' => 'Message received successfully.'
+    ]);
+}
+
+// 3. Minimum Completion Time Check (flag suspiciously fast submissions < 3 seconds)
+$formLoadTime = isset($input['form_loaded_at']) ? (int)$input['form_loaded_at'] : 0;
+if ($formLoadTime > 0) {
+    // If sent as timestamp in milliseconds
+    if ($formLoadTime > 100000000000) {
+        $formLoadTime = (int)($formLoadTime / 1000);
+    }
+    $elapsed = time() - $formLoadTime;
+    if ($elapsed >= 0 && $elapsed < 3) {
+        send_json_response(422, [
+            'status'  => 'error',
+            'message' => 'Submission received too quickly. Please take a moment before submitting.'
+        ]);
+    }
+}
+
+// 4. CSRF Token Verification (if provided by client session)
+$clientCsrf = $input['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+if (!empty($_SESSION['csrf_token']) && !empty($clientCsrf)) {
+    if (!verify_csrf_token((string)$clientCsrf)) {
+        send_json_response(403, [
+            'status'  => 'error',
+            'message' => 'Session expired or invalid security token. Please refresh the page and try again.'
+        ]);
+    }
+}
+
+// 5. Server-side Rate Limiting (max 5 submissions per 10 minutes)
+if (!check_contact_rate_limit(5, 600)) {
+    send_json_response(429, [
+        'status'  => 'error',
+        'message' => 'Please wait before submitting another message. Rate limit reached.'
+    ]);
+}
+
+// 6. Input Extraction & Server-side Validation
 $name    = sanitize_text($input['name'] ?? '', 100);
 $email   = sanitize_text($input['email'] ?? '', 100);
 $message = trim((string)($input['message'] ?? ''));
@@ -44,6 +91,8 @@ if (empty($name)) {
     $errors['name'] = 'Please enter your name.';
 } elseif (mb_strlen($name, 'UTF-8') < 2) {
     $errors['name'] = 'Name must be at least 2 characters long.';
+} elseif (mb_strlen($name, 'UTF-8') > 100) {
+    $errors['name'] = 'Name must not exceed 100 characters.';
 }
 
 // Email validation
@@ -53,19 +102,19 @@ if (empty($email)) {
     $errors['email'] = 'Please provide a valid email address.';
 }
 
-// Message validation
+// Message validation (sensible limit: 2,000 characters)
 if (empty($message)) {
     $errors['message'] = 'Please enter a message.';
 } elseif (mb_strlen($message, 'UTF-8') < 5) {
     $errors['message'] = 'Message must be at least 5 characters.';
-} elseif (mb_strlen($message, 'UTF-8') > 5000) {
-    $errors['message'] = 'Message must not exceed 5000 characters.';
+} elseif (mb_strlen($message, 'UTF-8') > 2000) {
+    $errors['message'] = 'Your message is too long (maximum 2,000 characters).';
 }
 
 if (!empty($errors)) {
     send_json_response(422, [
         'status'  => 'error',
-        'message' => 'Please correct the errors in the form.',
+        'message' => 'Please correct the highlighted fields.',
         'errors'  => $errors,
         'old'     => [
             'name'  => $name,
@@ -75,19 +124,20 @@ if (!empty($errors)) {
     ]);
 }
 
-// Duplicate submission prevention (check last submission in session within 15 seconds)
+// 7. Duplicate Submission Prevention (within 15 seconds)
 $now = time();
 $lastSubmitHash = $_SESSION['last_contact_hash'] ?? null;
 $lastSubmitTime = $_SESSION['last_contact_time'] ?? 0;
 $currentHash = hash('sha256', $name . '|' . $email . '|' . $message);
 
-if ($lastSubmitHash === $currentHash && ($now - $lastSubmitTime) < 15) {
+if ($lastSubmitHash === $currentHash && ($now - (int)$lastSubmitTime) < 15) {
     send_json_response(429, [
         'status'  => 'error',
-        'message' => 'Duplicate message detected. Please wait a moment before sending another message.'
+        'message' => 'Duplicate submission detected. Please wait a moment before sending another message.'
     ]);
 }
 
+// 8. Prepared Statement Execution
 try {
     $pdo = get_db_connection();
     $stmt = $pdo->prepare('
@@ -101,7 +151,7 @@ try {
         ':message' => $message,
     ]);
 
-    // Update session anti-duplicate trackers
+    // Update anti-duplicate tracking in session
     $_SESSION['last_contact_hash'] = $currentHash;
     $_SESSION['last_contact_time'] = $now;
 
@@ -114,9 +164,10 @@ try {
         ]
     ]);
 } catch (Throwable $e) {
+    // Privately log error without exposing SQL/paths to visitor
     error_log('Contact Submission Error: ' . $e->getMessage());
     send_json_response(500, [
         'status'  => 'error',
-        'message' => 'An error occurred while saving your message. Please try again shortly.'
+        'message' => "We couldn't submit your message. Please try again later."
     ]);
 }

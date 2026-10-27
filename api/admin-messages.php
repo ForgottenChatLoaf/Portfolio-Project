@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin Contact Messages Endpoint
+ * Admin Contact Messages Endpoint (Protected & Hardened)
  * Endpoint: /api/admin-messages.php
- * Method: GET, DELETE
+ * Method: GET, DELETE, POST
  * Protected: Requires authenticated admin session
  * Portfolio of Ethan McClarence Gacud
  */
@@ -14,6 +14,10 @@ require_once __DIR__ . '/../includes/auth.php';
 
 // Enforce authentication guard
 require_admin_auth();
+
+// Never cache private admin data
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
@@ -40,7 +44,6 @@ if ($method === 'GET') {
         ]);
     }
 } elseif ($method === 'DELETE' || ($method === 'POST' && (get_request_data()['_method'] ?? '') === 'DELETE')) {
-    // Optional deletion of individual message
     $input = get_request_data();
     $id = filter_var($input['id'] ?? 0, FILTER_VALIDATE_INT);
 
@@ -68,7 +71,7 @@ if ($method === 'GET') {
         ]);
     }
 } else {
-    header('Allow: GET, DELETE');
+    header('Allow: GET, DELETE, POST');
     send_json_response(405, [
         'status'  => 'error',
         'message' => 'Method Not Allowed.'

@@ -1,5 +1,5 @@
 /**
- * Two-Step Contact Interaction & API Submission
+ * Two-Step Contact Interaction & API Submission (Hardened)
  * Ethan McClarence Gacud Portfolio
  */
 
@@ -25,8 +25,36 @@ function initContactWorkflow() {
   const formErrorMsg = document.getElementById('formErrorMsg');
   const emailError = document.getElementById('emailError');
   const messageError = document.getElementById('messageError');
+  const honeypotInput = document.getElementById('contactHoneypot');
+  const csrfTokenInput = document.getElementById('contactCsrfToken');
 
   if (!step1Card || !step2Card) return;
+
+  const formLoadedTime = Date.now();
+  let currentCsrfToken = '';
+
+  // Fetch CSRF token proactively from backend
+  fetchCsrfToken();
+
+  async function fetchCsrfToken() {
+    try {
+      const csrfEndpoint = (window.location.protocol === 'file:')
+        ? 'http://localhost/PortfolioUpdate/Portfolio-Project/api/csrf-token.php'
+        : 'api/csrf-token.php';
+
+      const res = await fetch(csrfEndpoint);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.csrf_token) {
+          currentCsrfToken = data.csrf_token;
+          if (csrfTokenInput) csrfTokenInput.value = data.csrf_token;
+        }
+      }
+    } catch (e) {
+      // Graceful fallback if offline / static
+      console.warn('CSRF token initialization deferred:', e);
+    }
+  }
 
   // Restore saved name from sessionStorage if present
   let visitorName = sessionStorage.getItem('portfolio_visitor_name') || '';
@@ -67,14 +95,14 @@ function initContactWorkflow() {
     if (formError) formError.style.display = 'none';
   }
 
-  // Check initial state
-  if (visitorName && visitorName.trim().length >= 2) {
+  // Initial step determination
+  if (visitorName) {
     goToStep2(visitorName);
   } else {
     goToStep1();
   }
 
-  // Step 1: Submit Name
+  // Step 1: Name Form Submission
   if (step1Form) {
     step1Form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -82,8 +110,18 @@ function initContactWorkflow() {
 
       const name = step1NameInput?.value.trim() || '';
 
+      if (!name) {
+        if (step1Error) step1Error.textContent = 'Please enter your full name.';
+        return;
+      }
+
       if (name.length < 2) {
-        if (step1Error) step1Error.textContent = 'Please enter a name with at least 2 characters.';
+        if (step1Error) step1Error.textContent = 'Name must be at least 2 characters long.';
+        return;
+      }
+
+      if (name.length > 100) {
+        if (step1Error) step1Error.textContent = 'Name cannot exceed 100 characters.';
         return;
       }
 
@@ -91,15 +129,14 @@ function initContactWorkflow() {
     });
   }
 
-  // Step 2: Change Name option
+  // "Change Name" button
   if (changeNameBtn) {
     changeNameBtn.addEventListener('click', () => {
-      sessionStorage.removeItem('portfolio_visitor_name');
       goToStep1();
     });
   }
 
-  // Step 2: Reset Button
+  // Reset button
   if (resetBtn && contactForm) {
     resetBtn.addEventListener('click', () => {
       contactForm.reset();
@@ -117,6 +154,7 @@ function initContactWorkflow() {
 
       const email = emailInput?.value.trim() || '';
       const message = messageInput?.value.trim() || '';
+      const honeypot = honeypotInput?.value || '';
 
       let hasClientError = false;
 
@@ -134,6 +172,9 @@ function initContactWorkflow() {
       } else if (message.length < 5) {
         if (messageError) messageError.textContent = 'Message must be at least 5 characters long.';
         hasClientError = true;
+      } else if (message.length > 2000) {
+        if (messageError) messageError.textContent = 'Your message is too long (maximum 2,000 characters).';
+        hasClientError = true;
       }
 
       if (hasClientError) return;
@@ -148,7 +189,10 @@ function initContactWorkflow() {
         const payload = {
           name: visitorName,
           email: email,
-          message: message
+          message: message,
+          website_url: honeypot,
+          form_loaded_at: formLoadedTime,
+          csrf_token: currentCsrfToken || (csrfTokenInput?.value || '')
         };
 
         const endpointUrl = (window.location.protocol === 'file:')
@@ -159,7 +203,8 @@ function initContactWorkflow() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'X-CSRF-Token': payload.csrf_token
           },
           body: JSON.stringify(payload)
         });
@@ -176,8 +221,10 @@ function initContactWorkflow() {
           if (typeof window.showToast === 'function') {
             window.showToast('Message sent successfully! Thank you for reaching out.', 'success');
           }
+          // Refresh CSRF token for any subsequent submission
+          fetchCsrfToken();
         } else {
-          // Display validation errors or error message
+          // Display validation errors or rate-limit notice
           const msg = data.message || 'Failed to send message. Please check the fields and try again.';
           if (formErrorMsg) formErrorMsg.textContent = msg;
           if (formError) {
@@ -197,7 +244,7 @@ function initContactWorkflow() {
       } catch (err) {
         console.error('Contact submit error:', err);
         if (formErrorMsg) {
-          formErrorMsg.textContent = 'Could not reach the backend server. Please verify XAMPP Apache and MySQL are running.';
+          formErrorMsg.textContent = "We couldn't submit your message right now. Please verify XAMPP Apache and MySQL are running.";
         }
         if (formError) formError.style.display = 'flex';
       } finally {
