@@ -195,20 +195,20 @@ function initAdminDashboard() {
     const safeName = (name && name.trim()) ? name.trim() : 'Ethan';
     // 5:00 AM to 11:59 AM
     if (hour >= 5 && hour < 12) {
-      return `Good morning, ${safeName}. ☀️`;
+      return `Good morning, ${safeName}. <i class="fa-solid fa-sun greeting-icon" style="color: #f59e0b; margin-left: 6px;" aria-hidden="true"></i>`;
     }
     // 12:00 PM to 4:59 PM
     if (hour >= 12 && hour < 17) {
-      return `Good afternoon, ${safeName}. 🌤️`;
+      return `Good afternoon, ${safeName}. <i class="fa-solid fa-cloud-sun greeting-icon" style="color: #f59e0b; margin-left: 6px;" aria-hidden="true"></i>`;
     }
     // 5:00 PM to 4:59 AM
-    return `Good evening, ${safeName}. 🌙`;
+    return `Good evening, ${safeName}. <i class="fa-solid fa-moon greeting-icon" style="color: #818cf8; margin-left: 6px;" aria-hidden="true"></i>`;
   }
 
   function updateGreeting() {
     const now = new Date();
     const greeting = getGreetingForHour(now.getHours(), currentAdminProfile.display_name);
-    if (greetingLabel) greetingLabel.textContent = greeting;
+    if (greetingLabel) greetingLabel.innerHTML = greeting;
     if (dashCurrentTime) {
       dashCurrentTime.textContent = now.toLocaleTimeString(undefined, {
         hour: '2-digit', minute: '2-digit'

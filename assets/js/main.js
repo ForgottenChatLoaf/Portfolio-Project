@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCarousel();
   initSkillsDrawer();
   initAdminShortcut();
+  initFooter();
 });
 
 /* ============================================================
@@ -691,3 +692,24 @@ function showToast(message, type = 'info') {
 
 // Export for global access in other scripts
 window.showToast = showToast;
+
+/* ============================================================
+   12. FOOTER HELPERS (Dynamic Year & Back to Top)
+   ============================================================ */
+function initFooter() {
+  const yearEl = document.getElementById('currentYear');
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
+
+  const backToTopBtn = document.getElementById('backToTopBtn');
+  if (backToTopBtn) {
+    backToTopBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+}
