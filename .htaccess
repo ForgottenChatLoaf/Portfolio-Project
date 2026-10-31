@@ -9,9 +9,10 @@ DirectoryIndex index.php
 # Redirect legacy .html homepage requests to index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /PortfolioUpdate/Portfolio-Project/
     RewriteRule ^index\.html$ index.php [R=301,L]
     RewriteRule ^about\.html$ index.php#about [R=301,NE,L]
-</IfModule> index.html
+</IfModule>
 
 # 1. Disable Directory Browsing
 Options -Indexes
