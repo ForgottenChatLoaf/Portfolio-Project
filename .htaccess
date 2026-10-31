@@ -4,7 +4,14 @@
 # ============================================================
 
 # Directory Index Priority (index.php first)
-DirectoryIndex index.php index.html
+DirectoryIndex index.php
+
+# Redirect legacy .html homepage requests to index.php
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^index\.html$ index.php [R=301,L]
+    RewriteRule ^about\.html$ index.php#about [R=301,NE,L]
+</IfModule> index.html
 
 # 1. Disable Directory Browsing
 Options -Indexes

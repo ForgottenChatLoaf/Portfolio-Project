@@ -194,9 +194,9 @@ function initFooter(basePath, isInsideAdmin) {
 function detectPageFromUrl() {
   const path = window.location.pathname.toLowerCase();
   const hash = window.location.hash.toLowerCase();
-  if (path.endsWith('about.html') || hash === '#about') return 'about';
-  if (path.endsWith('skills.html')) return 'skills';
-  if (path.endsWith('projects.html')) return 'projects';
+  if (hash === '#about' || path.endsWith('about.html')) return 'about';
+  if (path.endsWith('skills.html') || path.endsWith('skills.php')) return 'skills';
+  if (path.endsWith('projects.html') || path.endsWith('projects.php')) return 'projects';
   if (path.endsWith('contact.html') || path.endsWith('contact.php')) return 'contact';
   return 'home';
 }
