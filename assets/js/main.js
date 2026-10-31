@@ -794,10 +794,10 @@ function initProjectModals() {
     icaredonate: {
       title: 'iCareDonate — Community Aid Platform',
       role: 'Project Manager / Team Leader & Fullstack Contributor',
-      category: 'Full-Stack Web Application',
+      category: 'Full-Stack Web Application (Live)',
       timeline: 'Team Project / Capstone Milestone',
-      desc: 'iCareDonate is a community assistance platform connecting verified donation drives with volunteers and donors in real time. As Project Manager and Team Leader, Ethan organized team task breakdowns, guided database schema architecture, ensured unified UI consistency, and implemented the administrative verification portal with transparent donor tracking.',
-      tech: ['PHP (Backend)', 'MySQL / MariaDB', 'JavaScript', 'HTML5 / CSS3', 'Bootstrap', 'Role-Based Access Control'],
+      desc: 'iCareDonate ("Give what you can. Help where it matters.") is a community assistance platform connecting verified donation drives with volunteers and donors in real time. As Project Manager and Team Leader, Ethan organized team task breakdowns, guided database schema architecture, ensured unified UI consistency, and implemented the administrative verification portal with transparent donor tracking.',
+      tech: ['PHP (Backend)', 'MySQL / MariaDB', 'JavaScript', 'HTML5 / CSS3', 'Bootstrap', 'Role-Based Access Control', 'Vercel Deployment'],
       images: [
         'assets/images/projects/iCareDonate/HomePage.png',
         'assets/images/projects/iCareDonate/Admin_dashboard.png',
@@ -805,8 +805,8 @@ function initProjectModals() {
         'assets/images/projects/iCareDonate/howitworks1.png',
         'assets/images/projects/iCareDonate/LoginPage.png'
       ],
-      linkText: 'View on GitHub',
-      url: 'https://github.com/ForgottenChatLoaf'
+      linkText: 'Visit Live Demo',
+      url: 'https://icaredonate.vercel.app/'
     },
     'c-game': {
       title: 'C Language Terminal Gaming Suite',
