@@ -55,6 +55,23 @@ function get_db_connection(): PDO {
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE utf8mb4_unicode_ci"
     ];
 
+    // SSL / TLS Configuration for Cloud Providers (e.g., Aiven MySQL)
+    $sslCa = getenv('DB_SSL_CA') ?: ($_ENV['DB_SSL_CA'] ?? ($_SERVER['DB_SSL_CA'] ?? ''));
+    if (!empty($sslCa)) {
+        if (file_exists($sslCa)) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+        } else {
+            // If DB_SSL_CA contains the raw PEM certificate string, write to a temp file
+            $tmpCert = sys_get_temp_dir() . '/aiven-ca.pem';
+            if (!file_exists($tmpCert) || filesize($tmpCert) === 0) {
+                @file_put_contents($tmpCert, $sslCa);
+            }
+            if (file_exists($tmpCert)) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = $tmpCert;
+            }
+        }
+    }
+
     try {
         $pdo = new PDO($dsn, $user, $pass, $options);
         return $pdo;

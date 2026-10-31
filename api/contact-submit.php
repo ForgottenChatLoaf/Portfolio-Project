@@ -148,7 +148,8 @@ try {
 
     send_json_response(200, [
         'status'  => 'success',
-        'message' => 'Message saved successfully! Ethan will get back to you soon.',
+        'title'   => 'Message received!',
+        'message' => "Thank you for reaching out. Your message has been submitted successfully. I'll review it and get back to you using the contact information you provided.",
         'data'    => [
             'name'      => $name,
             'date_sent' => date('Y-m-d H:i:s')

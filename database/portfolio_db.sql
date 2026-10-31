@@ -36,11 +36,24 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -------------------------------------------------------------
--- Default Admin Account
--- Username: admin
--- Default Password: AdminPortfolio2026! (change after initial deployment)
--- Password hash generated using password_hash('AdminPortfolio2026!', PASSWORD_DEFAULT)
+-- Table: website_visits
+-- Stores privacy-friendly anonymous first-party visitor metrics
+-- Detailed records retained for 90 days
 -- -------------------------------------------------------------
-INSERT INTO `admin_users` (`username`, `password_hash`)
-VALUES ('admin', '$2y$10$x86SpTKvME7PQBcjmWhvI.qUUym6zaFwWih9qD1ibTjBbuOlyb5fG')
-ON DUPLICATE KEY UPDATE `username` = `username`;
+CREATE TABLE IF NOT EXISTS `website_visits` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `visitor_hash` VARCHAR(64) NOT NULL,
+    `page_path` VARCHAR(150) NOT NULL,
+    `user_agent` VARCHAR(255) NULL,
+    `visited_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_visited_at` (`visited_at`),
+    INDEX `idx_visitor_hash` (`visitor_hash`),
+    INDEX `idx_page_path` (`page_path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- Administrator Provisioning
+-- Admin accounts should be provisioned securely via CLI or secure one-time setup.
+-- Example provisioning command:
+-- php -r "require 'config/database.php'; \$pdo = get_db_connection(); ..."
+-- -------------------------------------------------------------

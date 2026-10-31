@@ -99,7 +99,7 @@
            ============================================================ -->
       <section class="dash-greeting" aria-label="Dashboard greeting">
         <div>
-          <h1 class="dash-greeting-label" id="dashGreetingLabel">Good evening, Ethan.</h1>
+          <h1 class="dash-greeting-label" id="dashGreetingLabel">Welcome back, Ethan.</h1>
           <p class="dash-greeting-sub">Here&rsquo;s what&rsquo;s happening with your portfolio today.</p>
         </div>
         <div class="dash-meta-badge">
@@ -220,6 +220,93 @@
             </div>
           </a>
 
+        </div>
+      </section>
+
+      <!-- ============================================================
+           FIRST-PARTY VISITOR ANALYTICS
+           ============================================================ -->
+      <section class="inbox-section" id="analyticsSection" aria-label="First-party website visitor analytics">
+        <div class="inbox-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+          <div class="inbox-title-group">
+            <h2 class="inbox-title" style="display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-chart-line" style="color: var(--accent); font-size: 1.1rem;"></i>
+              <span>Visitor Analytics</span>
+            </h2>
+            <p class="inbox-subtitle">Anonymous first-party visitor telemetry &bull; Excludes bots &amp; admin sessions &bull; 90-day retention</p>
+          </div>
+          <div class="analytics-filter-group" style="display: flex; gap: 6px;">
+            <button type="button" class="tab-btn analytics-range-btn active" data-range="7">7 Days</button>
+            <button type="button" class="tab-btn analytics-range-btn" data-range="30">30 Days</button>
+            <button type="button" class="tab-btn analytics-range-btn" data-range="90">90 Days</button>
+          </div>
+        </div>
+
+        <!-- Analytics Metric Cards -->
+        <div class="admin-stats-grid" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-icon-wrap" style="color: #6366f1;" aria-hidden="true"><i class="fa-solid fa-eye"></i></div>
+            <div class="stat-body">
+              <span class="stat-value" id="analyticViewsToday">0</span>
+              <span class="stat-label">Views Today</span>
+              <span class="stat-context">Since midnight</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" style="color: #10b981;" aria-hidden="true"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-body">
+              <span class="stat-value" id="analyticUniqueBrowsers">0</span>
+              <span class="stat-label">Estimated Browsers</span>
+              <span class="stat-context">Unique visitors (est.)</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" style="color: #f59e0b;" aria-hidden="true"><i class="fa-solid fa-chart-simple"></i></div>
+            <div class="stat-body">
+              <span class="stat-value" id="analyticViews7d">0</span>
+              <span class="stat-label">Last 7 Days</span>
+              <span class="stat-context">Rolling weekly views</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" style="color: #a855f7;" aria-hidden="true"><i class="fa-solid fa-globe"></i></div>
+            <div class="stat-body">
+              <span class="stat-value" id="analyticTotalViews">0</span>
+              <span class="stat-label">All-Time Views</span>
+              <span class="stat-context">Logged page visits</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid: Daily Activity & Top Pages -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" class="analytics-detail-grid">
+          <!-- Daily Activity Card -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
+            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-calendar-day" style="color: var(--accent);"></i> Daily Traffic Activity
+            </h3>
+            <div id="analyticsDailyContainer" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
+              <div id="analyticsDailyEmpty" style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0;">
+                <i class="fa-solid fa-chart-column" style="font-size: 2rem; opacity: 0.3; margin-bottom: 8px; display: block;"></i>
+                No traffic recorded yet for this date range.
+              </div>
+              <div id="analyticsDailyChart" style="display: none; align-items: flex-end; gap: 8px; height: 160px; padding-top: 20px;"></div>
+            </div>
+          </div>
+
+          <!-- Top Visited Pages Card -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
+            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-file-lines" style="color: #10b981;"></i> Most Visited Pages
+            </h3>
+            <div id="analyticsTopPagesContainer">
+              <div id="analyticsPagesEmpty" style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0;">
+                <i class="fa-solid fa-file-circle-question" style="font-size: 2rem; opacity: 0.3; margin-bottom: 8px; display: block;"></i>
+                No page visit records yet.
+              </div>
+              <ul id="analyticsTopPagesList" style="list-style: none; padding: 0; margin: 0; display: none;"></ul>
+            </div>
+          </div>
         </div>
       </section>
 

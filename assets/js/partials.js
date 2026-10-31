@@ -54,6 +54,19 @@ async function setupNavbarAndFooter() {
   const isInsideAdmin = window.location.pathname.includes('/admin/');
   const basePath = isInsideAdmin ? '../' : '';
 
+  // Trigger lightweight first-party analytics beacon for static .html pages
+  if (!isInsideAdmin && !window.location.pathname.endsWith('index.php')) {
+    try {
+      const pageName = detectPageFromUrl() + '.html';
+      const beaconUrl = `${basePath}api/track-visit.php?page=${encodeURIComponent(pageName)}`;
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(beaconUrl);
+      } else {
+        fetch(beaconUrl, { method: 'POST', keepalive: true }).catch(() => {});
+      }
+    } catch (_) {}
+  }
+
   // 1. If navbar placeholder exists and is empty, fetch it; otherwise initialize existing navbar
   const navPlaceholder = document.getElementById('navbar-placeholder') || document.getElementById('navbar-container');
   const existingNavbar = document.getElementById('navbar');

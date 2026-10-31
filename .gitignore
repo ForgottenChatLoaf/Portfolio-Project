@@ -12,6 +12,9 @@ desktop.ini
 .vscode/
 .idea/
 
-# Temporary / Scratch
+# Temporary / Scratch & Backups
 tmp/
 temp/
+backups/
+*.bak
+*backup*.sql

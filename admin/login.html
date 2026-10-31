@@ -35,7 +35,12 @@
 
         <div class="form-group">
           <label for="adminPassword"><i class="fa-solid fa-lock"></i> Password</label>
-          <input type="password" id="adminPassword" name="password" placeholder="Password" autocomplete="current-password" required>
+          <div class="password-input-wrap" style="position: relative; display: flex; align-items: center;">
+            <input type="password" id="adminPassword" name="password" placeholder="Password" autocomplete="current-password" required style="padding-right: 44px; width: 100%;">
+            <button type="button" class="password-toggle-btn" id="togglePasswordVisibilityBtn" aria-label="Show password" title="Toggle password visibility" style="position: absolute; right: 12px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; transition: color 0.2s ease;">
+              <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
         </div>
 
         <div style="margin-top: 24px;">

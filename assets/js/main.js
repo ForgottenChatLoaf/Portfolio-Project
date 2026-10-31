@@ -776,12 +776,12 @@ function initProjectModals() {
 
   const projectsData = {
     readora: {
-      title: 'Readora — Virtual Bookshelf & Store',
-      role: 'Fullstack Developer, UI/UX Designer & Testing',
-      category: 'E-Commerce / Interactive Web Experience',
-      timeline: 'Academic Project & Ongoing Study',
-      desc: 'Readora is a responsive, interactive mock bookstore and virtual library platform celebrating tactile editorial design. As Fullstack Developer, Ethan handled end-to-end frontend and backend integration, created intuitive UI/UX design components for book previews and genre filtering, and conducted responsive testing and debugging across device breakpoints.',
-      tech: ['HTML5', 'CSS3', 'JavaScript (ES6+)', 'Node.js', 'UI/UX Design', 'Quality Testing & Debugging'],
+      title: 'Readora — Academic Frontend Bookstore',
+      role: 'Frontend Developer & UI/UX Designer',
+      category: 'Academic Web Project (Coursework Showcase)',
+      timeline: 'Academic Project / Coursework',
+      desc: 'Readora is an academic frontend exploration of an interactive online bookstore and digital library. Built as a coursework project, it features a curated book catalog, genre navigation, shopping cart interactions, and responsive UI design across viewports. As an academic frontend demonstration, user login and checkout flows are designed as frontend mock interactions without a production database or payment gateway.',
+      tech: ['HTML5 Semantic', 'CSS3 Custom Properties', 'Vanilla JavaScript (ES6+)', 'UI/UX Design', 'Responsive Breakpoints'],
       images: [
         'assets/images/projects/Readora/Screenshot 2026-05-26 202500.png',
         'assets/images/projects/Readora/Screenshot 2026-05-26 202512.png',
@@ -808,11 +808,11 @@ function initProjectModals() {
     },
     icaredonate: {
       title: 'iCareDonate — Community Aid Platform',
-      role: 'Project Manager / Team Leader & Fullstack Contributor',
-      category: 'Full-Stack Web Application (Live)',
-      timeline: 'Team Project / Capstone Milestone',
-      desc: 'iCareDonate ("Give what you can. Help where it matters.") is a community assistance platform connecting verified donation drives with volunteers and donors in real time. As Project Manager and Team Leader, Ethan organized team task breakdowns, guided database schema architecture, ensured unified UI consistency, and implemented the administrative verification portal with transparent donor tracking.',
-      tech: ['PHP (Backend)', 'MySQL / MariaDB', 'JavaScript', 'HTML5 / CSS3', 'Bootstrap', 'Role-Based Access Control', 'Vercel Deployment'],
+      role: 'Project Manager / Team Leader & Technical Contributor',
+      category: 'Team Project — In Development (Community Platform)',
+      timeline: 'Collaborative Team Project',
+      desc: 'iCareDonate ("Give what you can. Help where it matters.") is a collaborative community donation management platform designed to streamline donation drives and resource allocation. As Project Manager and Team Leader, Ethan directed project planning, task distribution across team members, development coordination, UI consistency oversight, and technical implementation of responsive views. The platform is actively in development.',
+      tech: ['PHP', 'MySQL / MariaDB', 'JavaScript', 'HTML5 / CSS3', 'Bootstrap', 'Role-Based Access Control', 'Vercel Deployment'],
       images: [
         'assets/images/projects/iCareDonate/HomePage.png',
         'assets/images/projects/iCareDonate/Admin_dashboard.png',
@@ -824,7 +824,7 @@ function initProjectModals() {
       url: 'https://icaredonate.vercel.app/'
     },
     'c-game': {
-      title: 'C Language Terminal Gaming Suite',
+      title: 'C Language Terminal Gaming Suite & Console RPG',
       role: 'System Logic & Algorithm Programmer',
       category: 'Console Software / Algorithm Design',
       timeline: 'Coursework (FOPR111)',
@@ -836,6 +836,19 @@ function initProjectModals() {
       ],
       linkText: 'View on GitHub',
       url: 'https://github.com/ForgottenChatLoaf/C-language-Projects'
+    },
+    'arduino-lab': {
+      title: 'Microcontroller & Sensor Prototypes',
+      role: 'Hardware Logic & Sensor Prototyping',
+      category: 'Embedded Systems & IoT Coursework',
+      timeline: 'Academic Lab Experiments',
+      desc: 'Hands-on hardware programming explorations with microcontrollers and breadboard circuits. Involves sensor integration (ultrasonic distance, ambient light, thermal thresholds), digital and analog I/O pin control, and serial output telemetry for embedded automation experiments.',
+      tech: ['C / Embedded Logic', 'Arduino IDE', 'Microcontrollers & Sensors', 'Hardware Breadboarding'],
+      images: [
+        'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80'
+      ],
+      linkText: 'Academic Showcase',
+      url: 'https://github.com/ForgottenChatLoaf'
     }
   };
 

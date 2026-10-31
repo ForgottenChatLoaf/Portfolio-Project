@@ -27,6 +27,22 @@ function initAdminLogin() {
   const submitBtn = document.getElementById('loginSubmitBtn');
   const errorBox = document.getElementById('loginErrorBox');
   const errorMsg = document.getElementById('loginErrorMsg');
+  const togglePassBtn = document.getElementById('togglePasswordVisibilityBtn');
+  const togglePassIcon = document.getElementById('togglePasswordIcon');
+
+  // Accessible password visibility toggle
+  if (togglePassBtn && passwordInput) {
+    togglePassBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      if (togglePassIcon) {
+        togglePassIcon.className = isPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      }
+      togglePassBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+      passwordInput.focus();
+    });
+  }
 
   // Check if session is already active; redirect if so
   checkExistingSession();
@@ -207,16 +223,7 @@ function initAdminDashboard() {
 
   function getGreetingForHour(hour, name) {
     const safeName = (name && name.trim()) ? name.trim() : 'Ethan';
-    // 5:00 AM to 11:59 AM
-    if (hour >= 5 && hour < 12) {
-      return `Good morning, ${safeName}. <i class="fa-solid fa-sun greeting-icon" style="color: #f59e0b; margin-left: 6px;" aria-hidden="true"></i>`;
-    }
-    // 12:00 PM to 4:59 PM
-    if (hour >= 12 && hour < 17) {
-      return `Good afternoon, ${safeName}. <i class="fa-solid fa-cloud-sun greeting-icon" style="color: #f59e0b; margin-left: 6px;" aria-hidden="true"></i>`;
-    }
-    // 5:00 PM to 4:59 AM
-    return `Good evening, ${safeName}. <i class="fa-solid fa-moon greeting-icon" style="color: #818cf8; margin-left: 6px;" aria-hidden="true"></i>`;
+    return `Welcome back, ${safeName}. <i class="fa-solid fa-sparkles greeting-icon" style="color: var(--accent); margin-left: 6px;" aria-hidden="true"></i>`;
   }
 
   function updateGreeting() {
@@ -324,6 +331,9 @@ function initAdminDashboard() {
 
       // Session verified; load messages
       loadMessages();
+      if (document.getElementById('analyticsSection')) {
+        loadAnalytics(7);
+      }
     } catch (err) {
       console.error('Auth check error:', err);
       window.location.replace('login.html');
@@ -430,6 +440,89 @@ function initAdminDashboard() {
     };
   }
 
+  // 3b. First-Party Analytics Loader
+  async function loadAnalytics(days = 7) {
+    const viewsTodayEl = document.getElementById('analyticViewsToday');
+    const uniqueEl = document.getElementById('analyticUniqueBrowsers');
+    const views7dEl = document.getElementById('analyticViews7d');
+    const totalViewsEl = document.getElementById('analyticTotalViews');
+    const dailyEmpty = document.getElementById('analyticsDailyEmpty');
+    const dailyChart = document.getElementById('analyticsDailyChart');
+    const pagesEmpty = document.getElementById('analyticsPagesEmpty');
+    const pagesList = document.getElementById('analyticsTopPagesList');
+
+    if (!viewsTodayEl) return;
+
+    try {
+      const res = await fetch(`../api/admin-analytics.php?days=${days}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status !== 'success') return;
+
+      const summary = data.summary || {};
+      if (viewsTodayEl) viewsTodayEl.textContent = summary.views_today ?? 0;
+      if (uniqueEl) uniqueEl.textContent = summary.unique_visitors_est ?? 0;
+      if (views7dEl) views7dEl.textContent = summary.views_7d ?? 0;
+      if (totalViewsEl) totalViewsEl.textContent = summary.total_views ?? 0;
+
+      // Render Top Visited Pages
+      const topPages = data.top_pages || [];
+      if (topPages.length > 0 && pagesList) {
+        if (pagesEmpty) pagesEmpty.style.display = 'none';
+        pagesList.style.display = 'block';
+        pagesList.innerHTML = topPages.map(p => `
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border);">
+            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%;">
+              <span style="font-weight: 600; color: var(--text-primary); font-size: 13.5px;">${escapeHtml(p.page_path)}</span>
+            </div>
+            <div style="display: flex; gap: 12px; font-size: 12.5px;">
+              <span style="color: var(--accent); font-weight: 600;">${p.views} views</span>
+              <span style="color: var(--text-muted);">${p.unique_visitors} unique</span>
+            </div>
+          </li>
+        `).join('');
+      } else {
+        if (pagesEmpty) pagesEmpty.style.display = 'block';
+        if (pagesList) pagesList.style.display = 'none';
+      }
+
+      // Render Daily Traffic Chart
+      const daily = data.daily_activity || [];
+      if (daily.length > 0 && dailyChart) {
+        if (dailyEmpty) dailyEmpty.style.display = 'none';
+        dailyChart.style.display = 'flex';
+        const maxViews = Math.max(...daily.map(d => parseInt(d.views, 10)), 1);
+        dailyChart.innerHTML = daily.map(d => {
+          const v = parseInt(d.views, 10);
+          const pct = Math.max(15, Math.round((v / maxViews) * 100));
+          const datePart = (d.date_label || '').slice(5);
+          return `
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
+              <span style="font-size: 11px; font-weight: 600; color: var(--accent);">${v}</span>
+              <div style="width: 100%; max-width: 32px; height: ${pct}%; background: var(--accent); border-radius: 4px 4px 0 0; transition: height 0.3s ease;" title="${escapeHtml(d.date_label)}: ${v} views (${d.unique_visitors} unique)"></div>
+              <span style="font-size: 10px; color: var(--text-muted); white-space: nowrap;">${escapeHtml(datePart)}</span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        if (dailyEmpty) dailyEmpty.style.display = 'block';
+        if (dailyChart) dailyChart.style.display = 'none';
+      }
+    } catch (e) {
+      console.warn('Analytics fetch error:', e);
+    }
+  }
+
+  // Analytics filter button listeners
+  document.querySelectorAll('.analytics-range-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.analytics-range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const r = parseInt(btn.getAttribute('data-range'), 10) || 7;
+      loadAnalytics(r);
+    });
+  });
+
   // 4. Filter, Sort, and Render
   function applyFiltersAndRender() {
     let list = [...allMessages];
@@ -531,15 +624,11 @@ function initAdminDashboard() {
       const senderWrap = document.createElement('div');
       senderWrap.className = 'sender-row';
 
-      // Avatar initial
+      // Neutral person icon avatar (clean & consistent)
       const avatar = document.createElement('span');
-      avatar.className = 'sender-avatar';
-      const initials = (msg.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-      avatar.textContent = initials;
+      avatar.className = 'sender-avatar sender-avatar-neutral';
+      avatar.innerHTML = '<i class="fa-solid fa-user"></i>';
       avatar.setAttribute('aria-hidden', 'true');
-      // Deterministic color from name
-      const hue = [...(msg.name || 'A')].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
-      avatar.style.setProperty('--avatar-hue', hue);
 
       const senderMeta = document.createElement('div');
 

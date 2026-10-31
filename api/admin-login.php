@@ -43,34 +43,23 @@ if (empty($username) || empty($password)) {
     ]);
 }
 
-// Fallback hashes for classroom evaluation (admin / 123456 as specified in rubric)
-$defaultAdminUsername = 'admin';
-$rubricPasswordHash = '$2y$10$tLpBw2iD.Fq3ksrf0v6iMew2mUyEKq/SgUqumkCRZJ6K4VSXjPMs.'; // '123456'
-$backupPasswordHash = '$2y$10$x86SpTKvME7PQBcjmWhvI.qUUym6zaFwWih9qD1ibTjBbuOlyb5fG'; // 'AdminPortfolio2026!'
-
 $authenticated = false;
 $resolvedUsername = '';
+$resolvedDisplayName = 'Ethan Gacud';
 
 try {
     $pdo = get_db_connection();
-    $stmt = $pdo->prepare('SELECT id, username, password_hash FROM admin_users WHERE username = :u LIMIT 1');
+    $stmt = $pdo->prepare('SELECT id, username, display_name, password_hash FROM admin_users WHERE username = :u LIMIT 1');
     $stmt->execute([':u' => $username]);
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, (string)$user['password_hash'])) {
         $authenticated = true;
         $resolvedUsername = (string)$user['username'];
+        $resolvedDisplayName = (string)($user['display_name'] ?? 'Ethan Gacud');
     }
 } catch (Throwable $e) {
     error_log('Admin Login DB check failed: ' . $e->getMessage());
-}
-
-// Fallback check matching the school rubric credentials (admin / 123456)
-if (!$authenticated && hash_equals($defaultAdminUsername, $username)) {
-    if (password_verify($password, $rubricPasswordHash) || password_verify($password, $backupPasswordHash)) {
-        $authenticated = true;
-        $resolvedUsername = $defaultAdminUsername;
-    }
 }
 
 if (!$authenticated) {
@@ -92,15 +81,17 @@ reset_login_attempts($clientIp);
 
 // Regenerate session ID to prevent session fixation attacks
 session_regenerate_id(true);
-$_SESSION['admin_logged_in'] = true;
-$_SESSION['admin_username']  = $resolvedUsername;
-$_SESSION['admin_login_at']  = time();
-$_SESSION['last_activity']   = time();
+$_SESSION['admin_logged_in']    = true;
+$_SESSION['admin_username']     = $resolvedUsername;
+$_SESSION['admin_display_name'] = $resolvedDisplayName;
+$_SESSION['admin_login_at']     = time();
+$_SESSION['last_activity']      = time();
 
 send_json_response(200, [
     'status'  => 'success',
     'message' => 'Authentication successful.',
     'user'    => [
-        'username' => $resolvedUsername
+        'username'     => $resolvedUsername,
+        'display_name' => $resolvedDisplayName
     ]
 ]);

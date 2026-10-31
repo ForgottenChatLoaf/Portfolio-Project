@@ -59,10 +59,12 @@ assert_test(
 // -------------------------------------------------------------
 echo "\n--- 2. Data Integrity & Preservation ---\n";
 $count = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages")->fetchColumn();
+$has7 = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages WHERE id = 7 AND email = 'ethangacud@gmail.com'")->fetchColumn();
+$has67 = (int)$pdo->query("SELECT COUNT(*) FROM contact_messages WHERE id = 67 AND email = 'gacudearljohn92811@gmail.com'")->fetchColumn();
 assert_test(
-    "Existing contact messages are preserved", 
-    $count >= 5, 
-    "Current record count: {$count}"
+    "Preserved genuine inquiries #7 and #67 exist", 
+    $has7 === 1 && $has67 === 1 && $count >= 2, 
+    "Record count: {$count}, Genuine #7 present: " . ($has7 ? 'yes' : 'no') . ", Genuine #67 present: " . ($has67 ? 'yes' : 'no')
 );
 
 // -------------------------------------------------------------
@@ -99,7 +101,30 @@ assert_test(
 echo "\n--- 4. Admin Login & Session Generation ---\n";
 $cookieJar = tempnam(sys_get_temp_dir(), 'admin_cookie_');
 
-$loginPayload = json_encode(['username' => 'admin', 'password' => 'AdminPortfolio2026!']);
+// 4.1 Old demo credentials must be rejected
+$oldLoginPayload = json_encode(['username' => 'admin', 'password' => 'AdminPortfolio2026!']);
+$oldLoginOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "Content-Type: application/json\r\nAccept: application/json\r\n",
+        'content'       => $oldLoginPayload,
+        'ignore_errors' => true
+    ]
+];
+$oldLoginRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-login.php', false, stream_context_create($oldLoginOpts));
+$oldLoginData = json_decode($oldLoginRes, true);
+$oldStatusCode = 200;
+if (isset($http_response_header[0]) && preg_match('/HTTP\/\S+\s+(\d+)/', $http_response_header[0], $m)) {
+    $oldStatusCode = (int)$m[1];
+}
+assert_test(
+    "Old demo account 'admin' rejected with HTTP 401",
+    $oldStatusCode === 401 && ($oldLoginData['status'] ?? '') === 'error',
+    "Status: {$oldStatusCode}, Message: " . ($oldLoginData['message'] ?? '')
+);
+
+// 4.2 Production administrator account 'adminethan'
+$loginPayload = json_encode(['username' => 'adminethan', 'password' => 'Myth9Ever2468']);
 $loginOpts = [
     'http' => [
         'method'  => 'POST',
@@ -488,7 +513,7 @@ $validProfileOpts = [
 ];
 $validProfileRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($validProfileOpts));
 $validProfileJson = json_decode($validProfileRes, true);
-$dbProfile = $pdo->query("SELECT display_name, accent_color FROM admin_users WHERE username = 'admin'")->fetch(PDO::FETCH_ASSOC);
+$dbProfile = $pdo->query("SELECT display_name, accent_color FROM admin_users WHERE username = 'adminethan'")->fetch(PDO::FETCH_ASSOC);
 assert_test(
     "Profile update with valid parameters succeeds & persists in DB",
     ($validProfileJson['status'] ?? '') === 'success' && ($dbProfile['display_name'] ?? '') === 'Ethan Gacud' && ($dbProfile['accent_color'] ?? '') === '#14b8a6',
@@ -506,11 +531,122 @@ $resetOpts = [
 ];
 $resetRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-profile.php', false, stream_context_create($resetOpts));
 $resetJson = json_decode($resetRes, true);
-$dbResetProfile = $pdo->query("SELECT display_name, accent_color, avatar_url FROM admin_users WHERE username = 'admin'")->fetch(PDO::FETCH_ASSOC);
+$dbResetProfile = $pdo->query("SELECT display_name, accent_color, avatar_url FROM admin_users WHERE username = 'adminethan'")->fetch(PDO::FETCH_ASSOC);
 assert_test(
     "Reset to Default action restores display_name='Ethan', accent_color='#6c63ff', avatar_url=NULL",
     ($resetJson['status'] ?? '') === 'success' && ($dbResetProfile['display_name'] ?? '') === 'Ethan' && ($dbResetProfile['accent_color'] ?? '') === '#6c63ff' && empty($dbResetProfile['avatar_url']),
     "DB Name: {$dbResetProfile['display_name']}, DB Accent: {$dbResetProfile['accent_color']}"
+);
+
+// -------------------------------------------------------------
+// TEST 12: Contact Form Feedback & Professional Response
+// -------------------------------------------------------------
+echo "\n--- 12. Contact Form Feedback Verification ---\n";
+// Fetch public CSRF token
+$csrfRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/csrf-token.php');
+$csrfData = json_decode($csrfRes, true);
+$publicCsrf = $csrfData['csrf_token'] ?? '';
+$publicCookie = '';
+foreach ($http_response_header as $hdr) {
+    if (stripos($hdr, 'Set-Cookie:') === 0 && preg_match('/(PHPSESSID=[^;]+)/i', $hdr, $m)) {
+        $publicCookie = $m[1];
+    }
+}
+
+$contactOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "Cookie: {$publicCookie}\r\nContent-Type: application/json\r\n",
+        'content'       => json_encode([
+            'name'        => 'Portfolio Visitor',
+            'email'       => 'visitor@example.com',
+            'message'     => 'Testing the updated professional success response message.',
+            'csrf_token'  => $publicCsrf,
+            'website_url' => ''
+        ]),
+        'ignore_errors' => true
+    ]
+];
+// Sleep 3.5 seconds to pass the minimum completion time bot check
+sleep(4);
+$contactRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/contact-submit.php', false, stream_context_create($contactOpts));
+$contactData = json_decode($contactRes, true);
+assert_test(
+    "Contact submission responds with professional 'Message received!' title & message",
+    ($contactData['status'] ?? '') === 'success' && 
+    ($contactData['title'] ?? '') === 'Message received!' && 
+    str_contains($contactData['message'] ?? '', 'Thank you for reaching out'),
+    "Title: " . ($contactData['title'] ?? 'N/A') . ", Message: " . substr($contactData['message'] ?? '', 0, 45) . "..."
+);
+
+// Clean up the test contact message inserted by this test
+$pdo->exec("DELETE FROM contact_messages WHERE email = 'visitor@example.com'");
+
+// -------------------------------------------------------------
+// TEST 13: First-Party Visitor Analytics & Endpoint Security
+// -------------------------------------------------------------
+echo "\n--- 13. Visitor Analytics & Endpoint Security ---\n";
+
+// 13.1 Analytics endpoint without session rejected (HTTP 401)
+$unauthAnalyticsRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-analytics.php', false, stream_context_create(['http' => ['ignore_errors' => true]]));
+$unauthCode = 200;
+if (isset($http_response_header[0]) && preg_match('/HTTP\/\S+\s+(\d+)/', $http_response_header[0], $m)) {
+    $unauthCode = (int)$m[1];
+}
+assert_test(
+    "GET /api/admin-analytics.php without session rejected with 401",
+    $unauthCode === 401,
+    "HTTP Status: {$unauthCode}"
+);
+
+// 13.2 Analytics endpoint with authenticated admin session returns 200
+$authAnalyticsOpts = [
+    'http' => [
+        'method'        => 'GET',
+        'header'        => "Cookie: {$sessionCookie}\r\nAccept: application/json\r\n",
+        'ignore_errors' => true
+    ]
+];
+$authAnalyticsRes = file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/admin-analytics.php?days=30', false, stream_context_create($authAnalyticsOpts));
+$authAnalyticsData = json_decode($authAnalyticsRes, true);
+assert_test(
+    "GET /api/admin-analytics.php with session returns HTTP 200 & data payload",
+    ($authAnalyticsData['status'] ?? '') === 'success' && isset($authAnalyticsData['summary'], $authAnalyticsData['top_pages'], $authAnalyticsData['daily_activity']),
+    "Summary keys present: total_views=" . ($authAnalyticsData['summary']['total_views'] ?? 'N/A') . ", unique_est=" . ($authAnalyticsData['summary']['unique_visitors_est'] ?? 'N/A')
+);
+
+// 13.3 Public analytics beacon records valid page view
+$beaconOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0\r\n",
+        'ignore_errors' => true
+    ]
+];
+$beforeCount = (int)$pdo->query("SELECT COUNT(*) FROM website_visits")->fetchColumn();
+file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/track-visit.php?page=projects.html', false, stream_context_create($beaconOpts));
+$afterCount = (int)$pdo->query("SELECT COUNT(*) FROM website_visits")->fetchColumn();
+assert_test(
+    "Public analytics beacon records page view in website_visits",
+    $afterCount > $beforeCount,
+    "Visits before: {$beforeCount}, Visits after: {$afterCount}"
+);
+
+// 13.4 Bot requests are filtered and not recorded
+$botOpts = [
+    'http' => [
+        'method'        => 'POST',
+        'header'        => "User-Agent: Googlebot/2.1 (+http://www.google.com/bot.html)\r\n",
+        'ignore_errors' => true
+    ]
+];
+$botBefore = (int)$pdo->query("SELECT COUNT(*) FROM website_visits")->fetchColumn();
+file_get_contents('http://127.0.0.1/PortfolioUpdate/Portfolio-Project/api/track-visit.php?page=skills.html', false, stream_context_create($botOpts));
+$botAfter = (int)$pdo->query("SELECT COUNT(*) FROM website_visits")->fetchColumn();
+assert_test(
+    "Known crawler/bot user agents are excluded from analytics",
+    $botBefore === $botAfter,
+    "Bot visits filtered: {$botBefore} === {$botAfter}"
 );
 
 // -------------------------------------------------------------
