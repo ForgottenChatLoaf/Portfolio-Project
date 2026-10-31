@@ -152,7 +152,7 @@ button {
 }
 
 .loader-counter {
-  font-family: var(--font-heading);
+  font-family: 'Syne', sans-serif;
   font-size: 4rem;
   font-weight: 800;
   color: var(--text-primary);
@@ -667,6 +667,24 @@ p, li, a, input, textarea, label, select, button {
 /* ============================================================
    6. About and Certifications
    ============================================================ */
+.about-section {
+  position: relative;
+  border-top: 1px solid var(--border);
+  padding: 100px 6% 90px;
+  scroll-margin-top: calc(var(--nav-h) + 10px);
+}
+
+.about-section::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
 .about-container {
   display: grid;
   grid-template-columns: 0.85fr 1.15fr;

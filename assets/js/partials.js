@@ -55,7 +55,7 @@ function initNavbar(basePath, isInsideAdmin) {
   const navLogo = document.querySelector('.nav-logo');
 
   if (isInsideAdmin) {
-    if (navLogo) navLogo.setAttribute('href', `${basePath}index.html`);
+    if (navLogo) navLogo.setAttribute('href', `${basePath}index.php#home`);
     navLinks.forEach(link => {
       const href = link.getAttribute('href');
       if (href && !href.startsWith('http') && !href.startsWith('../')) {
@@ -64,18 +64,73 @@ function initNavbar(basePath, isInsideAdmin) {
     });
   }
 
-  // Detect active page
+  // Detect active page & handle single-page Home/About scrolling
   const currentPage = document.body.dataset.page || detectPageFromUrl();
-  navLinks.forEach(link => {
-    const pageAttr = link.getAttribute('data-page');
-    if (pageAttr === currentPage) {
-      link.classList.add('active');
-      link.setAttribute('aria-current', 'page');
+  const homeSec = document.getElementById('home');
+  const aboutSec = document.getElementById('about');
+  const homeLink = document.querySelector('.nav-link[data-page="home"]');
+  const aboutLink = document.querySelector('.nav-link[data-page="about"]');
+
+  if (homeSec && aboutSec) {
+    // We are on index.php (combined Home + About)
+    const updateScrollSpy = () => {
+      const scrollPos = window.scrollY + 180;
+      const aboutTop = aboutSec.offsetTop;
+      if (scrollPos >= aboutTop) {
+        aboutLink?.classList.add('active');
+        aboutLink?.setAttribute('aria-current', 'page');
+        homeLink?.classList.remove('active');
+        homeLink?.removeAttribute('aria-current');
+      } else {
+        homeLink?.classList.add('active');
+        homeLink?.setAttribute('aria-current', 'page');
+        aboutLink?.classList.remove('active');
+        aboutLink?.removeAttribute('aria-current');
+      }
+    };
+
+    window.addEventListener('scroll', updateScrollSpy, { passive: true });
+
+    // Smooth intra-page anchor clicks without reloading
+    [homeLink, aboutLink].forEach(link => {
+      if (!link) return;
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href') || '';
+        const hash = href.includes('#') ? href.split('#')[1] : '';
+        if (hash) {
+          const targetEl = document.getElementById(hash);
+          if (targetEl) {
+            e.preventDefault();
+            targetEl.scrollIntoView({ behavior: 'smooth' });
+            history.replaceState(null, '', '#' + hash);
+            setTimeout(updateScrollSpy, 200);
+          }
+        }
+      });
+    });
+
+    // Check if loaded with #about
+    if (window.location.hash === '#about') {
+      setTimeout(() => {
+        aboutSec.scrollIntoView({ behavior: 'smooth' });
+        updateScrollSpy();
+      }, 300);
     } else {
-      link.classList.remove('active');
-      link.removeAttribute('aria-current');
+      updateScrollSpy();
     }
-  });
+  } else {
+    // Normal multi-page active class assignment
+    navLinks.forEach(link => {
+      const pageAttr = link.getAttribute('data-page');
+      if (pageAttr === currentPage) {
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.classList.remove('active');
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
 
   // Hamburger Mobile Toggle
   if (hamburger && navMenu && !hamburger._hasListener) {
@@ -132,15 +187,16 @@ function initFooter(basePath, isInsideAdmin) {
 
   if (isInsideAdmin) {
     const footerLogo = document.querySelector('.footer-logo');
-    if (footerLogo) footerLogo.setAttribute('href', `${basePath}index.html`);
+    if (footerLogo) footerLogo.setAttribute('href', `${basePath}index.php#home`);
   }
 }
 
 function detectPageFromUrl() {
   const path = window.location.pathname.toLowerCase();
-  if (path.endsWith('about.html')) return 'about';
+  const hash = window.location.hash.toLowerCase();
+  if (path.endsWith('about.html') || hash === '#about') return 'about';
   if (path.endsWith('skills.html')) return 'skills';
   if (path.endsWith('projects.html')) return 'projects';
-  if (path.endsWith('contact.html')) return 'contact';
+  if (path.endsWith('contact.html') || path.endsWith('contact.php')) return 'contact';
   return 'home';
 }

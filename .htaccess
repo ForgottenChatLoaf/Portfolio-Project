@@ -3,6 +3,9 @@
 # Ethan McClarence Gacud Portfolio
 # ============================================================
 
+# Directory Index Priority (index.php first)
+DirectoryIndex index.php index.html
+
 # 1. Disable Directory Browsing
 Options -Indexes
 

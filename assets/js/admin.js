@@ -175,13 +175,27 @@ function initAdminDashboard() {
   let activeInspectorTarget = null;
   let csrfToken = '';
 
-  // Profile & Appearance State
+  // Profile & Appearance State (with local cache pre-render for zero flicker)
   let currentAdminProfile = {
     username: 'admin',
     display_name: 'Ethan',
     avatar_url: null,
     accent_color: '#6c63ff'
   };
+
+  try {
+    const cached = localStorage.getItem('admin_profile_cache');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && typeof parsed === 'object') {
+        currentAdminProfile = { ...currentAdminProfile, ...parsed };
+        if (currentAdminProfile.accent_color) applyAccentColor(currentAdminProfile.accent_color);
+      }
+    }
+  } catch (e) {}
+
+  // Initial sync before verifySession completes
+  syncTopbarUser();
 
   // 1. Verify authentication immediately
   verifySession();
@@ -235,14 +249,21 @@ function initAdminDashboard() {
 
   function syncTopbarUser() {
     const displayName = currentAdminProfile.display_name || currentAdminProfile.username || 'Ethan';
+    const initial = displayName.charAt(0).toUpperCase() || 'E';
+
     if (topbarUserName) {
       topbarUserName.textContent = displayName;
     }
     if (topbarUserAvatar) {
       if (currentAdminProfile.avatar_url) {
         topbarUserAvatar.innerHTML = `<img src="../${currentAdminProfile.avatar_url}" alt="${displayName}">`;
+        const img = topbarUserAvatar.querySelector('img');
+        if (img) {
+          img.onerror = () => {
+            topbarUserAvatar.textContent = initial;
+          };
+        }
       } else {
-        const initial = displayName.charAt(0).toUpperCase() || 'E';
         topbarUserAvatar.textContent = initial;
       }
     }
@@ -287,7 +308,7 @@ function initAdminDashboard() {
       if (data.user) {
         if (data.user.username) currentAdminProfile.username = data.user.username;
         if (data.user.display_name) currentAdminProfile.display_name = data.user.display_name;
-        if (data.user.avatar_url) currentAdminProfile.avatar_url = data.user.avatar_url;
+        currentAdminProfile.avatar_url = data.user.avatar_url || null;
         if (data.user.accent_color) {
           currentAdminProfile.accent_color = data.user.accent_color;
           applyAccentColor(data.user.accent_color);
@@ -295,6 +316,9 @@ function initAdminDashboard() {
         if (adminUserBadge && data.user.username) {
           adminUserBadge.textContent = data.user.username;
         }
+        try {
+          localStorage.setItem('admin_profile_cache', JSON.stringify(currentAdminProfile));
+        } catch (e) {}
         syncTopbarUser();
       }
 
@@ -938,14 +962,63 @@ function initAdminDashboard() {
     showToast('Dashboard statistics refreshed.', 'info');
   });
 
-  // Logout Button
-  logoutBtn?.addEventListener('click', async () => {
+  // ============================================================
+  // ADMIN LOGOUT CONFIRMATION OVERLAY
+  // ============================================================
+  const logoutModal = document.getElementById('logoutConfirmModal');
+  const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+  const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+
+  function openLogoutModal() {
+    if (!logoutModal) {
+      executeLogout();
+      return;
+    }
+    logoutModal.classList.add('open');
+    logoutModal.setAttribute('aria-hidden', 'false');
+    cancelLogoutBtn?.focus();
+  }
+
+  function closeLogoutModal() {
+    if (!logoutModal) return;
+    logoutModal.classList.remove('open');
+    logoutModal.setAttribute('aria-hidden', 'true');
+  }
+
+  async function executeLogout() {
+    if (confirmLogoutBtn) {
+      confirmLogoutBtn.disabled = true;
+      confirmLogoutBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Signing out...';
+    }
     try {
       await fetch('../api/admin-logout.php', { method: 'POST' });
     } catch (err) {
       console.warn('Logout API error:', err);
     } finally {
+      try {
+        localStorage.removeItem('admin_profile_cache');
+      } catch (e) {}
       window.location.replace('login.html');
+    }
+  }
+
+  logoutBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openLogoutModal();
+  });
+
+  cancelLogoutBtn?.addEventListener('click', closeLogoutModal);
+  confirmLogoutBtn?.addEventListener('click', executeLogout);
+
+  logoutModal?.addEventListener('click', (e) => {
+    if (e.target === logoutModal) {
+      closeLogoutModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && logoutModal && logoutModal.classList.contains('open')) {
+      closeLogoutModal();
     }
   });
 
@@ -1200,6 +1273,9 @@ function initAdminDashboard() {
             accent_color: '#6c63ff'
           };
           if (data.csrf_token) csrfToken = data.csrf_token;
+          try {
+            localStorage.setItem('admin_profile_cache', JSON.stringify(currentAdminProfile));
+          } catch (e) {}
           applyAccentColor('#6c63ff');
           syncTopbarUser();
           closeModal();
@@ -1264,6 +1340,9 @@ function initAdminDashboard() {
             accent_color: data.profile.accent_color || selectedAccent
           };
           if (data.csrf_token) csrfToken = data.csrf_token;
+          try {
+            localStorage.setItem('admin_profile_cache', JSON.stringify(currentAdminProfile));
+          } catch (e) {}
 
           applyAccentColor(currentAdminProfile.accent_color);
           syncTopbarUser();

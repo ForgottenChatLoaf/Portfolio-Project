@@ -2,6 +2,7 @@
 /**
  * Admin Profile Customization Endpoint
  * Allows authenticated administrator to inspect and update display name, avatar, and dashboard accent color.
+ * Supports durable filesystem persistence and optional MySQL dual-sync.
  * Endpoint: /api/admin-profile.php
  * Methods: GET, POST
  * Portfolio of Ethan McClarence Gacud
@@ -9,9 +10,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/profile_store.php';
 
 // Enforce admin authentication guard
 require_admin_auth();
@@ -21,7 +22,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$adminUsername = $_SESSION['admin_username'] ?? 'admin';
+$adminUsername = (string)($_SESSION['admin_username'] ?? 'admin');
 
 // Allowed Accent Colors (Curated modern palettes)
 $allowedAccents = [
@@ -35,51 +36,23 @@ $allowedAccents = [
     '#06b6d4'  // Cyan
 ];
 
-try {
-    $pdo = get_db_connection();
-} catch (Throwable $e) {
-    error_log('Database Connection Error in admin-profile.php: ' . $e->getMessage());
-    send_json_response(500, [
-        'status'  => 'error',
-        'message' => 'Database connection failed.'
-    ]);
-}
-
 // -------------------------------------------------------------
 // GET: Fetch current admin profile
 // -------------------------------------------------------------
 if ($method === 'GET') {
-    try {
-        $stmt = $pdo->prepare('SELECT id, username, display_name, avatar_url, accent_color, created_at FROM admin_users WHERE username = :u LIMIT 1');
-        $stmt->execute([':u' => $adminUsername]);
-        $profile = $stmt->fetch(PDO::FETCH_ASSOC);
+    $profile = get_stored_admin_profile($adminUsername);
 
-        if (!$profile) {
-            send_json_response(404, [
-                'status'  => 'error',
-                'message' => 'Admin profile not found.'
-            ]);
-        }
-
-        send_json_response(200, [
-            'status'     => 'success',
-            'profile'    => [
-                'username'     => $profile['username'],
-                'display_name' => !empty($profile['display_name']) ? $profile['display_name'] : 'Ethan',
-                'avatar_url'   => $profile['avatar_url'] ?: null,
-                'accent_color' => $profile['accent_color'] ?: '#6c63ff',
-                'created_at'   => $profile['created_at']
-            ],
-            'allowed_accents' => $allowedAccents,
-            'csrf_token'      => get_csrf_token()
-        ]);
-    } catch (Throwable $e) {
-        error_log('Admin Profile Fetch Error: ' . $e->getMessage());
-        send_json_response(500, [
-            'status'  => 'error',
-            'message' => 'Could not fetch admin profile.'
-        ]);
-    }
+    send_json_response(200, [
+        'status'          => 'success',
+        'profile'         => [
+            'username'     => $adminUsername,
+            'display_name' => $profile['display_name'] ?? 'Ethan',
+            'avatar_url'   => $profile['avatar_url'] ?: null,
+            'accent_color' => $profile['accent_color'] ?: '#6c63ff'
+        ],
+        'allowed_accents' => $allowedAccents,
+        'csrf_token'      => get_csrf_token()
+    ]);
 }
 
 // -------------------------------------------------------------
@@ -105,35 +78,20 @@ if ($method === 'POST') {
     }
 
     // Fetch existing profile to get current avatar for cleanup if replaced
-    $currStmt = $pdo->prepare('SELECT display_name, avatar_url, accent_color FROM admin_users WHERE username = :u LIMIT 1');
-    $currStmt->execute([':u' => $adminUsername]);
-    $currProfile = $currStmt->fetch(PDO::FETCH_ASSOC);
-
-    $currentAvatar = $currProfile['avatar_url'] ?? null;
-
-    // Helper: Safely delete previous custom uploaded avatar
-    $safeDeleteAvatar = function (?string $relPath): void {
-        if (empty($relPath)) return;
-        $cleanPath = str_replace(['..', '\\'], ['', '/'], $relPath);
-        if (str_starts_with($cleanPath, 'assets/images/avatars/')) {
-            $absPath = realpath(__DIR__ . '/../' . $cleanPath);
-            $avatarsDir = realpath(__DIR__ . '/../assets/images/avatars');
-            if ($absPath && $avatarsDir && str_starts_with($absPath, $avatarsDir) && file_exists($absPath) && is_file($absPath)) {
-                @unlink($absPath);
-            }
-        }
-    };
+    $currentProfile = get_stored_admin_profile($adminUsername);
+    $currentAvatar = $currentProfile['avatar_url'] ?? null;
 
     // ACTION: Reset to Default
     if (($input['action'] ?? '') === 'reset') {
-        $safeDeleteAvatar($currentAvatar);
+        delete_stored_avatar($currentAvatar);
 
-        $resetStmt = $pdo->prepare('
-            UPDATE admin_users 
-            SET display_name = "Ethan", avatar_url = NULL, accent_color = "#6c63ff" 
-            WHERE username = :u
-        ');
-        $resetStmt->execute([':u' => $adminUsername]);
+        $resetData = [
+            'username'     => $adminUsername,
+            'display_name' => 'Ethan',
+            'avatar_url'   => null,
+            'accent_color' => '#6c63ff'
+        ];
+        save_stored_admin_profile($resetData);
 
         send_json_response(200, [
             'status'  => 'success',
@@ -149,8 +107,8 @@ if ($method === 'POST') {
     }
 
     // ACTION: Update Settings
-    $displayName = trim((string)($input['display_name'] ?? ($currProfile['display_name'] ?? 'Ethan')));
-    $accentColor = strtolower(trim((string)($input['accent_color'] ?? ($currProfile['accent_color'] ?? '#6c63ff'))));
+    $displayName = trim((string)($input['display_name'] ?? ($currentProfile['display_name'] ?? 'Ethan')));
+    $accentColor = strtolower(trim((string)($input['accent_color'] ?? ($currentProfile['accent_color'] ?? '#6c63ff'))));
     $clearAvatar = !empty($input['clear_avatar']) && ($input['clear_avatar'] === true || $input['clear_avatar'] === 'true' || $input['clear_avatar'] === '1');
 
     // Validation: Display Name
@@ -166,8 +124,8 @@ if ($method === 'POST') {
     // Validation: Accent Color
     if (!in_array($accentColor, $allowedAccents, true)) {
         send_json_response(422, [
-            'status'  => 'error',
-            'message' => 'Selected accent color is not in the allowed preset list.',
+            'status'          => 'error',
+            'message'         => 'Selected accent color is not in the allowed preset list.',
             'allowed_accents' => $allowedAccents
         ]);
     }
@@ -239,25 +197,21 @@ if ($method === 'POST') {
         }
 
         // Clean up previous custom avatar
-        $safeDeleteAvatar($currentAvatar);
+        delete_stored_avatar($currentAvatar);
         $newAvatarUrl = 'assets/images/avatars/' . $filename;
     } elseif ($clearAvatar) {
-        $safeDeleteAvatar($currentAvatar);
+        delete_stored_avatar($currentAvatar);
         $newAvatarUrl = null;
     }
 
-    // Persist changes in database
-    $upStmt = $pdo->prepare('
-        UPDATE admin_users 
-        SET display_name = :d, avatar_url = :a, accent_color = :c 
-        WHERE username = :u
-    ');
-    $upStmt->execute([
-        ':d' => $displayName,
-        ':a' => $newAvatarUrl,
-        ':c' => $accentColor,
-        ':u' => $adminUsername
-    ]);
+    // Persist changes to filesystem store (and MySQL dual-sync)
+    $saveData = [
+        'username'     => $adminUsername,
+        'display_name' => $displayName,
+        'avatar_url'   => $newAvatarUrl,
+        'accent_color' => $accentColor
+    ];
+    save_stored_admin_profile($saveData);
 
     send_json_response(200, [
         'status'  => 'success',

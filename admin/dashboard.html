@@ -19,7 +19,7 @@
        ============================================================ -->
   <aside class="admin-sidebar" id="adminSidebar" aria-label="Admin navigation">
     <div class="sidebar-brand">
-      <a href="../index.html" class="nav-logo" aria-label="Portfolio home">ETHAN<span class="logo-dot">.</span></a>
+      <a href="../index.php#home" class="nav-logo" aria-label="Portfolio home">ETHAN<span class="logo-dot">.</span></a>
     </div>
 
     <nav class="sidebar-nav" aria-label="Admin sections">
@@ -47,7 +47,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <a href="../index.html" class="sidebar-link sidebar-link-ghost" target="_blank" rel="noopener">
+      <a href="../index.php#home" class="sidebar-link sidebar-link-ghost" target="_blank" rel="noopener">
         <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
         <span>View Site</span>
       </a>
@@ -208,7 +208,7 @@
             </div>
           </a>
 
-          <a href="../index.html" class="quick-action-card" target="_blank" rel="noopener">
+          <a href="../index.php#home" class="quick-action-card" target="_blank" rel="noopener">
             <div class="quick-action-icon" style="color: #818cf8;">
               <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
             </div>
@@ -342,7 +342,7 @@
           </div>
           <div class="detail-meta-item">
             <label>Current Status</label>
-            <span id="detailStatusBadge" class="status-badge">&mdash;</span>
+            <span id="detailStatusBadgeWrap" class="status-badge">&mdash;</span>
           </div>
         </div>
 
@@ -463,6 +463,30 @@
           </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN LOGOUT CONFIRMATION MODAL
+       ============================================================ -->
+  <div class="admin-modal-overlay" id="logoutConfirmModal"
+       role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle" aria-hidden="true">
+    <div class="admin-modal-card" style="max-width: 440px;">
+      <div class="modal-body" style="text-align: center; padding: 36px 28px 20px;">
+        <div class="danger-modal-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); width: 56px; height: 56px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 16px;" aria-hidden="true">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+        <h2 id="logoutModalTitle" style="font-size: 1.3rem; margin-bottom: 8px; font-weight: 700; color: var(--text-primary);">Sign out of your account?</h2>
+        <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+          Are you sure you want to sign out of your admin account?
+        </p>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 12px; padding: 12px 24px 28px; border-top: none;">
+        <button type="button" class="btn-outline btn-sm" id="cancelLogoutBtn" style="min-width: 100px;">Cancel</button>
+        <button type="button" class="btn-danger-confirm" id="confirmLogoutBtn" style="min-width: 140px; background: #ef4444; border-color: #ef4444; color: #fff; padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Yes, Sign Out
+        </button>
+      </div>
     </div>
   </div>
 
