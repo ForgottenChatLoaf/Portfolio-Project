@@ -29,11 +29,10 @@ async function setupNavbarAndFooter() {
 
   initNavbar(basePath, isInsideAdmin);
 
-  // 2. If footer placeholder exists and is empty, fetch it; otherwise initialize existing footer
+  // 2. Load shared footer: If footer placeholder exists, sync from partials/footer.html
   const footerPlaceholder = document.getElementById('footer-placeholder') || document.getElementById('footer-container');
-  const existingFooter = document.querySelector('footer');
 
-  if (!existingFooter && footerPlaceholder) {
+  if (footerPlaceholder) {
     try {
       const res = await fetch(`${basePath}partials/footer.html`);
       if (res.ok) {
