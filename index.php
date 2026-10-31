@@ -15,6 +15,9 @@
 </head>
 <body data-page="home">
 
+  <!-- Top Scroll Progress Bar -->
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+
   <!-- Loading Screen -->
   <div id="loader" class="loader">
     <div class="loader-content">
@@ -121,49 +124,8 @@
     </section>
   </main>
 
-  <!-- Shared Footer -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-simple-grid">
-        <!-- Left: Brand & Personal Tagline -->
-        <div class="footer-brand-col">
-          <a href="index.php#home" class="footer-logo" aria-label="Ethan McClarence Gacud Home">ETHAN<span class="logo-dot">.</span></a>
-          <p class="footer-tagline">IT student learning, building, and exploring through code.</p>
-        </div>
-
-        <!-- Right: Let's Connect Links -->
-        <div class="footer-connect-col">
-          <span class="footer-connect-title">Let's connect</span>
-          <div class="footer-connect-links">
-            <a href="https://github.com/ForgottenChatLoaf" target="_blank" rel="noopener noreferrer" class="footer-connect-link" aria-label="ForgottenChatLoaf (Ethan) on GitHub">
-              <i class="fa-brands fa-github" aria-hidden="true"></i>
-              <span>GitHub</span>
-            </a>
-            <a href="mailto:ethangacud@gmail.com" class="footer-connect-link" aria-label="Send email to Ethan">
-              <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-              <span>Email</span>
-            </a>
-            <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" class="footer-connect-link" aria-label="Ethan on Facebook">
-              <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
-              <span>Facebook</span>
-            </a>
-            <a href="https://www.linkedin.com/in/ethan-mcclarence-panong-gacud-0568733b7/" target="_blank" rel="noopener noreferrer" class="footer-connect-link" aria-label="Ethan on LinkedIn">
-              <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
-              <span>LinkedIn</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bottom Row: Copyright + Back to Top -->
-      <div class="footer-bottom-row">
-        <p class="footer-copy">&copy; <span id="currentYear">2026</span> Ethan McClarence Gacud.</p>
-        <a href="#navbar" class="back-to-top" id="backToTopBtn" aria-label="Back to top">
-          Back to top <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
-        </a>
-      </div>
-    </div>
-  </footer>
+  <!-- Pre-Footer Contact CTA & Shared 3-Column Footer -->
+  <?php include __DIR__ . '/partials/footer.html'; ?>
 
   <script src="assets/js/partials.js"></script>
   <script src="assets/js/main.js"></script>

@@ -48,3 +48,4 @@ function get_db_connection(): PDO {
         throw new RuntimeException('Database connection failed. Please ensure MySQL is running.');
     }
 }
+

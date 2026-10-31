@@ -15,6 +15,9 @@
 </head>
 <body data-page="projects">
 
+  <!-- Top Scroll Progress Bar -->
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+
   <!-- Custom Magnetic Cursor -->
   <div class="custom-cursor" id="customCursor"></div>
 
@@ -73,7 +76,12 @@
                   <span class="project-tag">HTML &middot; CSS &middot; JavaScript &middot; Node.js</span>
                   <h3 class="project-title">Readora</h3>
                   <p class="project-desc">A modern, fully functional mock e-commerce bookstore. Features a comprehensive product catalog, smooth shopping cart functionality, responsive design across all devices, and seamless backend integration.</p>
-                  <a href="https://readoraupdate.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-cta">View Project <i class="fa-solid fa-arrow-right"></i></a>
+                  <div class="project-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <a href="https://readoraupdate.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-cta">View Project <i class="fa-solid fa-arrow-right"></i></a>
+                    <button type="button" class="btn-outline btn-sm open-project-modal-btn" data-project="readora" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 16px; cursor: pointer;">
+                      <i class="fa-solid fa-circle-info"></i> Project Details &amp; Role
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -92,7 +100,12 @@
                   <span class="project-tag">HTML &middot; CSS</span>
                   <h3 class="project-title">Pure CSS Image Gallery</h3>
                   <p class="project-desc">A visually engaging image gallery built entirely with HTML and CSS. Designed to highlight responsive layouts, clean structure, and smooth CSS hover transitions without relying on JavaScript.</p>
-                  <a href="https://ethan-gacud-mock-gallery.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-cta">View Project <i class="fa-solid fa-arrow-right"></i></a>
+                  <div class="project-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <a href="https://ethan-gacud-mock-gallery.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-cta">View Project <i class="fa-solid fa-arrow-right"></i></a>
+                    <button type="button" class="btn-outline btn-sm open-project-modal-btn" data-project="mock-gallery" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 16px; cursor: pointer;">
+                      <i class="fa-solid fa-circle-info"></i> Project Details &amp; Role
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -113,7 +126,12 @@
                   <span class="project-tag">Web Application</span>
                   <h3 class="project-title">iCareDonate</h3>
                   <p class="project-desc">A responsive donation and community aid platform featuring interactive contribution workflows, secure user authentication, and a comprehensive administrative dashboard for tracking donations and requests.</p>
-                  <a href="https://github.com/ForgottenChatLoaf" target="_blank" rel="noopener noreferrer" class="project-cta">View Project <i class="fa-solid fa-arrow-right"></i></a>
+                  <div class="project-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <a href="https://github.com/ForgottenChatLoaf" target="_blank" rel="noopener noreferrer" class="project-cta">View on GitHub <i class="fa-solid fa-arrow-right"></i></a>
+                    <button type="button" class="btn-outline btn-sm open-project-modal-btn" data-project="icaredonate" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 16px; cursor: pointer;">
+                      <i class="fa-solid fa-circle-info"></i> Project Details &amp; Role (PM)
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -131,7 +149,12 @@
                   <span class="project-tag">C Language</span>
                   <h3 class="project-title">C Language Menu Project</h3>
                   <p class="project-desc">A lightweight command-line game built entirely in C. Features random number generation, input validation, and a loop-based logic system for an interactive terminal experience.</p>
-                  <a href="https://github.com/ForgottenChatLoaf/C-language-Projects" target="_blank" rel="noopener noreferrer" class="project-cta">View on GitHub <i class="fa-solid fa-arrow-right"></i></a>
+                  <div class="project-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <a href="https://github.com/ForgottenChatLoaf/C-language-Projects" target="_blank" rel="noopener noreferrer" class="project-cta">View on GitHub <i class="fa-solid fa-arrow-right"></i></a>
+                    <button type="button" class="btn-outline btn-sm open-project-modal-btn" data-project="c-game" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 16px; cursor: pointer;">
+                      <i class="fa-solid fa-circle-info"></i> Project Details &amp; Logic
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -157,32 +180,117 @@
     </section>
   </main>
 
-  <!-- Shared Footer -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-simple-grid">
-        <!-- Left: Brand & Personal Tagline -->
-        <div class="footer-brand-col">
-          <a href="index.php#home" class="footer-logo" aria-label="Ethan McClarence Gacud Home">ETHAN<span class="logo-dot">.</span></a>
-          <p class="footer-tagline">IT student learning, building, and exploring through code.</p>
+  <!-- Interactive Project Details Modal -->
+  <div class="interactive-modal-overlay" id="projectDetailModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="interactive-modal-card">
+      <div class="modal-header-bar">
+        <h3 class="modal-header-title" id="projModalTitle">
+          <i class="fa-solid fa-folder-open" style="color: var(--accent);"></i>
+          <span>Project Details</span>
+        </h3>
+        <button type="button" class="modal-close-btn" id="closeProjectModal" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Gallery Preview -->
+        <div class="project-modal-gallery" id="projModalGallery"></div>
+
+        <!-- Metadata Grid -->
+        <div class="project-meta-grid">
+          <div class="meta-field">
+            <label>My Role &amp; Contribution</label>
+            <span id="projModalRole">—</span>
+          </div>
+          <div class="meta-field">
+            <label>Category</label>
+            <span id="projModalCategory">—</span>
+          </div>
+          <div class="meta-field">
+            <label>Timeline / Stage</label>
+            <span id="projModalTimeline">Academic / Independent</span>
+          </div>
         </div>
 
-        <!-- Right: Let's Connect Links -->
-        <div class="footer-connect-col">
-          <span class="footer-connect-title">Let's connect</span>
+        <!-- Description -->
+        <div>
+          <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); font-weight:700; margin-bottom:8px;">Overview &amp; Architecture</label>
+          <div class="project-modal-desc" id="projModalDesc"></div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div>
+          <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text-muted); font-weight:700; margin-bottom:8px;">Technologies &amp; Tools</label>
+          <div class="project-tech-badges" id="projModalTech"></div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="modal-actions-bar">
+          <button type="button" class="btn-outline btn-sm" id="closeProjectModalBottom">Close</button>
+          <a href="#" target="_blank" rel="noopener noreferrer" class="btn-primary btn-sm" id="projModalLink">
+            Visit Project <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pre-Footer Contact CTA -->
+  <div class="footer-cta-wrapper">
+    <div class="footer-cta-card">
+      <div class="footer-cta-content">
+        <span class="cta-eyebrow">Have a project in mind?</span>
+        <h2 class="cta-heading">I'm always interested in learning, collaborating, and building something meaningful.</h2>
+      </div>
+      <a href="contact.html" class="btn-primary cta-btn">
+        Let's connect <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Shared 3-Column Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-grid-3col">
+        <!-- Col 1: Brand & Bio -->
+        <div class="footer-col footer-col-brand">
+          <a href="index.php#home" class="footer-logo" aria-label="Ethan McClarence Gacud Home">ETHAN<span class="logo-dot">.</span></a>
+          <p class="footer-tagline">IT student learning, building, and exploring through code. Turning ideas into projects and growing through every experience.</p>
+        </div>
+
+        <!-- Col 2: Explore Navigation -->
+        <div class="footer-col footer-col-nav">
+          <span class="footer-heading">Explore</span>
+          <ul class="footer-nav-list">
+            <li><a href="index.php#home" class="footer-nav-link">Home</a></li>
+            <li><a href="index.php#about" class="footer-nav-link">About</a></li>
+            <li><a href="skills.html" class="footer-nav-link">Skills</a></li>
+            <li><a href="projects.html" class="footer-nav-link">Projects</a></li>
+            <li><a href="contact.html" class="footer-nav-link">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Connect -->
+        <div class="footer-col footer-col-connect">
+          <span class="footer-heading">Connect</span>
           <div class="footer-connect-links">
-            <a href="mailto:ethangacud@gmail.com" class="footer-connect-link" aria-label="Send email to Ethan">
-              <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-              <span>Email</span>
-            </a>
-            <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" class="footer-connect-link" aria-label="Ethan on Facebook">
-              <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
-              <span>Facebook</span>
+            <a href="https://github.com/ForgottenChatLoaf" target="_blank" rel="noopener noreferrer" class="footer-connect-link" aria-label="ForgottenChatLoaf on GitHub">
+              <i class="fa-brands fa-github"></i>
+              <span>GitHub</span>
             </a>
             <a href="https://www.linkedin.com/in/ethan-mcclarence-panong-gacud-0568733b7/" target="_blank" rel="noopener noreferrer" class="footer-connect-link" aria-label="Ethan on LinkedIn">
-              <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+              <i class="fa-brands fa-linkedin-in"></i>
               <span>LinkedIn</span>
             </a>
+            <a href="https://facebook.com/takodachi.inya" target="_blank" rel="noopener noreferrer" class="footer-connect-link" aria-label="Ethan on Facebook">
+              <i class="fa-brands fa-facebook-f"></i>
+              <span>Facebook</span>
+            </a>
+            <button type="button" class="footer-connect-link btn-copy-email" id="footerCopyEmailBtn" data-email="ethangacud@gmail.com" title="Click to copy email address">
+              <i class="fa-solid fa-envelope" id="copyEmailIcon"></i>
+              <span id="copyEmailText">Email (Copy)</span>
+            </button>
           </div>
         </div>
       </div>
@@ -191,7 +299,7 @@
       <div class="footer-bottom-row">
         <p class="footer-copy">&copy; <span id="currentYear">2026</span> Ethan McClarence Gacud.</p>
         <a href="#navbar" class="back-to-top" id="backToTopBtn" aria-label="Back to top">
-          Back to top <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+          Back to top <i class="fa-solid fa-arrow-up"></i>
         </a>
       </div>
     </div>

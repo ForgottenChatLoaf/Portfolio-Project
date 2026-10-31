@@ -185,6 +185,45 @@ function initFooter(basePath, isInsideAdmin) {
     });
   }
 
+  // Email Copy to Clipboard Interaction
+  const copyEmailBtn = document.getElementById('footerCopyEmailBtn');
+  if (copyEmailBtn && !copyEmailBtn._hasListener) {
+    copyEmailBtn._hasListener = true;
+    copyEmailBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = copyEmailBtn.getAttribute('data-email') || 'ethangacud@gmail.com';
+      try {
+        await navigator.clipboard.writeText(email);
+        const icon = document.getElementById('copyEmailIcon');
+        const text = document.getElementById('copyEmailText');
+        copyEmailBtn.classList.add('copied');
+        if (icon) icon.className = 'fa-solid fa-check';
+        if (text) text.textContent = 'Copied!';
+        if (typeof showToast === 'function') {
+          showToast(`Email copied: ${email}`);
+        }
+        setTimeout(() => {
+          copyEmailBtn.classList.remove('copied');
+          if (icon) icon.className = 'fa-solid fa-envelope';
+          if (text) text.textContent = 'Email (Copy)';
+        }, 2500);
+      } catch (err) {
+        window.location.href = `mailto:${email}`;
+      }
+    });
+  }
+
+  // Scroll Progress Bar Tracker
+  const progressBar = document.getElementById('scrollProgressBar');
+  if (progressBar && !window._hasScrollProgress) {
+    window._hasScrollProgress = true;
+    window.addEventListener('scroll', () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = total > 0 ? (window.scrollY / total) * 100 : 0;
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    }, { passive: true });
+  }
+
   if (isInsideAdmin) {
     const footerLogo = document.querySelector('.footer-logo');
     if (footerLogo) footerLogo.setAttribute('href', `${basePath}index.php#home`);

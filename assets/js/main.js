@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initSkillsDrawer();
   initAdminShortcut();
   initFooter();
+  initExpandableSkills();
+  initProjectModals();
+  initCertificateModals();
 });
 
 /* ============================================================
@@ -712,4 +715,236 @@ function initFooter() {
       });
     });
   }
+}
+
+/* ============================================================
+   13. EXPANDABLE SKILLS CARDS (Interactive Tech Context)
+   ============================================================ */
+function initExpandableSkills() {
+  const items = document.querySelectorAll('.tech-badge-item.expandable');
+  items.forEach((item) => {
+    const toggle = () => {
+      const isExpanded = item.classList.toggle('is-expanded');
+      item.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+    };
+
+    item.addEventListener('click', () => {
+      toggle();
+    });
+
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+}
+
+/* ============================================================
+   14. INTERACTIVE PROJECT DETAILS MODAL
+   ============================================================ */
+function initProjectModals() {
+  const modal = document.getElementById('projectDetailModal');
+  if (!modal) return;
+
+  const closeBtn = document.getElementById('closeProjectModal');
+  const closeBottomBtn = document.getElementById('closeProjectModalBottom');
+  const modalTitle = document.getElementById('projModalTitle');
+  const modalRole = document.getElementById('projModalRole');
+  const modalCategory = document.getElementById('projModalCategory');
+  const modalTimeline = document.getElementById('projModalTimeline');
+  const modalDesc = document.getElementById('projModalDesc');
+  const modalTech = document.getElementById('projModalTech');
+  const modalGallery = document.getElementById('projModalGallery');
+  const modalLink = document.getElementById('projModalLink');
+
+  const projectsData = {
+    readora: {
+      title: 'Readora — Virtual Bookshelf & Store',
+      role: 'Frontend Developer & UI Designer',
+      category: 'E-Commerce / Interactive Web Experience',
+      timeline: 'Academic Project & Ongoing Study',
+      desc: 'Readora is a responsive, interactive mock bookstore and virtual library platform celebrating tactile editorial design. Built with modular component architecture, smooth sliding book previews, real-time genre filtering, responsive catalog layout, and an intuitive cart interaction pattern.',
+      tech: ['HTML5', 'CSS3', 'JavaScript (ES6+)', 'Node.js', 'Responsive UI'],
+      images: [
+        'assets/images/projects/Readora/Screenshot 2026-05-26 202500.png',
+        'assets/images/projects/Readora/Screenshot 2026-05-26 202512.png',
+        'assets/images/projects/Readora/Screenshot 2026-05-26 202615.png',
+        'assets/images/projects/Readora/Screenshot 2026-05-26 202632.png'
+      ],
+      linkText: 'Visit Live Site',
+      url: 'https://readoraupdate.netlify.app/'
+    },
+    'mock-gallery': {
+      title: 'Pure CSS Image Gallery',
+      role: 'CSS UI Architect & Layout Designer',
+      category: 'Pure Frontend / Layout Engineering',
+      timeline: 'Coursework Showcase',
+      desc: 'A modern, responsive photo showcase created with pure HTML and CSS with zero JavaScript dependencies. Emphasizes modern layout mechanics, fluid CSS Grid, Flexbox alignment, CSS hover transitions, and accessible state styling.',
+      tech: ['HTML5 Semantic', 'CSS3 Grid', 'CSS3 Flexbox', 'CSS Transitions'],
+      images: [
+        'https://i.ibb.co/GvhnvDfx/Screenshot-2026-03-28-080346.png',
+        'https://i.ibb.co/fzfzW2dQ/Screenshot-2026-03-28-080409.png',
+        'https://i.ibb.co/vvJjpfW3/Screenshot-2026-03-28-080447.png'
+      ],
+      linkText: 'Visit Live Demo',
+      url: 'https://ethan-gacud-mock-gallery.netlify.app/'
+    },
+    icaredonate: {
+      title: 'iCareDonate — Community Aid Platform',
+      role: 'Project Manager / Team Leader & Fullstack Contributor',
+      category: 'Full-Stack Web Application',
+      timeline: 'Team Project / Capstone Milestone',
+      desc: 'iCareDonate is a community assistance platform connecting verified donation drives with volunteers and donors in real time. As Project Manager and Team Leader, Ethan organized team task breakdowns, guided database schema architecture, ensured unified UI consistency, and implemented the administrative verification portal with transparent donor tracking.',
+      tech: ['PHP (Backend)', 'MySQL / MariaDB', 'JavaScript', 'HTML5 / CSS3', 'Bootstrap', 'Role-Based Access Control'],
+      images: [
+        'assets/images/projects/iCareDonate/HomePage.png',
+        'assets/images/projects/iCareDonate/Admin_dashboard.png',
+        'assets/images/projects/iCareDonate/Howitworks.png',
+        'assets/images/projects/iCareDonate/howitworks1.png',
+        'assets/images/projects/iCareDonate/LoginPage.png'
+      ],
+      linkText: 'View on GitHub',
+      url: 'https://github.com/ForgottenChatLoaf'
+    },
+    'c-game': {
+      title: 'C Language Terminal Gaming Suite',
+      role: 'System Logic & Algorithm Programmer',
+      category: 'Console Software / Algorithm Design',
+      timeline: 'Coursework (FOPR111)',
+      desc: 'A modular, terminal-based gaming suite programmed in C99. Explores algorithmic flow control, pseudo-random number generators, pointer mechanics, robust input validation to prevent buffer overflows, and an intuitive nested menu interface.',
+      tech: ['C Language (C99)', 'GCC Compiler', 'Terminal ANSI', 'Data Structures & Algorithms'],
+      images: [
+        'https://i.ibb.co/gFZKMhqf/Screenshot-2026-03-28-200143.png',
+        'https://i.ibb.co/0zbRZz8/Screenshot-2026-03-28-201316.png'
+      ],
+      linkText: 'View on GitHub',
+      url: 'https://github.com/ForgottenChatLoaf/C-language-Projects'
+    }
+  };
+
+  const openModal = (projKey) => {
+    const data = projectsData[projKey];
+    if (!data) return;
+
+    if (modalTitle) {
+      modalTitle.innerHTML = `<i class="fa-solid fa-folder-open" style="color: var(--accent);"></i> <span>${data.title}</span>`;
+    }
+    if (modalRole) modalRole.textContent = data.role;
+    if (modalCategory) modalCategory.textContent = data.category;
+    if (modalTimeline) modalTimeline.textContent = data.timeline;
+    if (modalDesc) modalDesc.textContent = data.desc;
+
+    if (modalTech) {
+      modalTech.innerHTML = data.tech.map(t => `<span class="project-tech-badge">${t}</span>`).join('');
+    }
+
+    if (modalGallery) {
+      modalGallery.innerHTML = data.images.map(img => `<img src="${img}" alt="${data.title} screenshot" loading="lazy">`).join('');
+    }
+
+    if (modalLink) {
+      modalLink.href = data.url;
+      modalLink.innerHTML = `${data.linkText} <i class="fa-solid fa-arrow-up-right-from-square"></i>`;
+    }
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  document.querySelectorAll('.open-project-modal-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const proj = btn.getAttribute('data-project');
+      openModal(proj);
+    });
+  });
+
+  closeBtn?.addEventListener('click', closeModal);
+  closeBottomBtn?.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      closeModal();
+    }
+  });
+}
+
+/* ============================================================
+   15. INTERACTIVE CERTIFICATE VIEWER MODAL
+   ============================================================ */
+function initCertificateModals() {
+  const modal = document.getElementById('certModal');
+  if (!modal) return;
+
+  const closeBtn = document.getElementById('closeCertModal');
+  const closeBottomBtn = document.getElementById('closeCertModalBottom');
+  const modalTitle = document.getElementById('certModalTitle');
+  const modalIssuer = document.getElementById('certModalIssuer');
+  const modalDate = document.getElementById('certModalDate');
+  const modalDesc = document.getElementById('certModalDesc');
+  const modalImg = document.getElementById('certModalImg');
+  const modalPdfLink = document.getElementById('certModalPdfLink');
+
+  const openModal = (card) => {
+    const title = card.getAttribute('data-cert-title') || 'Certificate';
+    const issuer = card.getAttribute('data-cert-issuer') || 'Verified Institution';
+    const date = card.getAttribute('data-cert-date') || 'Verified';
+    const desc = card.getAttribute('data-cert-desc') || '';
+    const img = card.getAttribute('data-cert-img') || '';
+    const pdf = card.getAttribute('data-cert-pdf') || '#';
+
+    if (modalTitle) {
+      modalTitle.innerHTML = `<i class="fa-solid fa-certificate" style="color: #f59e0b;"></i> <span>${title}</span>`;
+    }
+    if (modalIssuer) modalIssuer.innerHTML = issuer;
+    if (modalDate) modalDate.textContent = date;
+    if (modalDesc) modalDesc.textContent = desc;
+    if (modalImg) modalImg.src = img;
+    if (modalPdfLink) modalPdfLink.href = pdf;
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  document.querySelectorAll('.cert-preview-card').forEach(card => {
+    card.querySelectorAll('.open-cert-modal-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal(card);
+      });
+    });
+  });
+
+  closeBtn?.addEventListener('click', closeModal);
+  closeBottomBtn?.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      closeModal();
+    }
+  });
 }
