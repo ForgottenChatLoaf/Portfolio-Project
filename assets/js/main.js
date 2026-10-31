@@ -498,24 +498,39 @@ function initCarousel() {
     }
   }, { passive: true });
 
-  // Auto-scroll with pause on hover / touch
-  let autoScrollInterval;
+  // Auto-scroll with pause on hover / touch / modal open
+  const wrapper = track.closest('.carousel-wrapper') || track;
+  let autoScrollInterval = null;
+  const AUTOSCROLL_DELAY = 8500; // Calibrated comfortable reading time (8.5s)
 
   function startAutoScroll() {
+    stopAutoScroll();
+    if (document.body.classList.contains('modal-open')) return;
     autoScrollInterval = setInterval(() => {
+      if (document.body.classList.contains('modal-open')) return;
       currentIndex = currentIndex < slideCount - 1 ? currentIndex + 1 : 0;
       updateCarousel();
-    }, 5000);
+    }, AUTOSCROLL_DELAY);
   }
 
   function stopAutoScroll() {
-    clearInterval(autoScrollInterval);
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval);
+      autoScrollInterval = null;
+    }
   }
 
-  track.addEventListener('mouseenter', stopAutoScroll);
-  track.addEventListener('mouseleave', startAutoScroll);
-  track.addEventListener('touchstart', stopAutoScroll, { passive: true });
-  track.addEventListener('touchend', startAutoScroll, { passive: true });
+  // Expose global hooks to coordinate with project modals
+  window.pauseCarousel = stopAutoScroll;
+  window.resumeCarousel = startAutoScroll;
+
+  // Pause when cursor is anywhere inside the carousel wrapper (text, buttons, slides)
+  wrapper.addEventListener('mouseenter', stopAutoScroll);
+  wrapper.addEventListener('mouseleave', startAutoScroll);
+  wrapper.addEventListener('focusin', stopAutoScroll);
+  wrapper.addEventListener('focusout', startAutoScroll);
+  wrapper.addEventListener('touchstart', stopAutoScroll, { passive: true });
+  wrapper.addEventListener('touchend', startAutoScroll, { passive: true });
 
   updateCarousel();
   startAutoScroll();
@@ -762,11 +777,11 @@ function initProjectModals() {
   const projectsData = {
     readora: {
       title: 'Readora — Virtual Bookshelf & Store',
-      role: 'Frontend Developer & UI Designer',
+      role: 'Fullstack Developer, UI/UX Designer & Testing',
       category: 'E-Commerce / Interactive Web Experience',
       timeline: 'Academic Project & Ongoing Study',
-      desc: 'Readora is a responsive, interactive mock bookstore and virtual library platform celebrating tactile editorial design. Built with modular component architecture, smooth sliding book previews, real-time genre filtering, responsive catalog layout, and an intuitive cart interaction pattern.',
-      tech: ['HTML5', 'CSS3', 'JavaScript (ES6+)', 'Node.js', 'Responsive UI'],
+      desc: 'Readora is a responsive, interactive mock bookstore and virtual library platform celebrating tactile editorial design. As Fullstack Developer, Ethan handled end-to-end frontend and backend integration, created intuitive UI/UX design components for book previews and genre filtering, and conducted responsive testing and debugging across device breakpoints.',
+      tech: ['HTML5', 'CSS3', 'JavaScript (ES6+)', 'Node.js', 'UI/UX Design', 'Quality Testing & Debugging'],
       images: [
         'assets/images/projects/Readora/Screenshot 2026-05-26 202500.png',
         'assets/images/projects/Readora/Screenshot 2026-05-26 202512.png',
@@ -851,13 +866,27 @@ function initProjectModals() {
 
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('modal-open');
+    document.body.classList.add('modal-open');
     document.body.style.overflow = 'hidden';
+
+    // Pause carousel while viewing project details
+    if (typeof window.pauseCarousel === 'function') {
+      window.pauseCarousel();
+    }
   };
 
   const closeModal = () => {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('modal-open');
+    document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
+
+    // Resume carousel when closed
+    if (typeof window.resumeCarousel === 'function') {
+      window.resumeCarousel();
+    }
   };
 
   document.querySelectorAll('.open-project-modal-btn').forEach(btn => {
@@ -917,13 +946,27 @@ function initCertificateModals() {
 
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('modal-open');
+    document.body.classList.add('modal-open');
     document.body.style.overflow = 'hidden';
+
+    // Pause carousel while viewing project details
+    if (typeof window.pauseCarousel === 'function') {
+      window.pauseCarousel();
+    }
   };
 
   const closeModal = () => {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('modal-open');
+    document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
+
+    // Resume carousel when closed
+    if (typeof window.resumeCarousel === 'function') {
+      window.resumeCarousel();
+    }
   };
 
   document.querySelectorAll('.cert-preview-card').forEach(card => {
