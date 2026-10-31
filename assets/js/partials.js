@@ -230,34 +230,56 @@ function initFooter(basePath, isInsideAdmin) {
   const copyEmailBtn = document.getElementById('footerCopyEmailBtn');
   if (copyEmailBtn && !copyEmailBtn._hasListener) {
     copyEmailBtn._hasListener = true;
-    copyEmailBtn.addEventListener('click', async (e) => {
+    copyEmailBtn.addEventListener('click', (e) => {
       e.preventDefault();
       const email = copyEmailBtn.getAttribute('data-email') || 'ethangacud@gmail.com';
-      try {
-        await navigator.clipboard.writeText(email);
+
+      // Helper: show copied state + toast
+      function _onCopied() {
         const icon = document.getElementById('copyEmailIcon');
         const text = document.getElementById('copyEmailText');
-        // Visual feedback on button
         copyEmailBtn.classList.add('copied');
         if (icon) icon.className = 'fa-solid fa-check';
         if (text) text.textContent = 'Copied!';
-        // Show toast — use global showToast if available (main.js loaded),
-        // otherwise fall back to a self-contained partials toast
         if (typeof window.showToast === 'function') {
-          window.showToast(`📋 Email copied to clipboard!`, 'success');
+          window.showToast('📋 Email copied to clipboard!', 'success');
         } else {
-          _partialsToast(`📋 Email copied to clipboard!`);
+          _partialsToast('📋 Email copied to clipboard!');
         }
         setTimeout(() => {
           copyEmailBtn.classList.remove('copied');
           if (icon) icon.className = 'fa-solid fa-envelope';
           if (text) text.textContent = 'Email (Copy)';
         }, 2500);
-      } catch (err) {
-        // Clipboard API blocked (e.g. non-HTTPS in some browsers) — fallback to mailto
-        window.location.href = `mailto:${email}`;
+      }
+
+      // Try modern Clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(_onCopied).catch(() => {
+          // Fallback: legacy execCommand
+          _execCommandCopy(email) ? _onCopied() : (window.location.href = `mailto:${email}`);
+        });
+      } else {
+        // Fallback for older browsers
+        _execCommandCopy(email) ? _onCopied() : (window.location.href = `mailto:${email}`);
       }
     });
+  }
+
+  function _execCommandCopy(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (_) {
+      return false;
+    }
   }
 
   // Scroll Progress Bar Tracker
