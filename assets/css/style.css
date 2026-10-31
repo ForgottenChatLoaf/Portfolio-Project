@@ -2244,8 +2244,9 @@ p, li, a, input, textarea, label, select, button {
 }
 
 .toast-success {
-  border-color: rgba(34, 197, 94, 0.5);
-  color: #22c55e;
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #10b981;
+  background: var(--bg-elevated);
 }
 
 /* ============================================================
@@ -3745,6 +3746,7 @@ body[data-page="contact"] .footer-cta-wrapper {
   border-radius: 6px;
   padding: 4px 6px;
   margin: -4px -6px;
+  transition: color 0.2s ease;
 }
 
 .btn-copy-email.copied {

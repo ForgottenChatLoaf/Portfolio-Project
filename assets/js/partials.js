@@ -4,6 +4,48 @@
  * Manages active states and mobile menu (dark mode only)
  */
 
+/**
+ * Self-contained toast for partials.js — used when main.js showToast isn't loaded yet.
+ * Falls back gracefully and injects its own minimal styled element.
+ */
+function _partialsToast(message) {
+  let toast = document.getElementById('_partialsToastEl');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = '_partialsToastEl';
+    Object.assign(toast.style, {
+      position: 'fixed',
+      bottom: '24px',
+      right: '24px',
+      zIndex: '10001',
+      background: '#0f172a',
+      color: '#10b981',
+      border: '1px solid rgba(16,185,129,0.45)',
+      borderRadius: '10px',
+      padding: '13px 20px',
+      fontSize: '14px',
+      fontFamily: 'inherit',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.45)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      transform: 'translateY(80px)',
+      opacity: '0',
+      pointerEvents: 'none',
+      transition: 'all 0.35s cubic-bezier(0.16,1,0.3,1)',
+    });
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  requestAnimationFrame(() => {
+    Object.assign(toast.style, { transform: 'translateY(0)', opacity: '1' });
+  });
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => {
+    Object.assign(toast.style, { transform: 'translateY(80px)', opacity: '0' });
+  }, 3500);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setupNavbarAndFooter();
 });
@@ -195,11 +237,16 @@ function initFooter(basePath, isInsideAdmin) {
         await navigator.clipboard.writeText(email);
         const icon = document.getElementById('copyEmailIcon');
         const text = document.getElementById('copyEmailText');
+        // Visual feedback on button
         copyEmailBtn.classList.add('copied');
         if (icon) icon.className = 'fa-solid fa-check';
         if (text) text.textContent = 'Copied!';
-        if (typeof showToast === 'function') {
-          showToast(`Email copied: ${email}`);
+        // Show toast — use global showToast if available (main.js loaded),
+        // otherwise fall back to a self-contained partials toast
+        if (typeof window.showToast === 'function') {
+          window.showToast(`📋 Email copied to clipboard!`, 'success');
+        } else {
+          _partialsToast(`📋 Email copied to clipboard!`);
         }
         setTimeout(() => {
           copyEmailBtn.classList.remove('copied');
@@ -207,6 +254,7 @@ function initFooter(basePath, isInsideAdmin) {
           if (text) text.textContent = 'Email (Copy)';
         }, 2500);
       } catch (err) {
+        // Clipboard API blocked (e.g. non-HTTPS in some browsers) — fallback to mailto
         window.location.href = `mailto:${email}`;
       }
     });
