@@ -1,17 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap');
 
 /* ============================================================
    ETHAN MCCLARENCE GACUD — PORTFOLIO STYLESHEET
-   Dark Editorial Aesthetic | Syne + DM Sans
-   Shared across all 5 public pages & admin interface
+   Dark Editorial Aesthetic | Syne + Space Grotesk + Plus Jakarta Sans
+   Shared across all public pages & admin interface
    ============================================================ */
 
 /* ============================================================
    1. Design Tokens and Global Styles
    ============================================================ */
 :root {
-  --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   /* Dark Mode (Default) */
   --bg: #0a0a0a;
   --bg-surface: #111111;
@@ -87,6 +87,8 @@ body {
   font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.4s ease, color 0.4s ease;
   display: flex;
   flex-direction: column;
@@ -2095,6 +2097,42 @@ p, li, a, input, textarea, label, select, button {
 .btn-danger-confirm:hover {
   background: #b91c1c;
   box-shadow: 0 4px 16px rgba(220, 38, 38, 0.45);
+}
+
+/* Logout Confirmation Modal Polish */
+#logoutConfirmModal .admin-modal-card {
+  max-width: 440px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #111115;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(239, 68, 68, 0.08);
+  overflow: hidden;
+}
+
+#logoutConfirmModal .danger-modal-icon {
+  animation: pulseDanger 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseDanger {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+#logoutConfirmModal #confirmLogoutBtn:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
+  transform: translateY(-2px);
+}
+
+#logoutConfirmModal #cancelLogoutBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
 }
 
 .btn-danger-confirm:disabled {

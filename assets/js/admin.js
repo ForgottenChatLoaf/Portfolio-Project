@@ -974,6 +974,10 @@ function initAdminDashboard() {
       executeLogout();
       return;
     }
+    if (confirmLogoutBtn) {
+      confirmLogoutBtn.disabled = false;
+      confirmLogoutBtn.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Yes, Sign Out';
+    }
     logoutModal.classList.add('open');
     logoutModal.setAttribute('aria-hidden', 'false');
     cancelLogoutBtn?.focus();

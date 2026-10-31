@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body id="adminMessagesPage" class="admin-layout">
@@ -377,20 +377,20 @@
        ============================================================ -->
   <div class="admin-modal-overlay" id="logoutConfirmModal"
        role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle" aria-hidden="true">
-    <div class="admin-modal-card" style="max-width: 440px;">
-      <div class="modal-body" style="text-align: center; padding: 36px 28px 20px;">
-        <div class="danger-modal-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); width: 56px; height: 56px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 16px;" aria-hidden="true">
-          <i class="fa-solid fa-right-from-bracket"></i>
+    <div class="admin-modal-card" style="max-width: 440px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75); overflow: hidden;">
+      <div class="modal-body" style="text-align: center; padding: 36px 32px 20px;">
+        <div class="danger-modal-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 18px;" aria-hidden="true">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </div>
-        <h2 id="logoutModalTitle" style="font-size: 1.3rem; margin-bottom: 8px; font-weight: 700; color: var(--text-primary);">Sign out of your account?</h2>
-        <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+        <h2 id="logoutModalTitle" style="font-family: var(--font-heading); font-size: 1.35rem; margin-bottom: 10px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px;">Sign out of your account?</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.55; margin: 0;">
           Are you sure you want to sign out of your admin account?
         </p>
       </div>
-      <div class="modal-footer" style="justify-content: center; gap: 12px; padding: 12px 24px 28px; border-top: none;">
-        <button type="button" class="btn-outline btn-sm" id="cancelLogoutBtn" style="min-width: 100px;">Cancel</button>
-        <button type="button" class="btn-danger-confirm" id="confirmLogoutBtn" style="min-width: 140px; background: #ef4444; border-color: #ef4444; color: #fff; padding: 8px 18px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
-          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Yes, Sign Out
+      <div class="modal-footer" style="display: flex; justify-content: center; align-items: center; gap: 14px; padding: 14px 32px 32px; border-top: none; background: transparent;">
+        <button type="button" class="btn-outline" id="cancelLogoutBtn" style="flex: 1; height: 44px; font-size: 0.92rem; font-weight: 600; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">Cancel</button>
+        <button type="button" class="btn-danger-confirm" id="confirmLogoutBtn" style="flex: 1; height: 44px; background: #ef4444; border: 1px solid #ef4444; color: #fff; border-radius: 10px; font-weight: 600; font-size: 0.92rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);">
+          <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Yes, Sign Out
         </button>
       </div>
     </div>
