@@ -49,7 +49,7 @@ function initLoader() {
 }
 
 /* ============================================================
-   2. CUSTOM MAGNETIC CURSOR
+   2. CUSTOM MAGNETIC CURSOR (GPU Accelerated & Interpolated)
    ============================================================ */
 function initCustomCursor() {
   const cursor = document.getElementById('customCursor');
@@ -61,24 +61,44 @@ function initCustomCursor() {
     return;
   }
 
+  let mouseX = -100;
+  let mouseY = -100;
+  let currentX = -100;
+  let currentY = -100;
+  let isMoving = false;
+
   document.addEventListener('mousemove', (e) => {
-    cursor.style.left = `${e.clientX}px`;
-    cursor.style.top = `${e.clientY}px`;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (!isMoving) {
+      isMoving = true;
+      requestAnimationFrame(renderCursor);
+    }
   }, { passive: true });
 
-  const attachHoverListeners = () => {
-    const interactables = document.querySelectorAll('a, button, input, textarea, select, .skill-card, .project-card');
-    interactables.forEach((el) => {
-      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
-      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
-    });
-  };
+  function renderCursor() {
+    // Smooth lerp interpolation for natural momentum
+    currentX += (mouseX - currentX) * 0.4;
+    currentY += (mouseY - currentY) * 0.4;
 
-  attachHoverListeners();
+    cursor.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`;
 
-  // Re-attach for dynamically injected elements
-  const observer = new MutationObserver(() => attachHoverListeners());
-  observer.observe(document.body, { childList: true, subtree: true });
+    if (Math.abs(mouseX - currentX) > 0.1 || Math.abs(mouseY - currentY) > 0.1) {
+      requestAnimationFrame(renderCursor);
+    } else {
+      isMoving = false;
+    }
+  }
+
+  // Delegated hover listener — zero layout thrashing, zero MutationObservers
+  document.addEventListener('mouseover', (e) => {
+    const isInteractable = !!e.target.closest('a, button, input, textarea, select, .skill-category-card, .project-card, .tech-badge-item, .cert-preview-card, [role="button"]');
+    if (isInteractable) {
+      cursor.classList.add('hovering');
+    } else {
+      cursor.classList.remove('hovering');
+    }
+  }, { passive: true });
 }
 
 /* ============================================================
@@ -165,7 +185,29 @@ function initShootingStars() {
 
   const stars = Array.from({ length: 14 }, createStar);
 
+  let isHeroVisible = true;
+  let animId = null;
+
+  // Viewport intersection observer: automatically halts animation loop when scrolled away
+  const heroEl = document.getElementById('home');
+  if (heroEl && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isHeroVisible = entry.isIntersecting;
+        if (isHeroVisible && !animId) {
+          animId = requestAnimationFrame(animate);
+        }
+      });
+    }, { threshold: 0.05 });
+    observer.observe(heroEl);
+  }
+
   function animate() {
+    if (!isHeroVisible) {
+      animId = null;
+      return; // Save 100% CPU/GPU when hero is offscreen
+    }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (const s of stars) {
@@ -207,10 +249,10 @@ function initShootingStars() {
       }
     }
 
-    requestAnimationFrame(animate);
+    animId = requestAnimationFrame(animate);
   }
 
-  animate();
+  animId = requestAnimationFrame(animate);
 }
 
 /* ============================================================
@@ -377,15 +419,17 @@ function initAdminShortcut() {
 }
 
 /* ============================================================
-   7. DOWNLOAD CV BUTTON (placeholder — file not yet ready)
+   7. DOWNLOAD CV BUTTON (Native Anchor Download)
    ============================================================ */
 function initDownloadCv() {
   const cvBtn = document.getElementById('downloadCvBtn');
   if (!cvBtn) return;
 
-  cvBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    showToast('CV / Resume file is currently being updated and will be available for download soon.');
+  // Allow native browser download; provide subtle toast confirmation
+  cvBtn.addEventListener('click', () => {
+    if (typeof showToast === 'function') {
+      showToast('Downloading Ethan McClarence Gacud CV (PDF)...', 'success');
+    }
   });
 }
 
@@ -733,14 +777,27 @@ function initFooter() {
 }
 
 /* ============================================================
-   13. EXPANDABLE SKILLS CARDS (Interactive Tech Context)
+   13. EXPANDABLE SKILLS CARDS (Interactive Accordion)
    ============================================================ */
 function initExpandableSkills() {
   const items = document.querySelectorAll('.tech-badge-item.expandable');
   items.forEach((item) => {
     const toggle = () => {
-      const isExpanded = item.classList.toggle('is-expanded');
-      item.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+      const willExpand = !item.classList.contains('is-expanded');
+
+      // Auto-collapse sibling badges in the same card so space remains compact & clean
+      const parentCard = item.closest('.skill-category-card');
+      if (parentCard && willExpand) {
+        parentCard.querySelectorAll('.tech-badge-item.is-expanded').forEach((sibling) => {
+          if (sibling !== item) {
+            sibling.classList.remove('is-expanded');
+            sibling.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+
+      item.classList.toggle('is-expanded', willExpand);
+      item.setAttribute('aria-expanded', willExpand ? 'true' : 'false');
     };
 
     item.addEventListener('click', () => {
@@ -775,11 +832,26 @@ function initProjectModals() {
   const modalLink = document.getElementById('projModalLink');
 
   const projectsData = {
+    portfolio: {
+      title: 'Personal Portfolio Website | Full-Stack Academic & Personal Showcase',
+      role: 'Full-Stack Web Developer | UI Designer',
+      category: 'Personal & Academic Showcase | Active Portfolio',
+      timeline: '2026 | Active Development',
+      desc: 'A personal website developed to showcase my background, technical skills, academic and personal projects, and contact information. Built with a responsive dark editorial UI, vanilla JavaScript interactions, custom Apache ECharts analytics telemetry, and a reconstructed PHP/MySQL backend with secure administrative messaging and first-party analytics.',
+      tech: ['PHP 8.2', 'MySQL / MariaDB', 'HTML5 Semantic', 'CSS3 Design Tokens', 'Vanilla JavaScript (ES6+)', 'Apache ECharts'],
+      images: [
+        'assets/images/projects/TheActualPortfolio/HomePage.png',
+        'assets/images/projects/TheActualPortfolio/Skills.png',
+        'assets/images/projects/TheActualPortfolio/AdminPageDashboard.png'
+      ],
+      linkText: 'View Source Code (GitHub)',
+      url: 'https://github.com/ForgottenChatLoaf/Portfolio-Project'
+    },
     readora: {
-      title: 'Readora — Academic Frontend Bookstore',
-      role: 'Frontend Developer & UI/UX Designer',
-      category: 'Academic Web Project (Coursework Showcase)',
-      timeline: 'Academic Project / Coursework',
+      title: 'Readora | Academic Frontend Bookstore',
+      role: 'Frontend Developer | UI/UX Designer',
+      category: 'Academic Web Project | Coursework Showcase',
+      timeline: 'Academic Project | Coursework',
       desc: 'Readora is an academic frontend exploration of an interactive online bookstore and digital library. Built as a coursework project, it features a curated book catalog, genre navigation, shopping cart interactions, and responsive UI design across viewports. As an academic frontend demonstration, user login and checkout flows are designed as frontend mock interactions without a production database or payment gateway.',
       tech: ['HTML5 Semantic', 'CSS3 Custom Properties', 'Vanilla JavaScript (ES6+)', 'UI/UX Design', 'Responsive Breakpoints'],
       images: [
@@ -792,9 +864,9 @@ function initProjectModals() {
       url: 'https://readoraupdate.netlify.app/'
     },
     'mock-gallery': {
-      title: 'Pure CSS Image Gallery',
-      role: 'CSS UI Architect & Layout Designer',
-      category: 'Pure Frontend / Layout Engineering',
+      title: 'Pure CSS Image Gallery | Layout Engineering',
+      role: 'CSS UI Architect | Layout Designer',
+      category: 'Pure Frontend | Layout Engineering',
       timeline: 'Coursework Showcase',
       desc: 'A modern, responsive photo showcase created with pure HTML and CSS with zero JavaScript dependencies. Emphasizes modern layout mechanics, fluid CSS Grid, Flexbox alignment, CSS hover transitions, and accessible state styling.',
       tech: ['HTML5 Semantic', 'CSS3 Grid', 'CSS3 Flexbox', 'CSS Transitions'],
@@ -807,9 +879,9 @@ function initProjectModals() {
       url: 'https://ethan-gacud-mock-gallery.netlify.app/'
     },
     icaredonate: {
-      title: 'iCareDonate — Community Aid Platform',
-      role: 'Project Manager / Team Leader & Technical Contributor',
-      category: 'Team Project — In Development (Community Platform)',
+      title: 'iCareDonate | Community Aid Platform',
+      role: 'Project Manager | Team Leader & Technical Contributor',
+      category: 'Team Project | In Development (Community Platform)',
       timeline: 'Collaborative Team Project',
       desc: 'iCareDonate ("Give what you can. Help where it matters.") is a collaborative community donation management platform designed to streamline donation drives and resource allocation. As Project Manager and Team Leader, Ethan directed project planning, task distribution across team members, development coordination, UI consistency oversight, and technical implementation of responsive views. The platform is actively in development.',
       tech: ['PHP', 'MySQL / MariaDB', 'JavaScript', 'HTML5 / CSS3', 'Bootstrap', 'Role-Based Access Control', 'Vercel Deployment'],

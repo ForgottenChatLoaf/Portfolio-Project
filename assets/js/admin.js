@@ -111,6 +111,19 @@ function initAdminLogin() {
 }
 
 /* ============================================================
+   SHARED UTILITIES
+   ============================================================ */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/* ============================================================
    ADMIN DASHBOARD LOGIC
    ============================================================ */
 function initAdminDashboard() {
@@ -440,18 +453,30 @@ function initAdminDashboard() {
     };
   }
 
-  // 3b. First-Party Analytics Loader
-  async function loadAnalytics(days = 7) {
-    const viewsTodayEl = document.getElementById('analyticViewsToday');
-    const uniqueEl = document.getElementById('analyticUniqueBrowsers');
-    const views7dEl = document.getElementById('analyticViews7d');
-    const totalViewsEl = document.getElementById('analyticTotalViews');
-    const dailyEmpty = document.getElementById('analyticsDailyEmpty');
-    const dailyChart = document.getElementById('analyticsDailyChart');
-    const pagesEmpty = document.getElementById('analyticsPagesEmpty');
-    const pagesList = document.getElementById('analyticsTopPagesList');
+  // ECharts Analytics Instances
+  let echartsTrafficInstance = null;
+  let echartsDeviceInstance = null;
 
-    if (!viewsTodayEl) return;
+  // 3b. Professional ECharts Analytics Loader
+  async function loadAnalytics(days = 7) {
+    const visitorsRangeEl = document.getElementById('analyticVisitorsRange');
+    const viewsRangeEl = document.getElementById('analyticViewsRange');
+    const rangeLabelEl = document.getElementById('analyticRangeLabel');
+    const rangeContextEl = document.getElementById('analyticRangeContext');
+    const pagesPerVisitEl = document.getElementById('analyticPagesPerVisit');
+    const viewsTodayEl = document.getElementById('analyticViewsToday');
+
+    const trafficChartEl = document.getElementById('echartsTrafficChart');
+    const trafficEmptyEl = document.getElementById('analyticsTrafficEmpty');
+    const deviceChartEl = document.getElementById('echartsDeviceChart');
+    const deviceEmptyEl = document.getElementById('analyticsDeviceEmpty');
+    const pagesEmpty = document.getElementById('analyticsTopPagesContainer') ? document.getElementById('analyticsPagesEmpty') : null;
+    const pagesList = document.getElementById('analyticsTopPagesList');
+    const activityTable = document.getElementById('analyticsActivityTable');
+    const activityBody = document.getElementById('analyticsActivityBody');
+    const activityEmpty = document.getElementById('analyticsRecentEmpty');
+
+    if (!visitorsRangeEl && !viewsRangeEl) return;
 
     try {
       const res = await fetch(`../api/admin-analytics.php?days=${days}`);
@@ -460,24 +485,218 @@ function initAdminDashboard() {
       if (data.status !== 'success') return;
 
       const summary = data.summary || {};
+      if (visitorsRangeEl) visitorsRangeEl.textContent = summary.visitors_range ?? summary.unique_visitors_est ?? 0;
+      if (viewsRangeEl) viewsRangeEl.textContent = summary.views_range ?? summary.total_views ?? 0;
+      if (pagesPerVisitEl) pagesPerVisitEl.textContent = Number(summary.pages_per_visit ?? 1.0).toFixed(1);
       if (viewsTodayEl) viewsTodayEl.textContent = summary.views_today ?? 0;
-      if (uniqueEl) uniqueEl.textContent = summary.unique_visitors_est ?? 0;
-      if (views7dEl) views7dEl.textContent = summary.views_7d ?? 0;
-      if (totalViewsEl) totalViewsEl.textContent = summary.total_views ?? 0;
 
-      // Render Top Visited Pages
+      if (rangeLabelEl) {
+        rangeLabelEl.textContent = days === 365 ? 'All-Time Page Views' : `Last ${days} Days Views`;
+      }
+      if (rangeContextEl) {
+        rangeContextEl.textContent = days === 7 ? 'Rolling weekly views' : (days === 30 ? 'Past month views' : (days === 90 ? 'Quarterly views' : 'Full history'));
+      }
+
+      // Check if ECharts library is ready
+      const hasEcharts = typeof echarts !== 'undefined';
+
+      // 1. Render Traffic Overview (Line/Area Chart)
+      const daily = data.daily_activity || [];
+      const hasTrafficData = daily.some(d => parseInt(d.views, 10) > 0);
+
+      if (hasTrafficData && trafficChartEl && hasEcharts) {
+        if (trafficEmptyEl) trafficEmptyEl.style.display = 'none';
+        trafficChartEl.style.display = 'block';
+
+        if (!echartsTrafficInstance) {
+          echartsTrafficInstance = echarts.init(trafficChartEl);
+        }
+
+        const dateLabels = daily.map(d => {
+          const parts = (d.date_label || '').split('-');
+          if (parts.length === 3) {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const m = parseInt(parts[1], 10) - 1;
+            return `${months[m] || parts[1]} ${parseInt(parts[2], 10)}`;
+          }
+          return d.date_label;
+        });
+        const viewSeries = daily.map(d => parseInt(d.views, 10));
+        const visitorSeries = daily.map(d => parseInt(d.unique_visitors, 10));
+
+        const trafficOption = {
+          backgroundColor: 'transparent',
+          tooltip: {
+            trigger: 'axis',
+            backgroundColor: '#17171a',
+            borderColor: 'rgba(255, 255, 255, 0.14)',
+            borderWidth: 1,
+            textStyle: { color: '#f0f0f0', fontSize: 12 },
+            padding: [10, 14],
+            formatter: (params) => {
+              let res = `<div style="font-weight:700; margin-bottom:6px; color:#ffffff;">${params[0]?.axisValue || ''}</div>`;
+              params.forEach(p => {
+                res += `<div style="display:flex; justify-content:space-between; gap:16px; margin:3px 0; font-size:12px;">
+                  <span style="color:${p.color}; font-weight:600;">${p.marker} ${p.seriesName}</span>
+                  <span style="font-weight:700; color:#fff;">${p.value}</span>
+                </div>`;
+              });
+              return res;
+            }
+          },
+          legend: {
+            data: ['Page Views', 'Unique Visitors'],
+            textStyle: { color: '#888888', fontSize: 12 },
+            top: 0,
+            right: 10,
+            icon: 'circle'
+          },
+          grid: {
+            top: 40,
+            right: 20,
+            bottom: 25,
+            left: 35,
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: dateLabels,
+            boundaryGap: false,
+            axisLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.1)' } },
+            axisLabel: { color: '#777777', fontSize: 11 },
+            splitLine: { show: false }
+          },
+          yAxis: {
+            type: 'value',
+            minInterval: 1,
+            axisLine: { show: false },
+            axisLabel: { color: '#777777', fontSize: 11 },
+            splitLine: { lineStyle: { color: 'rgba(255, 255, 255, 0.05)' } }
+          },
+          series: [
+            {
+              name: 'Page Views',
+              type: 'line',
+              smooth: true,
+              data: viewSeries,
+              showSymbol: false,
+              itemStyle: { color: '#6c63ff' },
+              lineStyle: { width: 3, color: '#6c63ff' },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: 'rgba(108, 99, 255, 0.35)' },
+                  { offset: 1, color: 'rgba(108, 99, 255, 0.00)' }
+                ])
+              }
+            },
+            {
+              name: 'Unique Visitors',
+              type: 'line',
+              smooth: true,
+              data: visitorSeries,
+              showSymbol: false,
+              itemStyle: { color: '#10b981' },
+              lineStyle: { width: 2.5, color: '#10b981', type: 'dashed' },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: 'rgba(16, 185, 129, 0.20)' },
+                  { offset: 1, color: 'rgba(16, 185, 129, 0.00)' }
+                ])
+              }
+            }
+          ]
+        };
+
+        echartsTrafficInstance.setOption(trafficOption, true);
+      } else {
+        if (trafficEmptyEl) trafficEmptyEl.style.display = 'block';
+        if (trafficChartEl) trafficChartEl.style.display = 'none';
+      }
+
+      // 2. Render Device Breakdown (Doughnut Chart)
+      const devices = data.devices || [];
+      const hasDeviceData = devices.some(d => d.value > 0);
+
+      if (hasDeviceData && deviceChartEl && hasEcharts) {
+        if (deviceEmptyEl) deviceEmptyEl.style.display = 'none';
+        deviceChartEl.style.display = 'block';
+
+        if (!echartsDeviceInstance) {
+          echartsDeviceInstance = echarts.init(deviceChartEl);
+        }
+
+        const deviceOption = {
+          backgroundColor: 'transparent',
+          tooltip: {
+            trigger: 'item',
+            backgroundColor: '#17171a',
+            borderColor: 'rgba(255, 255, 255, 0.14)',
+            borderWidth: 1,
+            textStyle: { color: '#f0f0f0', fontSize: 12 },
+            formatter: '{b}: <span style="font-weight:700; color:#fff;">{c}</span> ({d}%)'
+          },
+          legend: {
+            orient: 'vertical',
+            right: '5%',
+            top: 'center',
+            textStyle: { color: '#a3a3a3', fontSize: 12 },
+            icon: 'circle'
+          },
+          color: ['#6c63ff', '#3b82f6', '#10b981', '#f59e0b'],
+          series: [
+            {
+              name: 'Device Type',
+              type: 'pie',
+              radius: ['52%', '78%'],
+              center: ['38%', '50%'],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 6,
+                borderColor: '#141416',
+                borderWidth: 3
+              },
+              label: { show: false },
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  color: '#ffffff'
+                }
+              },
+              data: devices
+            }
+          ]
+        };
+
+        echartsDeviceInstance.setOption(deviceOption, true);
+      } else {
+        if (deviceEmptyEl) deviceEmptyEl.style.display = 'block';
+        if (deviceChartEl) deviceChartEl.style.display = 'none';
+      }
+
+      // 3. Render Top Visited Pages (Enhanced UI with Rank & Progress)
       const topPages = data.top_pages || [];
       if (topPages.length > 0 && pagesList) {
         if (pagesEmpty) pagesEmpty.style.display = 'none';
         pagesList.style.display = 'block';
-        pagesList.innerHTML = topPages.map(p => `
-          <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border);">
-            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65%;">
-              <span style="font-weight: 600; color: var(--text-primary); font-size: 13.5px;">${escapeHtml(p.page_path)}</span>
+        pagesList.innerHTML = topPages.map((p, idx) => `
+          <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <div style="display: flex; align-items: center; gap: 10px; overflow: hidden; max-width: 68%;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: rgba(108, 99, 255, 0.15); color: var(--accent); font-size: 11px; font-weight: 700; flex-shrink: 0;">#${idx + 1}</span>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  <span style="font-weight: 600; color: var(--text-primary); font-size: 13.5px;">${escapeHtml(p.display_name || p.page_path)}</span>
+                  <span style="display: block; font-size: 11px; color: var(--text-muted);">${escapeHtml(p.page_path)}</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; font-size: 12.5px; align-items: center;">
+                <span style="color: var(--accent); font-weight: 700;">${p.views} views</span>
+                <span style="color: var(--text-muted); font-size: 11.5px;">${p.unique_visitors} unique</span>
+              </div>
             </div>
-            <div style="display: flex; gap: 12px; font-size: 12.5px;">
-              <span style="color: var(--accent); font-weight: 600;">${p.views} views</span>
-              <span style="color: var(--text-muted);">${p.unique_visitors} unique</span>
+            <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden;">
+              <div style="width: ${Math.max(5, p.percentage)}%; height: 100%; background: linear-gradient(90deg, var(--accent), #3b82f6); border-radius: 100px; transition: width 0.4s ease;"></div>
             </div>
           </li>
         `).join('');
@@ -486,32 +705,45 @@ function initAdminDashboard() {
         if (pagesList) pagesList.style.display = 'none';
       }
 
-      // Render Daily Traffic Chart
-      const daily = data.daily_activity || [];
-      if (daily.length > 0 && dailyChart) {
-        if (dailyEmpty) dailyEmpty.style.display = 'none';
-        dailyChart.style.display = 'flex';
-        const maxViews = Math.max(...daily.map(d => parseInt(d.views, 10)), 1);
-        dailyChart.innerHTML = daily.map(d => {
-          const v = parseInt(d.views, 10);
-          const pct = Math.max(15, Math.round((v / maxViews) * 100));
-          const datePart = (d.date_label || '').slice(5);
-          return `
-            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;">
-              <span style="font-size: 11px; font-weight: 600; color: var(--accent);">${v}</span>
-              <div style="width: 100%; max-width: 32px; height: ${pct}%; background: var(--accent); border-radius: 4px 4px 0 0; transition: height 0.3s ease;" title="${escapeHtml(d.date_label)}: ${v} views (${d.unique_visitors} unique)"></div>
-              <span style="font-size: 10px; color: var(--text-muted); white-space: nowrap;">${escapeHtml(datePart)}</span>
-            </div>
-          `;
-        }).join('');
+      // 4. Render Recent Activity Stream Table
+      const recent = data.recent_activity || [];
+      if (recent.length > 0 && activityTable && activityBody) {
+        if (activityEmpty) activityEmpty.style.display = 'none';
+        activityTable.style.display = 'table';
+        activityBody.innerHTML = recent.map(r => `
+          <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
+            <td style="padding: 11px 12px; color: var(--text-muted); font-size: 12px; white-space: nowrap;">
+              <i class="fa-regular fa-clock" style="margin-right: 4px; opacity: 0.6;"></i> ${escapeHtml(r.time_ago)}
+            </td>
+            <td style="padding: 11px 12px; font-weight: 500; color: var(--text-primary);">
+              ${escapeHtml(r.page_name)}
+              <span style="font-size: 11px; color: var(--text-muted); margin-left: 6px;">(${escapeHtml(r.page_path)})</span>
+            </td>
+            <td style="padding: 11px 12px; font-size: 12px;">
+              <span style="padding: 3px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); color: var(--text-secondary); font-size: 11.5px;">
+                <i class="fa-solid fa-${r.device === 'Mobile' ? 'mobile-screen' : (r.device === 'Tablet' ? 'tablet-screen-button' : 'laptop')}" style="margin-right: 3px;"></i> ${escapeHtml(r.device)}
+              </span>
+            </td>
+            <td style="padding: 11px 12px; text-align: right;">
+              <span style="color: #10b981; font-size: 11.5px; font-weight: 600;"><i class="fa-solid fa-circle-check" style="margin-right: 3px;"></i> Verified</span>
+            </td>
+          </tr>
+        `).join('');
       } else {
-        if (dailyEmpty) dailyEmpty.style.display = 'block';
-        if (dailyChart) dailyChart.style.display = 'none';
+        if (activityEmpty) activityEmpty.style.display = 'block';
+        if (activityTable) activityTable.style.display = 'none';
       }
+
     } catch (e) {
       console.warn('Analytics fetch error:', e);
     }
   }
+
+  // Handle window resizing for responsive ECharts
+  window.addEventListener('resize', () => {
+    echartsTrafficInstance?.resize();
+    echartsDeviceInstance?.resize();
+  });
 
   // Analytics filter button listeners
   document.querySelectorAll('.analytics-range-btn').forEach(btn => {
@@ -1228,6 +1460,11 @@ function initAdminDashboard() {
     }
 
     function syncAvatarPreview() {
+      const hasPhoto = !clearAvatar && (Boolean(selectedFile) || Boolean(currentAdminProfile.avatar_url));
+      if (removeBtn) {
+        removeBtn.style.display = hasPhoto ? 'inline-flex' : 'none';
+      }
+
       if (clearAvatar) {
         if (previewImg) previewImg.style.display = 'none';
         if (previewInitials) {
@@ -1242,6 +1479,7 @@ function initAdminDashboard() {
             previewImg.style.display = 'block';
           }
           if (previewInitials) previewInitials.style.display = 'none';
+          if (removeBtn) removeBtn.style.display = 'inline-flex';
         };
         reader.readAsDataURL(selectedFile);
       } else if (currentAdminProfile.avatar_url) {
@@ -1311,30 +1549,84 @@ function initAdminDashboard() {
       }
     });
 
+    function handleAvatarFile(file) {
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        if (errorMsg) errorMsg.textContent = 'Avatar file size must be less than 2MB.';
+        if (errorNotice) errorNotice.style.display = 'flex';
+        if (fileInput) fileInput.value = '';
+        return;
+      }
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        if (errorMsg) errorMsg.textContent = 'Only JPEG, PNG, or WebP images are allowed.';
+        if (errorNotice) errorNotice.style.display = 'flex';
+        if (fileInput) fileInput.value = '';
+        return;
+      }
+      selectedFile = file;
+      clearAvatar = false;
+      if (errorNotice) errorNotice.style.display = 'none';
+      syncAvatarPreview();
+      if (typeof showToast === 'function') {
+        showToast('Photo selected! Click "Save Changes" to apply.', 'success');
+      }
+    }
+
     fileInput?.addEventListener('change', () => {
       if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        if (file.size > 2 * 1024 * 1024) {
-          if (errorMsg) errorMsg.textContent = 'Avatar file size must be less than 2MB.';
-          if (errorNotice) errorNotice.style.display = 'flex';
-          fileInput.value = '';
-          return;
-        }
-        const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        if (!validTypes.includes(file.type)) {
-          if (errorMsg) errorMsg.textContent = 'Only JPEG, PNG, or WebP images are allowed.';
-          if (errorNotice) errorNotice.style.display = 'flex';
-          fileInput.value = '';
-          return;
-        }
-        selectedFile = file;
-        clearAvatar = false;
-        if (errorNotice) errorNotice.style.display = 'none';
-        syncAvatarPreview();
+        handleAvatarFile(fileInput.files[0]);
       }
     });
 
-    removeBtn?.addEventListener('click', () => {
+    // Click or keydown on avatar drop zone triggers file input (unless clicking remove button)
+    const avatarDropZone = modal.querySelector('.profile-avatar-management');
+    if (avatarDropZone) {
+      avatarDropZone.addEventListener('click', (e) => {
+        if (e.target.closest('#removeAvatarBtn')) {
+          return;
+        }
+        fileInput?.click();
+      });
+
+      avatarDropZone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.target.closest('#removeAvatarBtn')) return;
+          e.preventDefault();
+          fileInput?.click();
+        }
+      });
+
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        avatarDropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          avatarDropZone.classList.add('is-dragover');
+        });
+      });
+
+      ['dragleave', 'dragend'].forEach((eventName) => {
+        avatarDropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          avatarDropZone.classList.remove('is-dragover');
+        });
+      });
+
+      avatarDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        avatarDropZone.classList.remove('is-dragover');
+
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleAvatarFile(e.dataTransfer.files[0]);
+        }
+      });
+    }
+
+    removeBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       clearAvatar = true;
       selectedFile = null;
       if (fileInput) fileInput.value = '';

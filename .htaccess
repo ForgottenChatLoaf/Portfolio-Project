@@ -12,6 +12,8 @@ DirectoryIndex index.php
     RewriteBase /PortfolioUpdate/Portfolio-Project/
     RewriteRule ^index\.html$ index.php [R=301,L]
     RewriteRule ^about\.html$ index.php#about [R=301,NE,L]
+    RewriteRule ^admin/dashboard\.html$ admin/dashboard.php [L]
+    RewriteRule ^admin/messages\.html$ admin/messages.php [L]
 </IfModule>
 
 # 1. Disable Directory Browsing

@@ -317,23 +317,24 @@
           <!-- Avatar Management -->
           <div class="form-group" style="margin-bottom: 0;">
             <label>Profile Avatar</label>
-            <div class="profile-avatar-management">
+            <div class="profile-avatar-management" id="profileAvatarDropZone" title="Click or drag photo here to upload" tabindex="0" role="button" aria-label="Upload profile avatar">
               <div class="avatar-preview-box" id="avatarPreviewBox">
                 <span id="avatarPreviewInitials">E</span>
                 <img id="avatarPreviewImg" src="" alt="Avatar preview" style="display: none;">
+                <div class="avatar-hover-icon" aria-hidden="true"><i class="fa-solid fa-camera"></i></div>
               </div>
-              <div class="avatar-controls">
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                  <label for="profileAvatarFileInput" class="avatar-upload-btn">
-                    <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Upload Photo
-                  </label>
-                  <input type="file" id="profileAvatarFileInput" name="avatar" accept="image/jpeg,image/png,image/webp" style="display:none;">
-                  <button type="button" class="btn-ghost btn-sm" id="removeAvatarBtn" title="Revert to initials fallback" style="font-size: 12px; color: var(--text-secondary);">
-                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
-                  </button>
+              <div class="avatar-drop-info">
+                <div class="avatar-drop-title">
+                  <i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent);"></i>
+                  <span>Click or drag photo here</span>
                 </div>
-                <div class="field-hint">JPEG, PNG, or WebP. Max 2MB. Safe server validation.</div>
+                <div class="field-hint">Supports JPEG, PNG, or WebP up to 2MB</div>
               </div>
+              <input type="file" id="profileAvatarFileInput" name="avatar" accept="image/jpeg,image/png,image/webp" style="display:none;">
+              <button type="button" class="avatar-remove-btn" id="removeAvatarBtn" title="Remove custom photo" aria-label="Remove custom photo" style="display: none;">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                <span>Remove</span>
+              </button>
             </div>
           </div>
 

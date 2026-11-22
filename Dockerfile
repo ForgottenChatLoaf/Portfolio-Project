@@ -40,3 +40,4 @@ RUN chown -R www-data:www-data /var/www/html \
 EXPOSE 80 10000
 
 CMD ["sh", "-c", "sed -i \"s/80/${PORT:-80}/g\" /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf && apache2-foreground"]
+

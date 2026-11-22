@@ -1,5 +1,5 @@
 /**
- * Two-Step Contact Interaction & API Submission (Hardened)
+ * Two-Step Contact Interaction & API Submission (Hardened & Reconstructed)
  * Ethan McClarence Gacud Portfolio
  */
 
@@ -13,6 +13,7 @@ function initContactWorkflow() {
   const step1Form = document.getElementById('step1Form');
   const step1NameInput = document.getElementById('step1Name');
   const step1Error = document.getElementById('step1Error');
+  const step1NextBtn = document.getElementById('step1NextBtn');
   const welcomeNameDisplay = document.getElementById('welcomeVisitorName');
   const changeNameBtn = document.getElementById('changeNameBtn');
   const contactForm = document.getElementById('contactForm');
@@ -51,7 +52,6 @@ function initContactWorkflow() {
         }
       }
     } catch (e) {
-      // Graceful fallback if offline / static
       console.warn('CSRF token initialization deferred:', e);
     }
   }
@@ -80,7 +80,6 @@ function initContactWorkflow() {
     step1Card.style.display = 'none';
     step2Card.style.display = 'block';
 
-    // Clear previous errors
     clearErrors();
 
     if (emailInput && !emailInput.value) {
@@ -102,9 +101,9 @@ function initContactWorkflow() {
     goToStep1();
   }
 
-  // Step 1: Name Form Submission
+  // Step 1: Name Form Submission with Strict Validation
   if (step1Form) {
-    step1Form.addEventListener('submit', (e) => {
+    step1Form.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearErrors();
 
@@ -125,7 +124,60 @@ function initContactWorkflow() {
         return;
       }
 
-      goToStep2(name);
+      // Reject numeric-only or names containing digits
+      if (/\d/.test(name)) {
+        if (step1Error) step1Error.textContent = 'Name must not contain numbers or digits (e.g. use "Ethan" not "Ethan123").';
+        return;
+      }
+
+      // Allow international letters, spaces, hyphens, and apostrophes
+      if (!/^[\p{L}\s'’-]+$/u.test(name)) {
+        if (step1Error) step1Error.textContent = 'Name contains invalid characters. Use letters, spaces, hyphens, or apostrophes.';
+        return;
+      }
+
+      // Submit to backend Step 1 endpoint for server session binding
+      if (step1NextBtn) {
+        step1NextBtn.disabled = true;
+        step1NextBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+      }
+
+      try {
+        const step1Endpoint = (window.location.protocol === 'file:')
+          ? 'http://localhost/PortfolioUpdate/Portfolio-Project/api/contact-step1.php'
+          : 'api/contact-step1.php';
+
+        const res = await fetch(step1Endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ name })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.status === 'success') {
+          if (data.csrf_token) {
+            currentCsrfToken = data.csrf_token;
+            if (csrfTokenInput) csrfTokenInput.value = data.csrf_token;
+          }
+          goToStep2(data.name || name);
+        } else {
+          if (step1Error) {
+            step1Error.textContent = data.message || 'Invalid name. Please try again.';
+          }
+        }
+      } catch (err) {
+        console.warn('Step 1 server check fallback to client validation:', err);
+        goToStep2(name);
+      } finally {
+        if (step1NextBtn) {
+          step1NextBtn.disabled = false;
+          step1NextBtn.innerHTML = 'Continue to Message <i class="fa-solid fa-arrow-right"></i>';
+        }
+      }
     });
   }
 
@@ -186,14 +238,23 @@ function initContactWorkflow() {
 
       let hasClientError = false;
 
+      // Email validation
       if (!email) {
         if (emailError) emailError.textContent = 'Please enter your email address.';
         hasClientError = true;
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         if (emailError) emailError.textContent = 'Please enter a valid email address.';
         hasClientError = true;
+      } else {
+        const domain = email.substring(email.lastIndexOf('@') + 1).toLowerCase();
+        const reservedDomains = ['example.com', 'example.org', 'example.net', 'invalid', 'localhost', 'test'];
+        if (reservedDomains.includes(domain)) {
+          if (emailError) emailError.textContent = 'Please provide a real email address, not a reserved example domain.';
+          hasClientError = true;
+        }
       }
 
+      // Message validation
       if (!message) {
         if (messageError) messageError.textContent = 'Please enter your message.';
         hasClientError = true;
@@ -210,7 +271,7 @@ function initContactWorkflow() {
       // Disable button & show spinner
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending Message...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
       }
 
       try {
@@ -252,7 +313,12 @@ function initContactWorkflow() {
             window.showToast('Message sent successfully! Thank you for reaching out.', 'success');
           }
           // Refresh CSRF token for any subsequent submission
-          fetchCsrfToken();
+          if (data.csrf_token) {
+            currentCsrfToken = data.csrf_token;
+            if (csrfTokenInput) csrfTokenInput.value = data.csrf_token;
+          } else {
+            fetchCsrfToken();
+          }
         } else {
           // Display validation errors or rate-limit notice
           const msg = data.message || 'Failed to send message. Please check the fields and try again.';
@@ -274,7 +340,7 @@ function initContactWorkflow() {
       } catch (err) {
         console.error('Contact submit error:', err);
         if (formErrorMsg) {
-          formErrorMsg.textContent = "We couldn't submit your message right now. Please verify XAMPP Apache and MySQL are running.";
+          formErrorMsg.textContent = "We couldn't submit your message right now. Please verify Apache and MySQL are running.";
         }
         if (formError) formError.style.display = 'flex';
       } finally {

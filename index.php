@@ -80,7 +80,7 @@ record_page_visit('index.php');
         <div class="hero-cta reveal-hero" style="--d:480ms">
           <a href="projects.html" class="btn-primary">View My Work <i class="fa-solid fa-arrow-right"></i></a>
           <a href="contact.html" class="btn-outline">Get in Touch</a>
-          <a href="javascript:void(0)" class="btn-outline" id="downloadCvBtn">Download CV <i class="fa-solid fa-download"></i></a>
+          <a href="assets/documents/Ethan_Gacud_CV.pdf" download="Ethan_Gacud_CV.pdf" class="btn-outline" id="downloadCvBtn">Download CV <i class="fa-solid fa-download"></i></a>
         </div>
       </div>
     </section>

@@ -1,0 +1,28 @@
+{
+  "name": "portfolio-project",
+  "version": "1.0.0",
+  "description": "A personal web developer portfolio website featuring a responsive, editorial dark-mode frontend built with HTML5, CSS3, and vanilla JavaScript, paired with a secure, reconstructed PHP & MySQL backend.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ForgottenChatLoaf/Portfolio-Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ForgottenChatLoaf/Portfolio-Project/issues"
+  },
+  "homepage": "https://github.com/ForgottenChatLoaf/Portfolio-Project#readme",
+  "dependencies": {
+    "echarts": "^6.1.0"
+  }
+}

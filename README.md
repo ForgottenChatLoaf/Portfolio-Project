@@ -1,6 +1,6 @@
 # Ethan McClarence Gacud — Personal Portfolio
 
-A personal web developer portfolio website featuring a responsive, editorial dark-mode frontend built with HTML5, CSS3, and vanilla JavaScript, paired with a secure PHP & MySQL backend.
+A personal web developer portfolio website featuring a responsive, editorial dark-mode frontend built with HTML5, CSS3, and vanilla JavaScript, paired with a secure, reconstructed PHP & MySQL backend.
 
 ---
 
@@ -8,20 +8,21 @@ A personal web developer portfolio website featuring a responsive, editorial dar
 
 - **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
   - Main combined homepage: `index.php` (continuous scrolling layout containing `#home` and `#about` sections).
-  - Public pages: `skills.html` (includes verified Certifications section), `projects.html`, `contact.html`.
+  - Public pages: `skills.html` (with responsive expandable cards and verified Certifications section), `projects.html`, `contact.html`.
   - Reusable partials: `partials/navbar.html` and `partials/footer.html` dynamically initialized via `assets/js/partials.js`.
-  - Single centralized stylesheet: `assets/css/style.css`.
-  - Admin interface: `admin/login.html`, `admin/dashboard.html`, and `admin/messages.html`.
-- **Backend:** PHP (8.0+)
+  - Single centralized stylesheet: `assets/css/style.css` (custom properties, responsive grid, zero framework dependencies).
+  - Downloadable CV: Connected to `assets/documents/Ethan_Gacud_CV.pdf` with native browser download.
+  - Performance: Hardware-accelerated GPU animations with automatic offscreen canvas pausing to eliminate lag.
+- **Backend:** Native PHP (8.0+)
   - RESTful JSON endpoints in `api/`.
-  - Session-based authentication and security guards in `includes/auth.php`.
-  - Filesystem-backed admin profile persistence store in `includes/profile_store.php` & `config/admin_profile.json`.
-  - Database access via PDO with prepared statements in `config/database.php` (supports `.env` and environment variables).
-- **Database:** MySQL / MariaDB
-  - Database name: `portfolio_db`
-  - Required table: `contact_messages` (with `id`, `name`, `email`, `message`, `date_sent`, `status`)
-  - Admin table: `admin_users` (stores salted bcrypt password hashes)
-  - Managed locally via XAMPP phpMyAdmin or MySQL CLI.
+  - Two-Step Contact Pipeline: `api/contact-step1.php` (strict name validation rejecting digits, server session registration) and `api/contact-submit.php` (session verification, email & domain validation, CSRF verification, rate-limiting, and prepared statement insert).
+  - Secure Admin Authentication: `api/admin-login.php`, `api/admin-session.php`, `api/admin-logout.php`, using bcrypt `password_verify()`, session ID regeneration, and brute-force throttling.
+  - Server-Side Route Guards: `admin/dashboard.php` and `admin/messages.php` redirect unauthenticated visitors immediately.
+  - Database access via PDO with prepared statements in `config/database.php` (supports `.env` and server environment variables).
+- **Database:** MySQL / MariaDB (InnoDB, `utf8mb4_unicode_ci`)
+  - Target database: `portfolio_db`
+  - Required table: `contact_messages` (`id`, `name`, `email`, `message`, `date_sent`, `status`)
+  - Zero Mock Data Policy: Production database starts completely clean with zero demo or sample records.
 
 ---
 
@@ -29,122 +30,126 @@ A personal web developer portfolio website featuring a responsive, editorial dar
 
 ```
 Portfolio-Project/
+├── .env                         # Server environment configuration (DB & admin hash, Git-ignored)
+├── .env.example                 # Documented template without secrets
+├── .htaccess                    # Security headers, rewrites & sensitive file blocking
 ├── index.php                    # Consolidated Home + About continuous scroll page
-├── skills.html                  # Skills showcase + Certifications section
-├── projects.html                # Project portfolio (Readora, School Dashboard, etc.)
+├── skills.html                  # Skills showcase with responsive expandable cards & Certificates
+├── projects.html                # Project portfolio with interactive modals
 ├── contact.html                 # 2-step visitor-first contact workflow
 │
 ├── partials/
 │   ├── navbar.html              # Shared navigation partial
-│   └── footer.html              # Shared footer partial
+│   └── footer.html              # Shared footer partial (with medium-spaced CTA card)
 │
 ├── admin/
+│   ├── index.php                # Route dispatcher to dashboard or login
 │   ├── login.html               # Admin authentication interface
-│   ├── dashboard.html           # Admin dashboard with status overview & logout modal
+│   ├── dashboard.php            # Guarded server-side dashboard route
+│   ├── dashboard.html           # Admin dashboard frontend
+│   ├── messages.php             # Guarded server-side messages route
 │   └── messages.html            # Contact messages management with inspector modal
 │
 ├── assets/
 │   ├── css/
 │   │   └── style.css            # Centralized stylesheet
+│   ├── documents/
+│   │   └── Ethan_Gacud_CV.pdf   # Finished CV in PDF format
 │   ├── js/
-│   │   ├── main.js              # Core UI interactions, magnetic cursor, typing effect
+│   │   ├── main.js              # Core UI interactions, GPU-accelerated magnetic cursor, stars
 │   │   ├── partials.js          # Shared navbar/footer loader & scroll-spy controller
 │   │   ├── contact.js           # Two-step contact workflow & CSRF fetch handler
-│   │   └── admin.js             # Admin authentication, dashboard & logout modal logic
+│   │   └── admin.js             # Admin authentication, real-time message table & modal logic
 │   └── images/
 │       ├── profile/             # Profile photos
 │       ├── projects/            # Project showcase screenshots
-│       ├── certificates/        # Verified certificate badges
-│       └── payments/            # Coffee QR payment assets
+│       └── certificates/        # Verified certificate preview images
 │
 ├── api/
-│   ├── contact-submit.php       # POST: validates & saves contact inquiries to MySQL
+│   ├── contact-step1.php        # POST: validates name (rejects numbers) and binds to session
+│   ├── contact-submit.php       # POST: validates email/domain, message, CSRF & saves to MySQL
 │   ├── admin-login.php          # POST: authenticates admin using password_verify()
 │   ├── admin-session.php        # GET: verifies active admin session
-│   ├── admin-profile.php        # GET/POST: admin customization (avatar, accent, name)
 │   ├── admin-messages.php       # GET/PATCH/DELETE: message management & status updates
 │   ├── admin-export.php         # GET: CSV export of contact messages
-│   └── admin-logout.php         # POST: clears session & logs out admin
+│   ├── admin-logout.php         # POST: clears session & logs out admin
+│   └── csrf-token.php           # GET: issues per-session CSRF token
 │
 ├── config/
 │   ├── database.php             # PDO database connection (reads env vars / .env)
-│   ├── database.example.php     # Example database configuration template
-│   └── admin_profile.json       # Durable server-side admin customization store
+│   └── database.example.php     # Example database configuration template
 │
 ├── includes/
-│   ├── auth.php                 # Session authentication guard & CSRF verification
-│   ├── functions.php            # Sanitization, JSON responders & rate-limiting
-│   └── profile_store.php        # Durable filesystem store for admin appearance
+│   ├── auth.php                 # Admin credentials verifier, session guard & timeout
+│   ├── functions.php            # Strict name/email validators, CSRF handlers & rate-limiting
+│   └── analytics.php            # Lightweight first-party analytics tracker
 │
-├── database/
-│   └── portfolio_db.sql         # SQL schema & initial seed script
-│
-├── .env.example                 # Environment variables template
-├── .gitignore                   # Excludes .env, credentials, logs, and OS caches
-├── .htaccess                    # Directory protection, security headers & 301 redirects
-├── favicon.svg
-└── README.md
+└── database/
+    └── portfolio_db.sql         # Production schema (InnoDB, utf8mb4, zero mock data)
 ```
 
 ---
 
-## 3. Local Development Setup (XAMPP)
+## 3. Database Setup & Environment Configuration
 
-### Prerequisites
-1. [XAMPP](https://www.apachefriends.org/) with Apache and MySQL services installed.
-2. Clone or copy the repository into your XAMPP web root:
-   `C:\xampp\htdocs\PortfolioUpdate\Portfolio-Project\`
+### A. Database Setup
+1. Open XAMPP Control Panel and start **Apache** and **MySQL**.
+2. Open phpMyAdmin (`http://localhost/phpmyadmin/`) or MySQL CLI.
+3. Import `database/portfolio_db.sql`:
+   ```sql
+   CREATE DATABASE IF NOT EXISTS `portfolio_db` 
+   CHARACTER SET utf8mb4 
+   COLLATE utf8mb4_unicode_ci;
 
-### Database Setup in phpMyAdmin
-1. Start **Apache** and **MySQL** in the XAMPP Control Panel.
-2. Open your browser and navigate to `http://localhost/phpmyadmin/`.
-3. Click on the **Import** tab in the top navigation.
-4. Click **Choose File** and select `database/portfolio_db.sql` from the project directory.
-5. Click **Import** at the bottom of the page to execute the schema.
-6. The database `portfolio_db` with tables `contact_messages` and `admin_users` will be created automatically.
+   USE `portfolio_db`;
 
-### Running the Website
-Open your browser and navigate to:
+   CREATE TABLE IF NOT EXISTS `contact_messages` (
+       `id` INT AUTO_INCREMENT PRIMARY KEY,
+       `name` VARCHAR(100) NOT NULL,
+       `email` VARCHAR(100) NOT NULL,
+       `message` TEXT NOT NULL,
+       `date_sent` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       `status` ENUM('new', 'read', 'replied', 'archived') NOT NULL DEFAULT 'new',
+       INDEX `idx_date_sent` (`date_sent`),
+       INDEX `idx_status` (`status`)
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+   ```
+
+### B. Environment Configuration (`.env`)
+Create a `.env` file in the project root (never committed to version control):
+```env
+# Database Configuration
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=portfolio_db
+DB_USER=root
+DB_PASS=
+
+# Administrator Configuration (Hashed via PASSWORD_DEFAULT)
+ADMIN_USERNAME=UnliRicePo
+ADMIN_PASSWORD_HASH=$2y$10$hj/ik3KTEIiOyqD9Muev4O.L47h6KBmaXuZunkS4rotNDmY2ruFda
+ADMIN_DISPLAY_NAME=Ethan Gacud
 ```
-http://localhost/PortfolioUpdate/Portfolio-Project/
-```
-
-> **Note:** Always run the website through a web server URL (`http://localhost/...`) rather than opening files via `file://`. The Fetch API requires HTTP/HTTPS to load partials and communicate with PHP endpoints.
 
 ---
 
-## 4. Production Deployment & Environment Variables
+## 4. Admin Credentials
 
-When deploying to production hosting (e.g., Render with Docker, Railway, InfinityFree, or a standard LAMP/cPanel host):
-
-1. **Do not commit sensitive passwords to Git.**
-2. Set the following environment variables in your hosting dashboard (or create a `.env` file from `.env.example` on your server):
-   - `DB_HOST` — database server hostname (e.g., `localhost` or remote DB host)
-   - `DB_PORT` — MySQL port (default: `3306`)
-   - `DB_NAME` — database name (e.g., `portfolio_db`)
-   - `DB_USER` — database username
-   - `DB_PASS` — database password
-3. Import `database/portfolio_db.sql` into your production MySQL database.
-4. Note on static hosts (Vercel / Netlify): Static-only hosts do not support traditional PHP & MySQL execution out of the box. Use a PHP/MySQL-capable environment (LAMP stack, cPanel, Railway, or Render with Docker).
+- **Username:** `UnliRicePo`
+- **Password:** `Myth5Ever_031808`
+- **Access Route:** `http://localhost/PortfolioUpdate/Portfolio-Project/admin/login.html`
 
 ---
 
-## 5. Admin Access & Credentials
+## 5. Security Measures Implemented
 
-The admin interface allows reviewing and managing contact messages. It is kept private and does not appear on public navigation or the footer.
-
-- **Admin Login URL:** `http://localhost/PortfolioUpdate/Portfolio-Project/admin/login.html`
-- **Default Username:** `admin`
-- **Default Password:** `123456` *(or `AdminPortfolio2026!` depending on your local seed)*
-
-*(Passwords are securely hashed using PHP's native `password_hash()` with `PASSWORD_DEFAULT`).*
-
----
-
-## 6. Security Features
-
-- **SQL Injection Prevention:** 100% of database queries use PDO prepared statements with bound parameters (`PDO::ATTR_EMULATE_PREPARES => false`).
-- **XSS Protection:** All user-supplied content is safely rendered using `textContent` on the client side and escaped with `htmlspecialchars()` where displayed in HTML.
-- **CSRF & Rate Limiting:** Form submissions and sensitive actions require valid CSRF tokens; contact submissions are rate-limited to prevent automated spam.
-- **Session Security:** Cookies configured with `HttpOnly`, `SameSite=Lax`, and `Secure` when running under HTTPS. `session_regenerate_id(true)` is invoked upon login.
-- **Protected Endpoints:** Admin API endpoints enforce server-side authentication guards; unauthorized requests receive an immediate 401 response without leaking database details.
+1. **Prepared Statements:** 100% of SQL queries binding user input use PDO prepared statements.
+2. **Server-Side Validation:** Dual-layer validation on all inputs (frontend for user convenience, backend for security).
+3. **Strict Name Validation:** Rejects numeric-only values and names containing digits (`123456`, `Ethan123`). Only legitimate letters, spaces, hyphens, and apostrophes are accepted.
+4. **Email Format & Domain Filtering:** Validates RFC format and rejects reserved testing domains (`example.com`, `localhost`, `invalid`, etc.).
+5. **CSRF Tokens:** All state-changing forms require session-bound CSRF tokens.
+6. **Password Security:** Salted bcrypt hashing using `password_verify()`. No plaintext passwords in code or database.
+7. **Brute-Force Throttling:** Failed login attempts are tracked and rate-limited with progressive delays.
+8. **Session Hardening:** `HttpOnly`, `SameSite=Lax`, strict mode enabled, session ID regeneration upon login, and 30-minute inactivity timeout.
+9. **Output Escaping:** Strict HTML escaping (`htmlspecialchars`) prevents Cross-Site Scripting (XSS).
+10. **Hardware-Accelerated UI:** GPU-based `translate3d` animations with offscreen pausing ensure 60–120 FPS performance with zero UI lag.

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 init_secure_session();
 
@@ -47,19 +48,11 @@ $authenticated = false;
 $resolvedUsername = '';
 $resolvedDisplayName = 'Ethan Gacud';
 
-try {
-    $pdo = get_db_connection();
-    $stmt = $pdo->prepare('SELECT id, username, display_name, password_hash FROM admin_users WHERE username = :u LIMIT 1');
-    $stmt->execute([':u' => $username]);
-    $user = $stmt->fetch();
-
-    if ($user && password_verify($password, (string)$user['password_hash'])) {
-        $authenticated = true;
-        $resolvedUsername = (string)$user['username'];
-        $resolvedDisplayName = (string)($user['display_name'] ?? 'Ethan Gacud');
-    }
-} catch (Throwable $e) {
-    error_log('Admin Login DB check failed: ' . $e->getMessage());
+$authResult = verify_admin_credentials($username, $password);
+if ($authResult['success']) {
+    $authenticated = true;
+    $resolvedUsername = $authResult['username'];
+    $resolvedDisplayName = $authResult['display_name'];
 }
 
 if (!$authenticated) {

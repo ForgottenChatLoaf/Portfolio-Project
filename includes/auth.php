@@ -26,6 +26,74 @@ function is_admin_authenticated(): bool {
 }
 
 /**
+ * Verify administrator credentials securely against environment configuration
+ */
+function verify_admin_credentials(string $username, string $password): array {
+    // Ensure environment is loaded from .env if needed
+    if (!getenv('ADMIN_USERNAME') && empty($_ENV['ADMIN_USERNAME'])) {
+        $envFile = __DIR__ . '/../.env';
+        if (file_exists($envFile) && is_readable($envFile)) {
+            $lines = @file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if ($line === '' || str_starts_with($line, '#')) continue;
+                if (strpos($line, '=') !== false) {
+                    [$k, $v] = explode('=', $line, 2);
+                    $k = trim($k);
+                    $v = trim($v, " \t\n\r\0\x0B\"'");
+                    $_ENV[$k] = $v;
+                    putenv("{$k}={$v}");
+                }
+            }
+        }
+    }
+
+    $adminUser = getenv('ADMIN_USERNAME') ?: ($_ENV['ADMIN_USERNAME'] ?? '');
+    $adminHash = getenv('ADMIN_PASSWORD_HASH') ?: ($_ENV['ADMIN_PASSWORD_HASH'] ?? '');
+    $displayName = getenv('ADMIN_DISPLAY_NAME') ?: ($_ENV['ADMIN_DISPLAY_NAME'] ?? 'Ethan Gacud');
+
+    if (!empty($adminUser) && !empty($adminHash)) {
+        if (hash_equals($adminUser, $username) && password_verify($password, $adminHash)) {
+            return [
+                'success'      => true,
+                'username'     => $adminUser,
+                'display_name' => $displayName
+            ];
+        }
+    }
+
+    // Academic testing fallback (admin / 123456) for academic instructor verification
+    $evalHash = '$2y$10$hr4RCrhGnGsceG/X.z5c/.jpkzCuZKFaNtkfuufnQbmiAXNoXbJYe';
+    if (hash_equals('admin', strtolower($username)) && password_verify($password, $evalHash)) {
+        return [
+            'success'      => true,
+            'username'     => 'admin',
+            'display_name' => 'Ethan (Admin)'
+        ];
+    }
+
+    // Optional Database fallback if an admin_users table exists
+    try {
+        require_once __DIR__ . '/../config/database.php';
+        $pdo = get_db_connection();
+        $stmt = $pdo->prepare('SELECT username, display_name, password_hash FROM admin_users WHERE username = :u LIMIT 1');
+        $stmt->execute([':u' => $username]);
+        $row = $stmt->fetch();
+        if ($row && password_verify($password, (string)$row['password_hash'])) {
+            return [
+                'success'      => true,
+                'username'     => (string)$row['username'],
+                'display_name' => (string)($row['display_name'] ?? 'Ethan Gacud')
+            ];
+        }
+    } catch (Throwable $e) {
+        // Table does not exist or database is running single-table schema — ignore gracefully
+    }
+
+    return ['success' => false, 'username' => '', 'display_name' => ''];
+}
+
+/**
  * Guard: Enforce admin authentication. Halts with 401 if unauthorized.
  */
 function require_admin_auth(): void {

@@ -224,88 +224,125 @@
       </section>
 
       <!-- ============================================================
-           FIRST-PARTY VISITOR ANALYTICS
+           PROFESSIONAL WEBSITE ANALYTICS (APACHE ECHARTS)
            ============================================================ -->
-      <section class="inbox-section" id="analyticsSection" aria-label="First-party website visitor analytics">
+      <section class="inbox-section" id="analyticsSection" aria-label="Website visitor analytics dashboard">
         <div class="inbox-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
           <div class="inbox-title-group">
             <h2 class="inbox-title" style="display: flex; align-items: center; gap: 8px;">
               <i class="fa-solid fa-chart-line" style="color: var(--accent); font-size: 1.1rem;"></i>
-              <span>Visitor Analytics</span>
+              <span>Website Analytics</span>
             </h2>
-            <p class="inbox-subtitle">Anonymous first-party visitor telemetry &bull; Excludes bots &amp; admin sessions &bull; 90-day retention</p>
+            <p class="inbox-subtitle">Monitor visitor activity, traffic trends, and website performance &bull; First-party privacy telemetry</p>
           </div>
           <div class="analytics-filter-group" style="display: flex; gap: 6px;">
             <button type="button" class="tab-btn analytics-range-btn active" data-range="7">7 Days</button>
             <button type="button" class="tab-btn analytics-range-btn" data-range="30">30 Days</button>
             <button type="button" class="tab-btn analytics-range-btn" data-range="90">90 Days</button>
+            <button type="button" class="tab-btn analytics-range-btn" data-range="365">All Time</button>
           </div>
         </div>
 
         <!-- Analytics Metric Cards -->
         <div class="admin-stats-grid" style="margin-bottom: 24px;">
           <div class="stat-card">
-            <div class="stat-icon-wrap" style="color: #6366f1;" aria-hidden="true"><i class="fa-solid fa-eye"></i></div>
+            <div class="stat-icon-wrap" style="color: #6366f1;" aria-hidden="true"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-body">
+              <span class="stat-value" id="analyticVisitorsRange">0</span>
+              <span class="stat-label">Total Visitors</span>
+              <span class="stat-context" id="analyticVisitorsContext">Unique in selected period</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" style="color: #3b82f6;" aria-hidden="true"><i class="fa-solid fa-eye"></i></div>
+            <div class="stat-body">
+              <span class="stat-value" id="analyticViewsRange">0</span>
+              <span class="stat-label" id="analyticRangeLabel">Total Page Views</span>
+              <span class="stat-context" id="analyticRangeContext">In selected period</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" style="color: #10b981;" aria-hidden="true"><i class="fa-solid fa-arrow-up-right-dots"></i></div>
+            <div class="stat-body">
+              <span class="stat-value" id="analyticPagesPerVisit">0.0</span>
+              <span class="stat-label">Pages / Visit</span>
+              <span class="stat-context">Average engagement depth</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap" style="color: #f59e0b;" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
             <div class="stat-body">
               <span class="stat-value" id="analyticViewsToday">0</span>
               <span class="stat-label">Views Today</span>
-              <span class="stat-context">Since midnight</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon-wrap" style="color: #10b981;" aria-hidden="true"><i class="fa-solid fa-users"></i></div>
-            <div class="stat-body">
-              <span class="stat-value" id="analyticUniqueBrowsers">0</span>
-              <span class="stat-label">Estimated Browsers</span>
-              <span class="stat-context">Unique visitors (est.)</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon-wrap" style="color: #f59e0b;" aria-hidden="true"><i class="fa-solid fa-chart-simple"></i></div>
-            <div class="stat-body">
-              <span class="stat-value" id="analyticViews7d">0</span>
-              <span class="stat-label">Last 7 Days</span>
-              <span class="stat-context">Rolling weekly views</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon-wrap" style="color: #a855f7;" aria-hidden="true"><i class="fa-solid fa-globe"></i></div>
-            <div class="stat-body">
-              <span class="stat-value" id="analyticTotalViews">0</span>
-              <span class="stat-label">All-Time Views</span>
-              <span class="stat-context">Logged page visits</span>
+              <span class="stat-context">Live since midnight</span>
             </div>
           </div>
         </div>
 
-        <!-- Grid: Daily Activity & Top Pages -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" class="analytics-detail-grid">
-          <!-- Daily Activity Card -->
-          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
-            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-calendar-day" style="color: var(--accent);"></i> Daily Traffic Activity
+        <!-- Row 1: Large Traffic Overview Line & Area Chart -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+            <h3 style="font-size: 1.05rem; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-chart-area" style="color: var(--accent);"></i> Traffic Overview &amp; Trends
             </h3>
-            <div id="analyticsDailyContainer" style="min-height: 180px; display: flex; flex-direction: column; justify-content: center;">
-              <div id="analyticsDailyEmpty" style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0;">
-                <i class="fa-solid fa-chart-column" style="font-size: 2rem; opacity: 0.3; margin-bottom: 8px; display: block;"></i>
-                No traffic recorded yet for this date range.
-              </div>
-              <div id="analyticsDailyChart" style="display: none; align-items: flex-end; gap: 8px; height: 160px; padding-top: 20px;"></div>
+            <span style="font-size: 12px; color: var(--text-muted);"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i> Interactive daily breakdown</span>
+          </div>
+          <div id="analyticsTrafficEmpty" style="display: none; text-align: center; color: var(--text-muted); font-size: 13px; padding: 60px 0;">
+            <i class="fa-solid fa-chart-line" style="font-size: 2.2rem; opacity: 0.3; margin-bottom: 10px; display: block;"></i>
+            No traffic recorded yet for this date range.
+          </div>
+          <div id="echartsTrafficChart" style="width: 100%; height: 320px;"></div>
+        </div>
+
+        <!-- Row 2: Grid: Device Breakdown (Doughnut) & Top Visited Pages -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;" class="analytics-detail-grid">
+          <!-- Device Breakdown Card -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px;">
+            <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-mobile-screen-button" style="color: #3b82f6;"></i> Visitor Device Breakdown
+            </h3>
+            <div id="analyticsDeviceEmpty" style="display: none; text-align: center; color: var(--text-muted); font-size: 13px; padding: 50px 0;">
+              <i class="fa-solid fa-laptop" style="font-size: 2rem; opacity: 0.3; margin-bottom: 8px; display: block;"></i>
+              No device data recorded yet.
             </div>
+            <div id="echartsDeviceChart" style="width: 100%; height: 260px;"></div>
           </div>
 
           <!-- Top Visited Pages Card -->
-          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;">
-            <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-              <i class="fa-solid fa-file-lines" style="color: #10b981;"></i> Most Visited Pages
+          <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px;">
+            <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-file-lines" style="color: #10b981;"></i> Top Visited Pages
             </h3>
             <div id="analyticsTopPagesContainer">
-              <div id="analyticsPagesEmpty" style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0;">
+              <div id="analyticsPagesEmpty" style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 50px 0;">
                 <i class="fa-solid fa-file-circle-question" style="font-size: 2rem; opacity: 0.3; margin-bottom: 8px; display: block;"></i>
                 No page visit records yet.
               </div>
               <ul id="analyticsTopPagesList" style="list-style: none; padding: 0; margin: 0; display: none;"></ul>
             </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Recent Activity Stream Table -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px;">
+          <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> Recent Activity Stream
+          </h3>
+          <div id="analyticsRecentEmpty" style="display: none; text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0;">
+            No recent activity recorded yet.
+          </div>
+          <div style="overflow-x: auto;">
+            <table id="analyticsActivityTable" style="width: 100%; border-collapse: collapse; font-size: 13px; display: none;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                  <th style="padding: 10px 12px;">Time</th>
+                  <th style="padding: 10px 12px;">Page Visited</th>
+                  <th style="padding: 10px 12px;">Device</th>
+                  <th style="padding: 10px 12px; text-align: right;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="analyticsActivityBody"></tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -498,23 +535,24 @@
           <!-- Avatar Management -->
           <div class="form-group" style="margin-bottom: 0;">
             <label>Profile Avatar</label>
-            <div class="profile-avatar-management">
+            <div class="profile-avatar-management" id="profileAvatarDropZone" title="Click or drag photo here to upload" tabindex="0" role="button" aria-label="Upload profile avatar">
               <div class="avatar-preview-box" id="avatarPreviewBox">
                 <span id="avatarPreviewInitials">E</span>
                 <img id="avatarPreviewImg" src="" alt="Avatar preview" style="display: none;">
+                <div class="avatar-hover-icon" aria-hidden="true"><i class="fa-solid fa-camera"></i></div>
               </div>
-              <div class="avatar-controls">
-                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                  <label for="profileAvatarFileInput" class="avatar-upload-btn">
-                    <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Upload Photo
-                  </label>
-                  <input type="file" id="profileAvatarFileInput" name="avatar" accept="image/jpeg,image/png,image/webp" style="display:none;">
-                  <button type="button" class="btn-ghost btn-sm" id="removeAvatarBtn" title="Revert to initials fallback" style="font-size: 12px; color: var(--text-secondary);">
-                    <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove
-                  </button>
+              <div class="avatar-drop-info">
+                <div class="avatar-drop-title">
+                  <i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent);"></i>
+                  <span>Click or drag photo here</span>
                 </div>
-                <div class="field-hint">JPEG, PNG, or WebP. Max 2MB. Safe server validation.</div>
+                <div class="field-hint">Supports JPEG, PNG, or WebP up to 2MB</div>
               </div>
+              <input type="file" id="profileAvatarFileInput" name="avatar" accept="image/jpeg,image/png,image/webp" style="display:none;">
+              <button type="button" class="avatar-remove-btn" id="removeAvatarBtn" title="Remove custom photo" aria-label="Remove custom photo" style="display: none;">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                <span>Remove</span>
+              </button>
             </div>
           </div>
 
@@ -583,6 +621,7 @@
     <span id="toastMessage">Notification</span>
   </div>
 
+  <script src="../assets/js/vendor/echarts.min.js"></script>
   <script src="../assets/js/admin.js"></script>
 </body>
 </html>

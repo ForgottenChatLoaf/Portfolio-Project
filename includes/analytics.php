@@ -86,9 +86,18 @@ function record_page_visit(string $pagePath = ''): void {
     }
     $_SESSION[$lastTrackKey] = time();
 
-    // 8. Insert into website_visits
+    // 8. Insert into website_visits (if table exists)
     try {
         $pdo = get_db_connection();
+        static $hasTable = null;
+        if ($hasTable === null) {
+            $check = $pdo->query("SHOW TABLES LIKE 'website_visits'")->fetch();
+            $hasTable = !empty($check);
+        }
+        if (!$hasTable) {
+            return;
+        }
+
         $stmt = $pdo->prepare('
             INSERT INTO website_visits (visitor_hash, page_path, user_agent, visited_at)
             VALUES (:hash, :path, :ua, NOW())

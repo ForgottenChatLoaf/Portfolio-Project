@@ -223,13 +223,81 @@ function sanitize_text(?string $input, int $maxLength = 100): string {
 }
 
 /**
- * Validate email format
+ * Validate Visitor Name (Rejects digits, ensures legitimate name characters)
+ * Allowed: Unicode letters, spaces, hyphens, and apostrophes
+ * Disallowed: Numbers, digits, special symbols
  */
-function is_valid_email(?string $email): bool {
-    if (empty($email)) {
-        return false;
+function is_valid_visitor_name($name): array {
+    $trimmed = trim(is_scalar($name) ? (string)$name : '');
+
+    if ($trimmed === '') {
+        return ['valid' => false, 'error' => 'Please enter your name.'];
     }
-    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false && mb_strlen($email, 'UTF-8') <= 100;
+
+    $len = mb_strlen($trimmed, 'UTF-8');
+    if ($len < 2) {
+        return ['valid' => false, 'error' => 'Name must be at least 2 characters long.'];
+    }
+
+    if ($len > 100) {
+        return ['valid' => false, 'error' => 'Name cannot exceed 100 characters.'];
+    }
+
+    // Reject names containing any digits or numeric values
+    if (preg_match('/\d/', $trimmed)) {
+        return ['valid' => false, 'error' => 'Name must not contain numbers or digits.'];
+    }
+
+    // Require valid letter and name punctuation syntax
+    if (!preg_match('/^[\p{L}\s\'’\-]+$/u', $trimmed)) {
+        return ['valid' => false, 'error' => 'Name contains invalid characters. Use letters, spaces, hyphens, or apostrophes.'];
+    }
+
+    return ['valid' => true, 'error' => '', 'name' => $trimmed];
+}
+
+/**
+ * Validate email format and reject reserved or non-routable domains
+ */
+function is_valid_email(?string $email): array {
+    $trimmed = trim($email ?? '');
+
+    if ($trimmed === '') {
+        return ['valid' => false, 'error' => 'Please enter your email address.'];
+    }
+
+    if (mb_strlen($trimmed, 'UTF-8') > 100) {
+        return ['valid' => false, 'error' => 'Email address is too long (maximum 100 characters).'];
+    }
+
+    if (!filter_var($trimmed, FILTER_VALIDATE_EMAIL)) {
+        return ['valid' => false, 'error' => 'Please provide a valid email address format.'];
+    }
+
+    // Extract domain
+    $atPos = strrpos($trimmed, '@');
+    if ($atPos === false) {
+        return ['valid' => false, 'error' => 'Invalid email address structure.'];
+    }
+
+    $domain = strtolower(substr($trimmed, $atPos + 1));
+
+    // Reject reserved example, loopback, or invalid testing domains
+    $reservedDomains = [
+        'example.com',
+        'example.org',
+        'example.net',
+        'example.edu',
+        'invalid',
+        'localhost',
+        'test'
+    ];
+
+    if (in_array($domain, $reservedDomains, true)) {
+        return ['valid' => false, 'error' => 'Please use a real, routable email address (not a reserved test domain).'];
+    }
+
+    return ['valid' => true, 'error' => '', 'email' => $trimmed];
 }
 
 /**
