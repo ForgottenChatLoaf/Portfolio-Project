@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+.local-secrets
+node_modules
+tests
+docs
+scripts
+*.log
+tmp
+temp
+backups
+*.bak
+*backup*.sql
