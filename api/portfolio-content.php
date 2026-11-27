@@ -27,6 +27,7 @@ try {
             SELECT id, slug, title, tag, section_type, description, role, category, timeline,
                    tech_stack, images_json, primary_url, primary_label, secondary_url, secondary_label, display_order
             FROM portfolio_projects
+            WHERE is_visible = 1
             ORDER BY section_type ASC, display_order ASC, id ASC
         ');
         $projects = $stmtP->fetchAll();

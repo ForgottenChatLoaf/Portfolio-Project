@@ -21,9 +21,11 @@ CREATE TABLE IF NOT EXISTS `portfolio_projects` (
     `secondary_url` VARCHAR(255) NULL,
     `secondary_label` VARCHAR(80) NULL,
     `display_order` INT NOT NULL DEFAULT 0,
+    `is_visible` TINYINT(1) NOT NULL DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX `idx_section_order` (`section_type`, `display_order`)
+    INDEX `idx_section_order` (`section_type`, `display_order`),
+    INDEX `idx_visible` (`is_visible`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `portfolio_skills` (
@@ -43,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `portfolio_skills` (
 
 -- Seed existing real projects from projects.html only if not already present
 INSERT IGNORE INTO `portfolio_projects`
-(`slug`, `title`, `tag`, `section_type`, `description`, `role`, `category`, `timeline`, `tech_stack`, `images_json`, `primary_url`, `primary_label`, `secondary_url`, `secondary_label`, `display_order`)
+(`slug`, `title`, `tag`, `section_type`, `description`, `role`, `category`, `timeline`, `tech_stack`, `images_json`, `primary_url`, `primary_label`, `secondary_url`, `secondary_label`, `display_order`, `is_visible`)
 VALUES
 (
   'portfolio',
@@ -60,6 +62,7 @@ VALUES
   'View Source Code',
   NULL,
   NULL,
+  1,
   1
 ),
 (
@@ -77,7 +80,8 @@ VALUES
   'View Project',
   NULL,
   NULL,
-  2
+  2,
+  1
 ),
 (
   'icaredonate',
@@ -94,7 +98,8 @@ VALUES
   'Visit Live Site',
   'https://github.com/ForgottenChatLoaf',
   'GitHub',
-  3
+  3,
+  1
 ),
 (
   'mock-gallery',
@@ -111,6 +116,7 @@ VALUES
   'Demo',
   NULL,
   NULL,
+  1,
   1
 ),
 (
@@ -128,7 +134,8 @@ VALUES
   'View on GitHub',
   NULL,
   NULL,
-  2
+  2,
+  0
 ),
 (
   'arduino-lab',
@@ -145,7 +152,8 @@ VALUES
   'Academic Showcase',
   NULL,
   NULL,
-  3
+  3,
+  0
 );
 
 -- Seed existing real skills from skills.html only if not already present
