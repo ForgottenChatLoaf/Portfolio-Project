@@ -9,10 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const isLoginPage = document.getElementById('adminLoginForm') !== null;
   const isDashboardPage = document.getElementById('adminDashboard') !== null;
   const isMessagesPage = document.getElementById('adminMessagesPage') !== null;
+  const isContentPage = document.getElementById('adminContentPage') !== null;
 
   if (isLoginPage) {
     initAdminLogin();
-  } else if (isDashboardPage || isMessagesPage) {
+  } else if (isDashboardPage || isMessagesPage || isContentPage) {
     initAdminDashboard();
   }
 });
@@ -242,17 +243,22 @@ function initAdminDashboard() {
   function updateGreeting() {
     const now = new Date();
     const greeting = getGreetingForHour(now.getHours(), currentAdminProfile.display_name);
-    if (greetingLabel) greetingLabel.innerHTML = greeting;
+    if (greetingLabel && greetingLabel.innerHTML !== greeting) {
+      greetingLabel.innerHTML = greeting;
+    }
     if (dashCurrentTime) {
-      dashCurrentTime.textContent = now.toLocaleTimeString(undefined, {
+      const formattedTime = now.toLocaleTimeString(undefined, {
         hour: '2-digit', minute: '2-digit'
       });
+      if (dashCurrentTime.textContent !== formattedTime) {
+        dashCurrentTime.textContent = formattedTime;
+      }
     }
   }
 
   function initGreetingAndClock() {
     updateGreeting();
-    setInterval(updateGreeting, 60000);
+    setInterval(updateGreeting, 1000);
   }
 
   function applyAccentColor(hex) {
@@ -368,11 +374,37 @@ function initAdminDashboard() {
     return csrfToken;
   }
 
-  // 2. Load Messages from API
-  async function loadMessages() {
-    if (loadingIndicator) loadingIndicator.style.display = 'block';
+  // 2. Load Messages from API (with Skeleton Loading State)
+  function renderMessagesSkeleton(rowCount = 4) {
+    if (!messagesTableBody) return;
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
     if (emptyState) emptyState.style.display = 'none';
-    if (tableContainer) tableContainer.style.display = 'none';
+    if (tableContainer) tableContainer.style.display = 'block';
+
+    messagesTableBody.innerHTML = Array.from({ length: rowCount }).map(() => `
+      <tr aria-hidden="true">
+        <td class="td-id"><span class="skeleton-block" style="width: 28px; height: 14px;"></span></td>
+        <td class="td-status"><span class="skeleton-block skeleton-pill"></span></td>
+        <td class="td-sender">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <span class="skeleton-block skeleton-line-md" style="width: 120px;"></span>
+            <span class="skeleton-block skeleton-line-sm" style="width: 150px;"></span>
+          </div>
+        </td>
+        <td class="td-preview"><span class="skeleton-block skeleton-line-md" style="width: 90%;"></span></td>
+        <td class="td-date"><span class="skeleton-block skeleton-line-sm" style="width: 95px;"></span></td>
+        <td class="td-actions">
+          <div class="table-action-btns">
+            <span class="skeleton-block skeleton-btn"></span>
+            <span class="skeleton-block skeleton-btn"></span>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadMessages() {
+    renderMessagesSkeleton(isOverviewPage ? 4 : 5);
 
     try {
       const res = await fetch('../api/admin-messages.php');
@@ -392,10 +424,16 @@ function initAdminDashboard() {
         applyFiltersAndRender();
       } else {
         showToast(data.message || 'Failed to retrieve messages.', 'error');
+        if (messagesTableBody) {
+          messagesTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 32px; color: var(--text-secondary);">Could not load messages. <button type="button" class="btn-outline btn-sm" style="margin-left: 8px;" onclick="location.reload()">Retry</button></td></tr>`;
+        }
       }
     } catch (err) {
       console.error('Fetch messages error:', err);
       showToast('Error connecting to server. Ensure MySQL is running.', 'error');
+      if (messagesTableBody) {
+        messagesTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 32px; color: var(--text-secondary);">Connection error. <button type="button" class="btn-outline btn-sm" style="margin-left: 8px;" onclick="location.reload()">Retry</button></td></tr>`;
+      }
     } finally {
       if (loadingIndicator) loadingIndicator.style.display = 'none';
     }
@@ -477,6 +515,23 @@ function initAdminDashboard() {
     const activityEmpty = document.getElementById('analyticsRecentEmpty');
 
     if (!visitorsRangeEl && !viewsRangeEl) return;
+
+    // Show non-blocking skeleton placeholders while fetching analytics
+    [visitorsRangeEl, viewsRangeEl, pagesPerVisitEl, viewsTodayEl].forEach(el => {
+      if (el) el.innerHTML = '<span class="skeleton-block skeleton-line-lg" aria-hidden="true"></span>';
+    });
+    if (activityTable && activityBody) {
+      if (activityEmpty) activityEmpty.style.display = 'none';
+      activityTable.style.display = 'table';
+      activityBody.innerHTML = Array.from({ length: 4 }).map(() => `
+        <tr aria-hidden="true" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+          <td style="padding: 11px 12px;"><span class="skeleton-block skeleton-line-sm" style="width: 80px;"></span></td>
+          <td style="padding: 11px 12px;"><span class="skeleton-block skeleton-line-md" style="width: 140px;"></span></td>
+          <td style="padding: 11px 12px;"><span class="skeleton-block skeleton-pill" style="width: 68px;"></span></td>
+          <td style="padding: 11px 12px; text-align: right;"><span class="skeleton-block skeleton-line-sm" style="width: 58px;"></span></td>
+        </tr>
+      `).join('');
+    }
 
     try {
       const res = await fetch(`../api/admin-analytics.php?days=${days}`);

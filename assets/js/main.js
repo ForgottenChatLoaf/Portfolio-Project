@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initExpandableSkills();
   initProjectModals();
   initCertificateModals();
+  initDynamicPortfolioSync();
 });
 
 /* ============================================================
@@ -925,7 +926,8 @@ function initProjectModals() {
   };
 
   const openModal = (projKey) => {
-    const data = projectsData[projKey];
+    const dynamicMap = window.__dynamicProjectsData || {};
+    const data = dynamicMap[projKey] || projectsData[projKey];
     if (!data) return;
 
     if (modalTitle) {
@@ -1075,4 +1077,146 @@ function initCertificateModals() {
       closeModal();
     }
   });
+}
+
+/* ============================================================
+   16. DYNAMIC DATABASE SYNC (PROJECTS & SKILLS)
+   ============================================================ */
+async function initDynamicPortfolioSync() {
+  const carouselTrack = document.getElementById('carouselTrack');
+  const sideQuestsGrid = document.querySelector('#side-quests .side-quests-grid');
+  const skillsContainer = document.querySelector('.skills-container');
+
+  if (!carouselTrack && !skillsContainer) return;
+
+  const esc = (str) => {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
+  try {
+    const res = await fetch('api/portfolio-content.php', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.status !== 'success') return;
+
+    // 1. Hydrate Projects Page
+    if (carouselTrack && Array.isArray(data.projects) && data.projects.length > 0) {
+      const featured = data.projects.filter(p => p.section_type === 'featured');
+      const sideQuests = data.projects.filter(p => p.section_type === 'side_quest');
+      window.__dynamicProjectsData = {};
+
+      data.projects.forEach(p => {
+        window.__dynamicProjectsData[p.slug] = {
+          title: p.title,
+          role: p.role || 'Developer',
+          category: p.category || p.tag,
+          timeline: p.timeline || 'Active',
+          desc: p.description,
+          tech: (p.tech_stack || '').split(',').map(t => t.trim()).filter(Boolean),
+          images: Array.isArray(p.images) ? p.images : [],
+          linkText: p.primary_label || 'View Project',
+          url: p.primary_url || '#'
+        };
+      });
+
+      if (featured.length > 0) {
+        carouselTrack.innerHTML = featured.map(p => {
+          const imgs = (Array.isArray(p.images) && p.images.length > 0) ? p.images : ['assets/images/projects/TheActualPortfolio/HomePage.png'];
+          const imgHtml = imgs.map(src => `<img src="${esc(src)}" alt="${esc(p.title)}">`).join('');
+          const primaryBtn = p.primary_url ? `<a href="${esc(p.primary_url)}" target="_blank" rel="noopener noreferrer" class="project-cta" style="display: inline-flex; align-items: center; gap: 8px;">${esc(p.primary_label || 'View Project')} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : '';
+          const secondaryBtn = p.secondary_url ? `<a href="${esc(p.secondary_url)}" target="_blank" rel="noopener noreferrer" class="btn-outline btn-sm" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 16px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-primary);"><i class="fa-brands fa-github"></i> ${esc(p.secondary_label || 'GitHub')}</a>` : '';
+
+          return `
+            <div class="carousel-slide">
+              <div class="slide-image">
+                <div class="image-scroller">${imgHtml}</div>
+                <button class="scroller-btn prev-btn" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="scroller-btn next-btn" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
+              </div>
+              <div class="slide-info">
+                <span class="project-tag">${esc(p.tag)}</span>
+                <h3 class="project-title">${esc(p.title)}</h3>
+                <p class="project-desc">${esc(p.description)}</p>
+                <div class="project-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                  ${primaryBtn}
+                  ${secondaryBtn}
+                  <button type="button" class="btn-outline btn-sm open-project-modal-btn" data-project="${esc(p.slug)}" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 16px; cursor: pointer;">
+                    <i class="fa-solid fa-circle-info"></i> Project Details
+                  </button>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+
+        const dots = document.getElementById('carouselDots');
+        if (dots) dots.innerHTML = '';
+        initProjectScrollers();
+        initCarousel();
+      }
+
+      if (sideQuestsGrid && sideQuests.length > 0) {
+        sideQuestsGrid.innerHTML = sideQuests.map(p => {
+          const thumb = (Array.isArray(p.images) && p.images[0]) ? p.images[0] : 'assets/images/projects/TheActualPortfolio/HomePage.png';
+          const techBadges = (p.tech_stack || '').split(',').map(t => t.trim()).filter(Boolean).slice(0, 3).map(t => `<span>${esc(t)}</span>`).join('');
+          const linkBtn = p.primary_url ? `<a href="${esc(p.primary_url)}" target="_blank" rel="noopener noreferrer" class="link-btn">${esc(p.primary_label || 'View')} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : '';
+          return `
+            <div class="side-quest-card">
+              <div class="side-quest-image">
+                <img src="${esc(thumb)}" alt="${esc(p.title)}">
+                <span class="side-quest-tag">${esc(p.tag)}</span>
+              </div>
+              <div class="side-quest-body">
+                <h3 class="side-quest-title">${esc(p.title)}</h3>
+                <p class="side-quest-desc">${esc(p.description)}</p>
+                <div class="side-quest-tech">${techBadges}</div>
+                <div class="side-quest-actions">
+                  ${linkBtn}
+                  <button type="button" class="link-btn open-project-modal-btn" data-project="${esc(p.slug)}" style="background:none; border:none; cursor:pointer; padding:0; font:inherit; color:var(--accent-light);">
+                    Details <i class="fa-solid fa-circle-info"></i>
+                  </button>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      // Re-bind modal triggers for newly rendered cards
+      initProjectModals();
+    }
+
+    // 2. Hydrate Skills Page
+    if (skillsContainer && Array.isArray(data.skills) && data.skills.length > 0) {
+      const cards = skillsContainer.querySelectorAll('.skill-category-card');
+      cards.forEach(card => {
+        const heading = card.querySelector('.category-header h3')?.textContent?.trim();
+        const listEl = card.querySelector('.tech-badges-list');
+        if (!heading || !listEl) return;
+
+        const matching = data.skills.filter(s => s.category_title === heading);
+        if (matching.length > 0) {
+          listEl.innerHTML = matching.map(s => {
+            const iconHtml = s.icon_url ? `<img src="${esc(s.icon_url)}" alt="${esc(s.name)}">` : `<i class="fa-solid fa-code" style="color:var(--accent);"></i>`;
+            return `
+              <div class="tech-badge-item expandable" tabindex="0" role="button" aria-expanded="false">
+                <div class="tech-badge-header">
+                  <span class="tech-name">${iconHtml} ${esc(s.name)}</span>
+                  <span class="tech-expand-hint">Details <i class="fa-solid fa-chevron-down"></i></span>
+                </div>
+                <span class="tech-note">${esc(s.subtitle)}</span>
+                <div class="tech-detail-panel">${esc(s.details)}</div>
+              </div>`;
+          }).join('');
+        }
+      });
+      initExpandableSkills();
+    }
+  } catch (e) {
+    // Graceful fallback: static HTML remains intact
+  }
 }

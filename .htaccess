@@ -14,6 +14,7 @@ DirectoryIndex index.php
     RewriteRule ^about\.html$ index.php#about [R=301,NE,L]
     RewriteRule ^admin/dashboard\.html$ admin/dashboard.php [L]
     RewriteRule ^admin/messages\.html$ admin/messages.php [L]
+    RewriteRule ^admin/content\.html$ admin/content.php [L]
 </IfModule>
 
 # 1. Disable Directory Browsing

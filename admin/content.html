@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Portfolio Content | Admin Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body id="adminContentPage" class="admin-layout">
+
+  <!-- ============================================================
+       SIDEBAR
+       ============================================================ -->
+  <aside class="admin-sidebar" id="adminSidebar" aria-label="Admin navigation">
+    <div class="sidebar-brand">
+      <a href="../index.php#home" class="nav-logo" aria-label="Portfolio home">ETHAN<span class="logo-dot">.</span></a>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Admin sections">
+      <ul>
+        <li>
+          <a href="dashboard.html" class="sidebar-link" data-section="overview">
+            <i class="fa-solid fa-house-chimney" aria-hidden="true"></i>
+            <span>Overview</span>
+          </a>
+        </li>
+        <li>
+          <a href="messages.html" class="sidebar-link" data-section="messages">
+            <i class="fa-solid fa-inbox" aria-hidden="true"></i>
+            <span>Messages</span>
+            <span class="sidebar-badge" id="sidebarNewCount" aria-label="new messages"></span>
+          </a>
+        </li>
+        <li>
+          <a href="content.html" class="sidebar-link active" data-section="content" aria-current="page">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            <span>Portfolio Content</span>
+          </a>
+        </li>
+        <li>
+          <button type="button" class="sidebar-link sidebar-btn" id="sidebarOpenProfileBtn" aria-label="Customize Profile and Appearance">
+            <i class="fa-solid fa-palette" aria-hidden="true"></i>
+            <span>Customization</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="../index.php#home" class="sidebar-link sidebar-link-ghost" target="_blank" rel="noopener">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        <span>View Site</span>
+      </a>
+      <button type="button" class="sidebar-link sidebar-link-ghost sidebar-signout" id="adminLogoutBtn">
+        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Mobile sidebar overlay backdrop -->
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       MAIN CONTENT AREA
+       ============================================================ -->
+  <div class="admin-main" id="adminMain">
+
+    <!-- Top bar -->
+    <header class="admin-topbar" aria-label="Admin top bar">
+      <button class="sidebar-toggle" id="sidebarToggle"
+              aria-label="Open navigation menu" aria-expanded="false" aria-controls="adminSidebar">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+
+      <button type="button" class="topbar-identity-btn" id="openProfileModalBtn" aria-label="Edit Profile & Appearance" title="Edit Profile & Appearance">
+        <span class="topbar-user-avatar" id="topbarUserAvatar" aria-hidden="true">E</span>
+        <span class="topbar-user-name" id="topbarUserName">Ethan</span>
+        <i class="fa-solid fa-sliders" style="font-size: 11px; opacity: 0.7; margin-left: 2px;" aria-hidden="true"></i>
+      </button>
+
+      <div class="topbar-actions">
+        <a href="dashboard.html" class="btn-outline btn-sm">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          <span class="topbar-btn-label">Overview</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="admin-content" id="adminContent">
+
+      <section class="dash-greeting" aria-label="Portfolio Content Header">
+        <div>
+          <h1 class="dash-greeting-label">Portfolio Content</h1>
+          <p class="dash-greeting-sub">Manage database-backed Projects and Skills reflected on your live portfolio.</p>
+        </div>
+      </section>
+
+      <!-- Projects CRUD Section -->
+      <section class="inbox-section" aria-label="Projects management">
+        <div class="inbox-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div class="inbox-title-group">
+            <h2 class="inbox-title">Projects &amp; Side Quests</h2>
+            <p class="inbox-subtitle">Synced with your public Projects page</p>
+          </div>
+          <button type="button" class="btn-primary btn-sm" id="addProjectBtn">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Add Project
+          </button>
+        </div>
+
+        <div id="projectsEmptyState" class="empty-state" style="display: none; padding: 50px 20px; text-align: center;">
+          <i class="fa-regular fa-folder-open" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 12px;" aria-hidden="true"></i>
+          <h3 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 4px;">No projects found</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Click "Add Project" to create your first portfolio project.</p>
+        </div>
+
+        <div class="table-responsive" id="projectsTableWrap" style="display: none;">
+          <table class="messages-table" aria-label="Portfolio projects list">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 70px;">Order</th>
+                <th scope="col">Title</th>
+                <th scope="col" style="width: 130px;">Section</th>
+                <th scope="col">Tag</th>
+                <th scope="col" style="width: 110px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="projectsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Skills CRUD Section -->
+      <section class="inbox-section" aria-label="Skills management">
+        <div class="inbox-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div class="inbox-title-group">
+            <h2 class="inbox-title">Technical Skills</h2>
+            <p class="inbox-subtitle">Synced with your public Skills page</p>
+          </div>
+          <button type="button" class="btn-primary btn-sm" id="addSkillBtn">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Add Skill
+          </button>
+        </div>
+
+        <div id="skillsEmptyState" class="empty-state" style="display: none; padding: 50px 20px; text-align: center;">
+          <i class="fa-solid fa-code" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 12px;" aria-hidden="true"></i>
+          <h3 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 4px;">No skills found</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Click "Add Skill" to add a technology to your portfolio.</p>
+        </div>
+
+        <div class="table-responsive" id="skillsTableWrap" style="display: none;">
+          <table class="messages-table" aria-label="Portfolio skills list">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 70px;">Order</th>
+                <th scope="col">Skill</th>
+                <th scope="col" style="width: 210px;">Category</th>
+                <th scope="col">Subtitle</th>
+                <th scope="col" style="width: 110px; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="skillsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Add / Edit Project Modal -->
+  <div class="admin-modal-overlay" id="projectFormModal" role="dialog" aria-modal="true" aria-labelledby="projectFormTitle" aria-hidden="true">
+    <div class="admin-modal-card modal-lg">
+      <div class="modal-header">
+        <h2 class="modal-title" id="projectFormTitle">Add Project</h2>
+        <button type="button" class="modal-close" id="closeProjectFormBtn" aria-label="Close modal">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="projectCrudForm" class="admin-form">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px; max-height: 68vh; overflow-y: auto;">
+          <input type="hidden" id="projIdInput" value="">
+          <div class="admin-form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label for="projTitleInput">Project Title *</label>
+              <input type="text" id="projTitleInput" required maxlength="150" placeholder="e.g. Personal Portfolio Website">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="projSectionInput">Section *</label>
+              <select id="projSectionInput" required style="width: 100%; padding: 12px 14px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font-body);">
+                <option value="featured">Featured Carousel</option>
+                <option value="side_quest">Side Quests Grid</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label for="projTagInput">Tag / Subtitle *</label>
+              <input type="text" id="projTagInput" required maxlength="150" placeholder="e.g. Personal Project | Full-Stack">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="projOrderInput">Display Order</label>
+              <input type="number" id="projOrderInput" value="1" min="0" max="999">
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="projDescInput">Description *</label>
+            <textarea id="projDescInput" rows="3" required maxlength="3000" placeholder="Describe the project and architecture..."></textarea>
+          </div>
+          <div class="admin-form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label for="projRoleInput">Role</label>
+              <input type="text" id="projRoleInput" maxlength="150" placeholder="e.g. Full-Stack Developer">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="projTimelineInput">Timeline / Stage</label>
+              <input type="text" id="projTimelineInput" maxlength="100" placeholder="e.g. 2026 | Active">
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="projTechInput">Technologies (comma-separated)</label>
+            <input type="text" id="projTechInput" maxlength="500" placeholder="PHP, MySQL, HTML5, CSS3, JavaScript">
+          </div>
+          <div class="admin-form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label for="projPrimaryUrlInput">Primary Link URL</label>
+              <input type="text" id="projPrimaryUrlInput" maxlength="255" placeholder="https://github.com/...">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="projPrimaryLabelInput">Primary Button Label</label>
+              <input type="text" id="projPrimaryLabelInput" maxlength="80" placeholder="View Source Code">
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="projImagesInput">Image Paths / URLs (one per line)</label>
+            <textarea id="projImagesInput" rows="2" placeholder="assets/images/projects/TheActualPortfolio/HomePage.png"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline btn-sm" id="cancelProjectFormBtn">Cancel</button>
+          <button type="submit" class="btn-primary btn-sm" id="saveProjectBtn">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Skill Modal -->
+  <div class="admin-modal-overlay" id="skillFormModal" role="dialog" aria-modal="true" aria-labelledby="skillFormTitle" aria-hidden="true">
+    <div class="admin-modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="skillFormTitle">Add Skill</h2>
+        <button type="button" class="modal-close" id="closeSkillFormBtn" aria-label="Close modal">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <form id="skillCrudForm" class="admin-form">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <input type="hidden" id="skillIdInput" value="">
+          <div class="admin-form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label for="skillCategoryInput">Category *</label>
+              <select id="skillCategoryInput" required style="width: 100%; padding: 12px 14px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font-body);">
+                <option value="fundamentals">Programming Fundamentals</option>
+                <option value="frontend">Frontend Development</option>
+                <option value="backend">Backend &amp; Database</option>
+                <option value="tools">Tools &amp; Workflow</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label for="skillOrderInput">Display Order</label>
+              <input type="number" id="skillOrderInput" value="1" min="0" max="999">
+            </div>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="skillNameInput">Skill Name *</label>
+            <input type="text" id="skillNameInput" required maxlength="100" placeholder="e.g. PHP">
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="skillSubtitleInput">Short Subtitle *</label>
+            <input type="text" id="skillSubtitleInput" required maxlength="150" placeholder="e.g. Sessions, API Endpoints, &amp; Validation">
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="skillDetailsInput">Details Description *</label>
+            <textarea id="skillDetailsInput" rows="3" required maxlength="2000" placeholder="Describe implementation or coursework experience..."></textarea>
+          </div>
+          <div class="form-group" style="margin: 0;">
+            <label for="skillIconInput">Icon URL (optional)</label>
+            <input type="text" id="skillIconInput" maxlength="255" placeholder="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline btn-sm" id="cancelSkillFormBtn">Cancel</button>
+          <button type="submit" class="btn-primary btn-sm" id="saveSkillBtn">Save Skill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="admin-modal-overlay" id="deleteContentModal" role="dialog" aria-modal="true" aria-labelledby="deleteContentTitle" aria-hidden="true">
+    <div class="admin-modal-card">
+      <div class="modal-body" style="text-align: center; padding-top: 32px;">
+        <div class="danger-modal-icon" aria-hidden="true"><i class="fa-solid fa-trash-can"></i></div>
+        <h2 id="deleteContentTitle" style="font-size: 1.25rem; margin-bottom: 8px;">Confirm Deletion</h2>
+        <p id="deleteContentDesc" style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">Are you sure you want to delete this item?</p>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 10px; padding: 18px 24px 26px;">
+        <button type="button" class="btn-outline btn-sm" id="cancelDeleteContentBtn">Cancel</button>
+        <button type="button" class="btn-danger-confirm" id="confirmDeleteContentBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Profile & Appearance Editor Modal -->
+  <div class="admin-modal-overlay" id="adminProfileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle" aria-hidden="true">
+    <div class="admin-modal-card profile-modal-card">
+      <div class="modal-header">
+        <h2 id="profileModalTitle">
+          <i class="fa-solid fa-user-gear" style="color: var(--accent);" aria-hidden="true"></i> Admin Profile &amp; Appearance
+        </h2>
+        <button type="button" class="btn-close-modal" id="closeProfileModalBtn" aria-label="Close profile modal">&times;</button>
+      </div>
+
+      <form id="adminProfileForm" novalidate>
+        <div class="modal-body profile-modal-body" style="padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="profileDisplayNameInput">Display Name</label>
+            <input type="text" id="profileDisplayNameInput" name="display_name" maxlength="50" placeholder="e.g. Ethan" required>
+            <span class="field-hint" style="margin-top: 6px; display: block;">Used in dynamic greetings ("Good evening, Ethan") and top bar.</span>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Profile Avatar</label>
+            <div class="profile-avatar-management" id="profileAvatarDropZone" title="Click or drag photo here to upload" tabindex="0" role="button" aria-label="Upload profile avatar">
+              <div class="avatar-preview-box" id="avatarPreviewBox">
+                <span id="avatarPreviewInitials">E</span>
+                <img id="avatarPreviewImg" src="" alt="Avatar preview" style="display: none;">
+                <div class="avatar-hover-icon" aria-hidden="true"><i class="fa-solid fa-camera"></i></div>
+              </div>
+              <div class="avatar-drop-info">
+                <div class="avatar-drop-title">
+                  <i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent);"></i>
+                  <span>Click or drag photo here</span>
+                </div>
+                <div class="field-hint">Supports JPEG, PNG, or WebP up to 2MB</div>
+              </div>
+              <input type="file" id="profileAvatarFileInput" name="avatar" accept="image/jpeg,image/png,image/webp" style="display:none;">
+              <button type="button" class="avatar-remove-btn" id="removeAvatarBtn" title="Remove custom photo" aria-label="Remove custom photo" style="display: none;">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+                <span>Remove</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label>Dashboard Accent Color</label>
+            <div class="accent-color-grid" id="accentColorGrid" role="radiogroup" aria-label="Select accent color"></div>
+            <span class="field-hint" style="margin-top: 8px; display: block;">Select a tested dark-mode accent palette. Preserves after logout.</span>
+          </div>
+
+          <div class="form-feedback" id="profileSuccessNotice" style="display:none;">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="profileSuccessMsg">Profile saved successfully!</span>
+          </div>
+          <div class="form-feedback form-error-box" id="profileErrorNotice" style="display:none;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="profileErrorMsg"></span>
+          </div>
+        </div>
+
+        <div class="modal-footer profile-modal-footer">
+          <button type="button" class="btn-ghost btn-sm" id="resetProfileDefaultsBtn" title="Reset all profile settings to default">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset to Default
+          </button>
+          <div class="modal-footer-actions">
+            <button type="button" class="btn-outline btn-sm" id="cancelProfileModalBtn">Cancel</button>
+            <button type="submit" class="btn-primary btn-sm" id="saveProfileBtn">
+              <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Changes
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Logout Confirmation Modal -->
+  <div class="admin-modal-overlay" id="logoutConfirmModal" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle" aria-hidden="true">
+    <div class="admin-modal-card" style="max-width: 440px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75); overflow: hidden;">
+      <div class="modal-body" style="text-align: center; padding: 36px 32px 20px;">
+        <div class="danger-modal-icon" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 18px;" aria-hidden="true">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </div>
+        <h2 id="logoutModalTitle" style="font-family: var(--font-heading); font-size: 1.35rem; margin-bottom: 10px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px;">Sign out of your account?</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.55; margin: 0;">Are you sure you want to sign out of your admin account?</p>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: center; align-items: center; gap: 14px; padding: 14px 32px 32px; border-top: none; background: transparent;">
+        <button type="button" class="btn-outline" id="cancelLogoutBtn" style="flex: 1; height: 44px; font-size: 0.92rem; font-weight: 600; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">Cancel</button>
+        <button type="button" class="btn-danger-confirm" id="confirmLogoutBtn" style="flex: 1; height: 44px; background: #ef4444; border: 1px solid #ef4444; color: #fff; border-radius: 10px; font-weight: 600; font-size: 0.92rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+          <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Yes, Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="adminToast" class="portfolio-toast" role="alert" aria-live="assertive">
+    <i class="fa-solid fa-circle-check toast-icon" aria-hidden="true"></i>
+    <span id="toastMessage">Notification</span>
+  </div>
+
+  <script src="../assets/js/admin.js"></script>
+  <script src="../assets/js/admin-content.js"></script>
+</body>
+</html>

