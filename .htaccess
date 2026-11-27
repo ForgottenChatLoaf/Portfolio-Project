@@ -9,7 +9,7 @@ DirectoryIndex index.php
 # Redirect legacy .html homepage requests to index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /PortfolioUpdate/Portfolio-Project/
+    RewriteBase /
     RewriteRule ^index\.html$ index.php [R=301,L]
     RewriteRule ^about\.html$ index.php#about [R=301,NE,L]
     RewriteRule ^admin/dashboard\.html$ admin/dashboard.php [L]

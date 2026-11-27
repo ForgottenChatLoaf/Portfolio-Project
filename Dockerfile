@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # 2. Enable Apache rewrite & headers modules
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers \
+    && sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # 3. Configure production PHP settings
 RUN { \
