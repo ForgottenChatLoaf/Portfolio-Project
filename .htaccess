@@ -6,6 +6,10 @@
 # Directory Index Priority (index.php first)
 DirectoryIndex index.php
 
+# Custom HTTP Error Documents
+ErrorDocument 404 /404.php
+ErrorDocument 403 /403.php
+
 # Redirect legacy .html homepage requests to index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
