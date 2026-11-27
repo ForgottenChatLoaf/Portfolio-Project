@@ -98,7 +98,7 @@ async function setupNavbarAndFooter() {
     }
   }
 
-  initFooter(basePath, isInsideAdmin);
+  initSharedFooter(basePath, isInsideAdmin);
 }
 
 function initNavbar(basePath, isInsideAdmin) {
@@ -247,7 +247,7 @@ function initNavbar(basePath, isInsideAdmin) {
   }, { passive: true });
 }
 
-function initFooter(basePath, isInsideAdmin) {
+function initSharedFooter(basePath, isInsideAdmin) {
   const yearSpan = document.getElementById('currentYear');
   if (yearSpan) {
     yearSpan.textContent = new Date().getFullYear();
