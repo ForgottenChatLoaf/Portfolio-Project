@@ -162,7 +162,7 @@ try {
         'csrf_token' => $_SESSION['csrf_token'],
         'data'       => [
             'name'      => $finalName,
-            'date_sent' => date('Y-m-d H:i:s')
+            'date_sent' => gmdate('Y-m-d\TH:i:s\Z')
         ]
     ]);
 } catch (Throwable $e) {

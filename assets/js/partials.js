@@ -54,10 +54,11 @@ async function setupNavbarAndFooter() {
   const isInsideAdmin = window.location.pathname.includes('/admin/');
   const basePath = isInsideAdmin ? '../' : '';
 
-  // Trigger lightweight first-party analytics beacon for static .html pages
-  if (!isInsideAdmin && !window.location.pathname.endsWith('index.php')) {
+  // Trigger lightweight non-blocking first-party analytics beacon for public pages
+  if (!isInsideAdmin) {
     try {
-      const pageName = detectPageFromUrl() + '.html';
+      const detected = detectPageFromUrl();
+      const pageName = detected === 'home' ? 'index.php' : `${detected}.html`;
       const beaconUrl = `${basePath}api/track-visit.php?page=${encodeURIComponent(pageName)}`;
       if (navigator.sendBeacon) {
         navigator.sendBeacon(beaconUrl);

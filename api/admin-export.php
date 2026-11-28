@@ -76,14 +76,22 @@ try {
         return $str;
     };
 
-    // Stream rows
+    // Stream rows (convert UTC DB timestamps to Asia/Manila PHT)
+    $utcTz = new DateTimeZone('UTC');
+    $phtTz = new DateTimeZone('Asia/Manila');
     foreach ($messages as $msg) {
+        $formattedDate = (string)$msg['date_sent'];
+        if ($formattedDate !== '') {
+            $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $formattedDate, $utcTz)
+                ?: new DateTimeImmutable($formattedDate, $utcTz);
+            $formattedDate = $dt->setTimezone($phtTz)->format('d M Y, H:i') . ' PHT';
+        }
         fputcsv($output, [
             $msg['id'],
             $sanitizeCell($msg['name']),
             $sanitizeCell($msg['email']),
             strtoupper((string)$msg['status']),
-            $msg['date_sent'],
+            $formattedDate,
             $sanitizeCell($msg['message'])
         ]);
     }

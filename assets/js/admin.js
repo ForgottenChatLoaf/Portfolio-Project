@@ -230,6 +230,13 @@ function initAdminDashboard() {
   // 1. Verify authentication immediately
   verifySession();
 
+  // Refresh fresh stats if browser restores page from bfcache (Back/Forward navigation)
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      loadMessages();
+    }
+  });
+
   // 2. Initialise greeting, clock, sidebar, and profile editor
   initGreetingAndClock();
   initSidebarToggle();
@@ -407,7 +414,7 @@ function initAdminDashboard() {
     renderMessagesSkeleton(isOverviewPage ? 4 : 5);
 
     try {
-      const res = await fetch('../api/admin-messages.php');
+      const res = await fetch('../api/admin-messages.php', { cache: 'no-store' });
       if (res.status === 401) {
         window.location.replace('login.html');
         return;
@@ -463,15 +470,21 @@ function initAdminDashboard() {
     }
 
     // Filter pill counts
-    if (countAll) countAll.textContent = allMessages.length;
+    if (countAll) countAll.textContent = stats.total ?? allMessages.length;
     if (countNew) countNew.textContent = stats.new ?? countStatus('new');
     if (countRead) countRead.textContent = stats.read ?? countStatus('read');
     if (countReplied) countReplied.textContent = stats.replied ?? countStatus('replied');
     if (countArchived) countArchived.textContent = stats.archived ?? countStatus('archived');
   }
 
+  function normalizeMessageStatus(status) {
+    const s = String(status || 'new').trim().toLowerCase();
+    if (s === '' || s === 'unread') return 'new';
+    return s;
+  }
+
   function countStatus(status) {
-    return allMessages.filter(m => (m.status || 'new') === status).length;
+    return allMessages.filter(m => normalizeMessageStatus(m.status) === status).length;
   }
 
   function computeClientStats(messages) {
@@ -480,13 +493,13 @@ function initAdminDashboard() {
 
     return {
       total: messages.length,
-      new: messages.filter(m => (m.status || 'new') === 'new').length,
-      read: messages.filter(m => m.status === 'read').length,
-      replied: messages.filter(m => m.status === 'replied').length,
-      archived: messages.filter(m => m.status === 'archived').length,
+      new: messages.filter(m => normalizeMessageStatus(m.status) === 'new').length,
+      read: messages.filter(m => normalizeMessageStatus(m.status) === 'read').length,
+      replied: messages.filter(m => normalizeMessageStatus(m.status) === 'replied').length,
+      archived: messages.filter(m => normalizeMessageStatus(m.status) === 'archived').length,
       this_week: messages.filter(m => {
-        const sent = new Date((m.date_sent || '').replace(' ', 'T'));
-        return !isNaN(sent.getTime()) && sent >= sevenDaysAgo;
+        const sent = parseUtcDate(m.date_sent);
+        return sent !== null && sent >= sevenDaysAgo;
       }).length
     };
   }
@@ -817,8 +830,8 @@ function initAdminDashboard() {
     // On Overview hub, show only the latest 4 inquiries
     if (isOverviewPage) {
       list.sort((a, b) => {
-        const dateA = new Date((a.date_sent || '').replace(' ', 'T')).getTime() || 0;
-        const dateB = new Date((b.date_sent || '').replace(' ', 'T')).getTime() || 0;
+        const dateA = parseUtcDate(a.date_sent)?.getTime() || 0;
+        const dateB = parseUtcDate(b.date_sent)?.getTime() || 0;
         return dateB - dateA || b.id - a.id;
       });
       renderMessagesTable(list.slice(0, 4));
@@ -827,7 +840,7 @@ function initAdminDashboard() {
 
     // Status Filter (Messages page)
     if (currentFilter !== 'all') {
-      list = list.filter(m => (m.status || 'new') === currentFilter);
+      list = list.filter(m => normalizeMessageStatus(m.status) === currentFilter);
     }
 
     // Search Filter
@@ -843,8 +856,8 @@ function initAdminDashboard() {
 
     // Sort Order
     list.sort((a, b) => {
-      const dateA = new Date((a.date_sent || '').replace(' ', 'T')).getTime() || 0;
-      const dateB = new Date((b.date_sent || '').replace(' ', 'T')).getTime() || 0;
+      const dateA = parseUtcDate(a.date_sent)?.getTime() || 0;
+      const dateB = parseUtcDate(b.date_sent)?.getTime() || 0;
       return currentSort === 'newest' ? (dateB - dateA || b.id - a.id) : (dateA - dateB || a.id - b.id);
     });
 
@@ -1136,10 +1149,11 @@ function initAdminDashboard() {
     }
 
     // Highlight current status button
-    highlightActiveDetailStatusBtn(msg.status || 'new');
+    const normalizedStatus = normalizeMessageStatus(msg.status);
+    highlightActiveDetailStatusBtn(normalizedStatus);
 
     // Auto mark as 'read' if currently 'new'
-    if ((msg.status || 'new') === 'new') {
+    if (normalizedStatus === 'new') {
       updateMessageStatus(msg.id, 'read', false);
     }
 
@@ -1278,7 +1292,7 @@ function initAdminDashboard() {
 
   // Mark All As Read Logic
   async function markAllAsRead() {
-    const unreadCount = allMessages.filter(m => (m.status || 'new') === 'new').length;
+    const unreadCount = allMessages.filter(m => normalizeMessageStatus(m.status) === 'new').length;
     if (unreadCount === 0) {
       showToast('All messages are already marked as read.', 'info');
       return;
@@ -1437,20 +1451,37 @@ function initAdminDashboard() {
   }
 
   /* ============================================================
-     DATE FORMATTING HELPER
+     DATE FORMATTING HELPER (Canonical UTC -> Asia/Manila PHT)
      ============================================================ */
+  function parseUtcDate(raw) {
+    if (!raw) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+    const iso = (str.includes('T') && (str.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(str)))
+      ? str
+      : str.replace(' ', 'T') + 'Z';
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   function formatDate(raw) {
     if (!raw) return '—';
     try {
-      const d = new Date(raw.replace(' ', 'T'));
-      if (isNaN(d.getTime())) return raw;
-      return d.toLocaleDateString(undefined, {
+      const d = parseUtcDate(raw);
+      if (!d) return raw;
+      const datePart = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Manila',
+        day: '2-digit',
         month: 'short',
-        day: 'numeric',
-        year: 'numeric',
+        year: 'numeric'
+      }).format(d);
+      const timePart = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Manila',
         hour: '2-digit',
-        minute: '2-digit'
-      });
+        minute: '2-digit',
+        hour12: false
+      }).format(d);
+      return `${datePart}, ${timePart} PHT`;
     } catch (e) {
       return raw;
     }

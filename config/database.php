@@ -52,6 +52,7 @@ function get_db_connection(): PDO {
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
+        PDO::ATTR_TIMEOUT            => 5,
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE utf8mb4_unicode_ci"
     ];
 
@@ -77,6 +78,8 @@ function get_db_connection(): PDO {
 
     try {
         $pdo = new PDO($dsn, $user, $pass, $options);
+        // Enforce canonical UTC session timezone across local MySQL/MariaDB and TiDB Cloud
+        $pdo->exec("SET time_zone = '+00:00'");
         return $pdo;
     } catch (PDOException $e) {
         // Log server error securely; do NOT expose credentials or detailed traces to client

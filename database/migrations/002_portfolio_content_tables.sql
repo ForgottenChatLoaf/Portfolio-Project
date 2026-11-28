@@ -111,7 +111,7 @@ VALUES
   'Pure Frontend | Layout Engineering',
   'Coursework Showcase',
   'HTML5 Semantic, CSS3 Grid, CSS3 Flexbox, CSS Transitions',
-  '["https://i.ibb.co/GvhnvDfx/Screenshot-2026-03-28-080346.png","https://i.ibb.co/fzfzW2dQ/Screenshot-2026-03-28-080409.png","https://i.ibb.co/vvJjpfW3/Screenshot-2026-03-28-080447.png"]',
+  '["assets/images/projects/MockGallery/gallery-1.png","assets/images/projects/MockGallery/gallery-2.png","assets/images/projects/MockGallery/gallery-3.png"]',
   'https://ethan-gacud-mock-gallery.netlify.app/',
   'Demo',
   NULL,

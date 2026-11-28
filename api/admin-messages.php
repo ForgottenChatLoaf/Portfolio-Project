@@ -45,33 +45,47 @@ if ($method === 'GET') {
     try {
         // Retrieve messages ordered by newest first
         $stmt = $pdo->query('
-            SELECT id, name, email, message, date_sent, COALESCE(status, \'new\') AS status 
+            SELECT id, name, email, message, date_sent, COALESCE(NULLIF(LOWER(TRIM(status)), \'\'), \'new\') AS status 
             FROM contact_messages 
             ORDER BY date_sent DESC, id DESC
         ');
         $messages = $stmt->fetchAll();
 
-        // Calculate real-time summary statistics from database
-        $statsStmt = $pdo->query('
-            SELECT 
-                COUNT(*) AS total,
-                SUM(CASE WHEN COALESCE(status, \'new\') = \'new\' THEN 1 ELSE 0 END) AS new_count,
-                SUM(CASE WHEN status = \'read\' THEN 1 ELSE 0 END) AS read_count,
-                SUM(CASE WHEN status = \'replied\' THEN 1 ELSE 0 END) AS replied_count,
-                SUM(CASE WHEN status = \'archived\' THEN 1 ELSE 0 END) AS archived_count,
-                SUM(CASE WHEN date_sent >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS this_week_count
-            FROM contact_messages
-        ');
-        $rawStats = $statsStmt->fetch() ?: [];
-
+        // Normalize date_sent as explicit ISO-8601 UTC (session time_zone is +00:00)
+        // and normalize legacy 'unread' alias to canonical 'new'
+        $utcTz = new DateTimeZone('UTC');
+        $sevenDaysAgoUtc = (new DateTimeImmutable('now', $utcTz))->modify('-7 days');
         $stats = [
-            'total'      => (int)($rawStats['total'] ?? 0),
-            'new'        => (int)($rawStats['new_count'] ?? 0),
-            'read'       => (int)($rawStats['read_count'] ?? 0),
-            'replied'    => (int)($rawStats['replied_count'] ?? 0),
-            'archived'   => (int)($rawStats['archived_count'] ?? 0),
-            'this_week'  => (int)($rawStats['this_week_count'] ?? 0)
+            'total'     => 0,
+            'new'       => 0,
+            'read'      => 0,
+            'replied'   => 0,
+            'archived'  => 0,
+            'this_week' => 0
         ];
+
+        foreach ($messages as &$msg) {
+            $rawStatus = strtolower(trim((string)($msg['status'] ?? 'new')));
+            if ($rawStatus === '' || $rawStatus === 'unread') {
+                $rawStatus = 'new';
+            }
+            $msg['status'] = $rawStatus;
+
+            $stats['total']++;
+            if (isset($stats[$rawStatus])) {
+                $stats[$rawStatus]++;
+            }
+
+            if (!empty($msg['date_sent'])) {
+                $dt = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', (string)$msg['date_sent'], $utcTz)
+                    ?: new DateTimeImmutable((string)$msg['date_sent'], $utcTz);
+                $msg['date_sent'] = $dt->format('Y-m-d\TH:i:s\Z');
+                if ($dt >= $sevenDaysAgoUtc) {
+                    $stats['this_week']++;
+                }
+            }
+        }
+        unset($msg);
 
         send_json_response(200, [
             'status'     => 'success',
@@ -103,7 +117,7 @@ if (empty($clientCsrf) || !verify_csrf_token((string)$clientCsrf)) {
 
 if ($method === 'POST' && ($input['action'] ?? '') === 'mark_all_read') {
     try {
-        $stmt = $pdo->prepare("UPDATE contact_messages SET status = 'read' WHERE status = 'new'");
+        $stmt = $pdo->prepare("UPDATE contact_messages SET status = 'read' WHERE status IS NULL OR TRIM(status) = '' OR LOWER(TRIM(status)) IN ('new', 'unread')");
         $stmt->execute();
         $updated = $stmt->rowCount();
 
