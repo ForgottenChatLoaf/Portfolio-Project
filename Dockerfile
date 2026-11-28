@@ -29,6 +29,8 @@ RUN { \
 } > /usr/local/etc/php/conf.d/production.ini
 
 # 4. Copy project files into web root
+# CACHEBUST: invalidates Docker layer cache so git changes are always picked up
+ARG CACHEBUST=1
 WORKDIR /var/www/html
 COPY . /var/www/html/
 
